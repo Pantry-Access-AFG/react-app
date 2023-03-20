@@ -17,10 +17,16 @@
   margin-left: auto; 
   margin-right: 1rem;
 }
+
 .App-header {
   display: flex;
   font-size: calc(10px + 2vmin);
   color: black;
   font-weight: 1000;
   padding-bottom: 0
+}
+
+.no-underline-link {
+  text-decoration: none;
+  color: black;
 }
