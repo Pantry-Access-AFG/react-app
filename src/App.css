@@ -2,19 +2,19 @@
   text-align: center;
   margin: auto;
   padding: 0.5rem;
-  font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
 }
 
 .App-logo {
   height: 15vmin;
   pointer-events: none;
-  margin-left: 1rem; 
+  margin-left: 1rem;
   margin-right: auto;
 }
 
 .keep-right {
   position: relative;
-  margin-left: auto; 
+  margin-left: auto;
   margin-right: 1rem;
 }
 
@@ -36,32 +36,32 @@
 https://www.w3schools.com/css/css3_flexbox_container.asp
 sets up flex container*/
 .flex-container {
-	display: flex;
-	flex-direction: row;
-	align-items: flex-start;
-	justify-content: center;
-	flex-wrap: wrap;
-	padding: 0 4px;
-  
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 0 4px;
+  margin: 0;
+  padding: 0;
 }
 
-/* column, column img, columnnomargin, and columnP, 
-including their responsive (@media) areas, were made with the help of 
-https://www.w3schools.com/css/tryit.asp?filename=trycss3_flexbox_image_gallery */
-.flex-container li {
-	flex: 30%;
-	max-width: 30%;
-	padding: 0 4px;
-  text-align: center;
-  text-decoration: none;
-  width: fill;
+/*styles the selected tab in the navbar*/
+.navbar-tab-selected {
+  width: 400px;
+  flex-grow: 1;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  font-size: 2em;
+  border-style: none;
 }
 
-.no-underline-link {
-  text-decoration: none;
-  color: black;
+/*styles the unselected tabs in the navbar*/
+.navbar-tab-unselected {
+  width: 400px;
+  flex-grow: 1;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  font-size: 2em;
+  border-style: none;
+  background-color: white;
 }
+
