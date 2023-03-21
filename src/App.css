@@ -1,40 +1,34 @@
 .App {
   text-align: center;
+  margin: auto;
+  padding: 0.5rem;
+  font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
 }
 
 .App-logo {
-  height: 40vmin;
+  height: 15vmin;
   pointer-events: none;
+  margin-left: 1rem; 
+  margin-right: auto;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.keep-right {
+  position: relative;
+  margin-left: auto; 
+  margin-right: 1rem;
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: black;
+  font-weight: 1000;
+  padding-bottom: 0
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.no-underline-link {
+  text-decoration: none;
+  color: black;
 }
 
 /*flexbox*/
@@ -67,3 +61,7 @@ https://www.w3schools.com/css/tryit.asp?filename=trycss3_flexbox_image_gallery *
   width: fill;
 }
 
+.no-underline-link {
+  text-decoration: none;
+  color: black;
+}
