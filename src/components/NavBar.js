@@ -1,28 +1,17 @@
-import {useNavigate} from "react-router-dom";
-import { useState } from "react";
-import {Link } from "react-router-dom";
-import React from 'react';
-
-
+import { useNavigate, useLocation } from "react-router-dom";
+/**
+ * Makes a navigation bar with the profile, home, and my requests tabs.
+ * @returns the navigation bar
+ */
 export default function NavBar() {
-    
+    const navigate = useNavigate();
+    const location = useLocation();
     
     return (
-    <div> 
-            <ul className="flex-container">
-            <li>
-                <Link to="/profile">Profile</Link>
-            </li>
-            <li>
-                <Link to="/">Home</Link>
-            </li>
-            <li>
-                <Link to="/myrequests">My Requests</Link>
-            </li>
-            <li>
-                <Link to="/login">Login</Link>
-            </li>
-            </ul>
-    </div>
+        <div className="flex-container">
+            <button className={location.pathname === "/profile" ? "navbar-tab-selected" : "navbar-tab-unselected"} onClick={() => navigate("/profile")}>Profile</button>
+            <button className={location.pathname === "/" ? "navbar-tab-selected" : "navbar-tab-unselected"} onClick={() => navigate("/")}>Home</button>
+            <button className={location.pathname === "/myrequests" ? "navbar-tab-selected" : "navbar-tab-unselected"} onClick={() => navigate("/myrequests")}>My Requests</button>
+        </div>
     )
- }
+}
