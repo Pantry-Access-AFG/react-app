@@ -44,6 +44,11 @@ sets up flex container*/
   padding: 0;
 }
 
+.columns-three {
+  flex: 33%;
+  justify-content: space-around;
+}
+
 /*styles the selected tab in the navbar*/
 .navbar-tab-selected {
   width: 400px;
