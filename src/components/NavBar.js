@@ -19,6 +19,9 @@ export default function NavBar() {
             <li>
                 <Link to="/myrequests">My Requests</Link>
             </li>
+            <li>
+                <Link to="/login">Login</Link>
+            </li>
             </ul>
     </div>
     )

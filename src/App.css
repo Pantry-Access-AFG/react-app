@@ -58,10 +58,23 @@ https://www.w3schools.com/css/tryit.asp?filename=trycss3_flexbox_image_gallery *
 	padding: 0 4px;
   text-align: center;
   text-decoration: none;
-  width: fill;
+  width: stretch;
 }
 
 .no-underline-link {
   text-decoration: none;
   color: black;
+}
+
+.title {
+  text-align: center;
+  font-weight: bold;
+}
+
+.login-format {
+  text-align: center;
+}
+
+.signInButton {
+  width: 50px;
 }
