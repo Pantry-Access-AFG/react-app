@@ -1,14 +1,15 @@
 import logo from "../images/pantryaccess.png";
+import {Link} from "react-router-dom";
 
 const Header = () => (
   <div>
     <div className="App-header">
-      <a href="/">
+      <Link to="/">
         <img src={logo} className="App-logo" alt="logo" />
-      </a>
-      <a href="/" className="keep-right no-underline-link">
+      </Link>
+      <Link to="/" className="keep-right no-underline-link">
         <p>Pantry Access</p>
-      </a>
+      </Link>
     </div>
     <hr
       style={{
