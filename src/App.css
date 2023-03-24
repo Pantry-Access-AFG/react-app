@@ -44,11 +44,16 @@ sets up flex container*/
   padding: 0 4px;
   margin: 0;
   padding: 0;
+  justify-content: space-around;
 }
+
+/* .flex-container * {
+  flex: 1;
+} */
 
 .columns-three {
   flex: 33%;
-  justify-content: space-around;
+  text-align: center;
 }
 
 /*styles the selected tab in the navbar*/
@@ -72,3 +77,19 @@ sets up flex container*/
   background-color: white;
 }
 
+/*from https://stackoverflow.com/questions/70025571/force-image-in-flex-container-to-match-the-height-of-other-flex-elements*/
+.right {
+  /* width: 40%; */
+  flex: 33%;
+  position: relative;
+}
+
+/*from https://stackoverflow.com/questions/70025571/force-image-in-flex-container-to-match-the-height-of-other-flex-elements*/
+.placeholder{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
