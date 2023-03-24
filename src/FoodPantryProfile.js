@@ -40,19 +40,19 @@ function UserInfo() {
 
   const passwordChange = (event) => {
     console.log("password changed");
-  }
+  };
 
   const passwordSubmit = (event) => {
     console.log("password submitted");
-  }
+  };
 
   const zipcodeChange = (event) => {
     console.log("zipcode changed");
-  }
+  };
 
   const zipcodeSubmit = (event) => {
-    console.log("zipcode submitted")
-  }
+    console.log("zipcode submitted");
+  };
 
   return (
     <div>
