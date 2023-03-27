@@ -5,6 +5,7 @@ import { Routes, Route, BrowserRouter} from "react-router-dom"
 import NavBar from './components/NavBar';
 import React from 'react';
 import FoodPantryProfile from "./FoodPantryProfile";
+import Home from "./Home";
 
 function App() {
   return (
@@ -13,7 +14,7 @@ function App() {
       <NavBar></NavBar>
       
       <Routes>
-        <Route path="/" element={<p>Lorem ipsum dolor</p>}/>
+        <Route path="/" element={<Home></Home>}/>
         <Route path="/profile"index element={<FoodPantryProfile></FoodPantryProfile>}/>
         <Route path="/myrequests" element={<p>Request page</p>} />
       </Routes>

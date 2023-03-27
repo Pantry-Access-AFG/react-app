@@ -1,5 +1,7 @@
 import React from "react";
 import blank_profile_pic from "./images/blankprofilepic.png";
+import Button from "@mui/material/Button";
+import { Box } from "@mui/system";
 import "./FoodPantryProfile.css";
 import { useState } from "react";
 
@@ -13,21 +15,21 @@ export default function FoodPantryProfile() {
   const deleteAccount = () => {
     setUsername("");
     setPassword("");
-    setZipcode(""); 
+    setZipcode("");
   };
 
   const handleSetUsername = (x) => {
     setUsername(x);
     // firebase
-  }
+  };
 
   const handleSetPassword = (x) => {
     setPassword(x);
-  }
+  };
 
   const handleSetZipcode = (x) => {
     setZipcode(x);
-  } 
+  };
 
   return (
     <>
@@ -39,17 +41,36 @@ export default function FoodPantryProfile() {
       <h1 className="text-center">{food_pantry_name}</h1>
 
       <hr className="gray-line" />
-      <UserInfo username={username} password={password} zipcode={zipcode} setUsername={handleSetUsername} setPassword={handleSetPassword} setZipcode={handleSetZipcode}/>
+      <UserInfo
+        username={username}
+        password={password}
+        zipcode={zipcode}
+        setUsername={handleSetUsername}
+        setPassword={handleSetPassword}
+        setZipcode={handleSetZipcode}
+      />
       <br></br>
-      <button onClick={deleteAccount} className="delete-account-button">
+
+      {/* <button onClick={deleteAccount} className="delete-account-button">
         Delete Account
-      </button>
+      </button> */}
+      <Box textAlign="center">
+        <Button variant="outlined" color="error" onClick={deleteAccount}>
+          Delete Account
+        </Button>
+      </Box>
     </>
   );
 }
 
-function UserInfo({username, password, zipcode, setUsername, setPassword, setZipcode}) {
-
+function UserInfo({
+  username,
+  password,
+  zipcode,
+  setUsername,
+  setPassword,
+  setZipcode,
+}) {
   const usernameChange = (event) => {
     console.log("changed username");
   };
@@ -62,23 +83,23 @@ function UserInfo({username, password, zipcode, setUsername, setPassword, setZip
 
   const passwordChange = (event) => {
     console.log("password changed");
-  }
+  };
 
   const passwordSubmit = (event) => {
     event.preventDefault();
     setPassword(event.target.value);
     console.log("password submitted");
-  }
+  };
 
   const zipcodeChange = (event) => {
     console.log("zipcode changed");
-  }
+  };
 
   const zipcodeSubmit = (event) => {
     event.preventDefault();
     setZipcode(event.target.value);
-    console.log("zipcode submitted")
-  }
+    console.log("zipcode submitted");
+  };
 
   return (
     <div>
