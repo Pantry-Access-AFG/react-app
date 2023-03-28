@@ -9,6 +9,7 @@ import FoodPantryProfile from "./FoodPantryProfile";
 import Request from "./components/Request"
 import Home from "./Home";
 
+
 function App() {
   return (
     <BrowserRouter>
@@ -16,9 +17,10 @@ function App() {
       <NavBar></NavBar>
 
       <Routes>
-        <Route path="/" element={<p>Lorem ipsum dolor</p>}/>
+        <Route path="/" element={<Home></Home>}/>
         <Route path="/profile"index element={<FoodPantryProfile></FoodPantryProfile>}/>
         <Route path="/myrequests" element={<Request></Request>} />
+        <Route path="/login" element={<Login></Login>} />
       </Routes>
     </BrowserRouter>
   );
