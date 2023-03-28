@@ -4,6 +4,9 @@ import Button from "@mui/material/Button";
 import { Box } from "@mui/system";
 import "./FoodPantryProfile.css";
 import { useState } from "react";
+import { Grid } from "@mui/material";
+import TextField from "@mui/material/TextField";
+import Alert from "@mui/material/Alert";
 
 /**
  * Page for Food Pantry Profiles
@@ -67,6 +70,13 @@ export default function FoodPantryProfile() {
         <Button variant="outlined" color="error" onClick={deleteAccount}>
           Delete Account
         </Button>
+
+        <Alert
+          sx={{ width: "50%",'& .MuiAlert-message':{textAlign:"center", width:"inherit"}}}
+          severity="error"
+        >
+          Deleting your account is permanent.
+        </Alert>
       </Box>
     </>
   );
@@ -116,12 +126,27 @@ function UserInfo({
 
   return (
     <div>
-      <div className="row">
-        <p className="row">Username:</p>
-        <form className="row" onSubmit={usernameSubmit}>
-          <input type="text" onChange={usernameChange} />
-        </form>
-      </div>
+      <Grid container spacing={2}>
+        <Grid item xs={4} />
+        <Grid item xs={2}></Grid>
+        <Grid item xs={2}>
+          <TextField
+            autoFocus
+            required
+            margin="dense"
+            id="username"
+            label="Username"
+            type="text"
+            fullWidth
+            variant="standard"
+            onChange={usernameChange}
+            onSubmit={usernameSubmit}
+          />
+        </Grid>
+        <Grid item xs={4} />
+      </Grid>
+
+      <div className="row"></div>
       <div className="row">
         <p className="row">Password:</p>
         <form className="row" onSubmit={passwordSubmit}>
