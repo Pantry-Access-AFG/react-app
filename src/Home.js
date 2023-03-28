@@ -14,6 +14,14 @@ import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 
+/**
+ * Creates a form for inserting items into the Food Bank inventory
+ * Inputs various states for determining whether the form should be open/closed or what functions should be performed when items are submitted into the table
+ * @returns Form component
+ */
+
+// TODO: integrate with firebase
+
 function FormDialog({
   open,
   handleClose,
@@ -23,6 +31,9 @@ function FormDialog({
   quantity,
   setQuantity,
 }) {
+  /**
+   * Function to handle insertting items into the DataGrid
+   */
   const handleInsertItem2 = () => {
     if (item && quantity > 0) {
       insertItem({ col1Name: item, col2Name: quantity });
@@ -74,29 +85,44 @@ function FormDialog({
   );
 }
 
+/**
+ * Creates homepage which lists inventory in a DataGrid format and allows volunteers and organizers to input inventory into the database
+ * @returns Home page
+ */
 export default function Home() {
   // States for form dialog
   const [open, setOpen] = useState(false);
   let [item, setItem] = useState("");
   let [quantity, setQuantity] = useState(0);
 
+  /**
+   * Function for handling opening the form dialog
+   */
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  /**
+   * Function for handling closing the form dialog
+   * Makes sure to reset the item and quantity state
+   */
   const handleClose = () => {
     setOpen(false);
     setItem("");
     setQuantity(0);
   };
 
+  /**
+   * Function for deleting rows
+   * Removes respective row and reinitializes row array
+   */
   const deleteRowClick = (e, row, rows, index) => {
     setRows((rows) =>
       rows.slice(0, index).concat(rows.slice(index + 1, rows.length))
     );
-    if (index === row.length) setId(id - 1);
   };
 
+  // DataGrid columns
   const columns = [
     { field: "id", headerName: "ID", width: 150, align: "center" },
     { field: "col1", headerName: "Item", width: 150, align: "center" },
@@ -108,6 +134,7 @@ export default function Home() {
       align: "center",
       renderCell: (params) => {
         return (
+          // Delete/trash button for each row
           <IconButton
             aria-label="delete"
             size="large"
@@ -123,6 +150,7 @@ export default function Home() {
     },
   ];
 
+  // State variable for holding rows in the table to be modified
   let [rows, setRows] = useState(() => [
     {
       id: 1,
@@ -134,12 +162,19 @@ export default function Home() {
     { id: 3, col1: "MUI", col2: "is Amazing", align: "center" },
   ]);
 
-  let [id, setId] = useState(rows.length);
+  let [id, setId] = useState(rows.length+1);
 
+  /**
+   * Function to handle inserting an item into the row
+   * Opens the form dialog
+   */
   const handleInsertItem = () => {
     handleClickOpen();
   };
 
+  /**
+   * Inserts item to row by appending it to the end and increasing the id number
+   */
   const insertItem = ({ itemID = id, col1Name, col2Name }) => {
     setId(id + 1);
     setRows((rows) => [
