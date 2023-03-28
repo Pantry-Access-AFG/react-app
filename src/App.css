@@ -93,3 +93,14 @@ sets up flex container*/
   height: 50%;
   object-fit: contain;
 }
+
+/* from https://stackoverflow.com/questions/38327827/how-to-center-a-child-element-in-css-even-if-it-is-larger-than-the-parent */
+.centered {
+  position: absolute;
+  margin: auto;
+  display: block;
+  bottom: 0px;
+  top: 0px;
+  left: 50%;
+  transform: translate(-50%, 0);
+}

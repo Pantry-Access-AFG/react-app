@@ -42,22 +42,24 @@ export default function Request(props) {
           <p>Request #{requestNum}</p>
         </Grid>
         <Grid className="columns-three" item xs={4}>
-          <p>Request #{requestNum}</p>
+          <Chip label="Chip Filled" />
         </Grid>
         <Grid className="columns-three" item xs={4}>
-          <p>Request #{requestNum}</p>
+          <p className="columns-three">{date}</p>
         </Grid>
       </Grid>
 
       <Grid container spacing={2}>
         <Grid item xs={4}>
-          <p className="columns-three">Request #{requestNum}</p>
+        <p className="columns-three">x {quantity}</p>
         </Grid>
         <Grid item xs={4}>
-          <p className="columns-three">Request #{requestNum}</p>
+        <p className="columns-three">{foodPantryName}</p>
         </Grid>
         <Grid item xs={4}>
-          <p className="columns-three">Request #{requestNum}</p>
+        <IconButton className="centered" aria-label="delete">
+          <EditIcon/>
+        </IconButton>
         </Grid>
       </Grid>
       {/* <div className="flex-container">
