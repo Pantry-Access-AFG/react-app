@@ -5,6 +5,13 @@ import { Box } from "@mui/system";
 import "./FoodPantryProfile.css";
 import { useState } from "react";
 
+/**
+ * Page for Food Pantry Profiles
+ * @returns Component for Food Pantry Profile page
+ */
+
+// TODO: Integrate with Firebase authentication and create more conditionals for checking and confirmation dialogs
+
 export default function FoodPantryProfile() {
   let food_pantry_name = "Food Pantry X";
 
@@ -12,21 +19,25 @@ export default function FoodPantryProfile() {
   let [password, setPassword] = useState("");
   let [zipcode, setZipcode] = useState("");
 
+  // Delete account function to reset all values and remove user from database (TBD)
   const deleteAccount = () => {
     setUsername("");
     setPassword("");
     setZipcode("");
   };
 
+  // Set username listener
   const handleSetUsername = (x) => {
     setUsername(x);
     // firebase
   };
 
+  // Set password listener
   const handleSetPassword = (x) => {
     setPassword(x);
   };
 
+  // Set zipcode listener
   const handleSetZipcode = (x) => {
     setZipcode(x);
   };
@@ -51,9 +62,7 @@ export default function FoodPantryProfile() {
       />
       <br></br>
 
-      {/* <button onClick={deleteAccount} className="delete-account-button">
-        Delete Account
-      </button> */}
+      {/* Delete account button*/}
       <Box textAlign="center">
         <Button variant="outlined" color="error" onClick={deleteAccount}>
           Delete Account
@@ -63,6 +72,10 @@ export default function FoodPantryProfile() {
   );
 }
 
+/**
+ * Function for creating userinfo component (to be replaced with MUI?)
+ * @returns Component for User Info boxes
+ */
 function UserInfo({
   username,
   password,
