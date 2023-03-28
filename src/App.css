@@ -76,7 +76,6 @@ sets up flex container*/
   border-style: none;
   background-color: white;
 }
-
 /*from https://stackoverflow.com/questions/70025571/force-image-in-flex-container-to-match-the-height-of-other-flex-elements*/
 .right {
   /* width: 40%; */
