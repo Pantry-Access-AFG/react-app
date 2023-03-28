@@ -1,6 +1,10 @@
 import logo from "../images/pantryaccess.png";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
+/**
+ * Makes a header for all pages for the web app
+ * @returns Header component
+ */
 const Header = () => (
   <div>
     <div className="App-header">
