@@ -1,5 +1,9 @@
 import pencil from "../images/pencil.png";
+//import {EditIcon} from '@mui/icons-material/Edit';
+import EditIcon from '@mui/icons-material/Edit';
+import {IconButton, Chip} from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
+import Grid from '@mui/material/Grid'; // Grid version 1
 
 /**
  * Makes a request for the my requests page.
@@ -33,20 +37,44 @@ export default function Request(props) {
 
   return (
     <>
-      <div className="flex-container">
-        <p>Request #{requestNum}</p>
-        <p className={requestStatusClass} style={{requestStatusClass}}>{requestStatusStr}</p>
-        <p>{date}</p>
-      </div>
-      <div className="flex-container">
+      <Grid container spacing={2}>
+        <Grid className="columns-three" item xs={4}>
+          <p>Request #{requestNum}</p>
+        </Grid>
+        <Grid className="columns-three" item xs={4}>
+          <p>Request #{requestNum}</p>
+        </Grid>
+        <Grid className="columns-three" item xs={4}>
+          <p>Request #{requestNum}</p>
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={2}>
+        <Grid item xs={4}>
+          <p className="columns-three">Request #{requestNum}</p>
+        </Grid>
+        <Grid item xs={4}>
+          <p className="columns-three">Request #{requestNum}</p>
+        </Grid>
+        <Grid item xs={4}>
+          <p className="columns-three">Request #{requestNum}</p>
+        </Grid>
+      </Grid>
+      {/* <div className="flex-container">
+       
+        {/* <p className="columns-three {requestStatusClass}" style={{requestStatusClass}}>{requestStatusStr}</p> */}
+        {/* <Chip label="Chip Filled" /> */}
+        {/* <p className="columns-three">{date}</p> */}
+      {/* </div> */}
+      {/* <div className="flex-container">
         <p className="columns-three">x {quantity}</p>
         <p className="columns-three">{foodPantryName}</p>
-        <div className="right">
-        <img src={pencil} className="placeholder" alt="pencil" />
-        </div>
+        <IconButton className="columns-three" aria-label="delete">
+          <EditIcon />
+        </IconButton>
         
         
-      </div>
+      </div> */}
     </>
   );
 }
