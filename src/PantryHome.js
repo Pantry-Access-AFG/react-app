@@ -13,6 +13,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 
 /**
  * Creates a form for inserting items into the Food Bank inventory
@@ -22,7 +23,10 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 // TODO: integrate with firebase
 
-function FormDialog({
+// TODO: create a boolean state error for quantityInsert, nameInsert, quantityEdit, nameEdit that is toggled in the components when the text is still empty
+// make the field error in textfield error = {errorQuantityInsert/NameInsert/...}
+
+function InsertFormDialog({
   open,
   handleClose,
   insertItem,
@@ -53,7 +57,7 @@ function FormDialog({
             autoFocus
             required
             margin="dense"
-            id="name"
+            id="nameInsert"
             label="Item Name"
             type="text"
             fullWidth
@@ -66,7 +70,7 @@ function FormDialog({
             autoFocus
             required
             margin="dense"
-            id="quantity"
+            id="quantityInsert"
             label="Quantity"
             type="number"
             fullWidth
@@ -85,15 +89,104 @@ function FormDialog({
   );
 }
 
+function EditFormDialog({
+  editOpen,
+  setEditOpen,
+  item,
+  setItem,
+  quantity,
+  setQuantity,
+  handleEditClose,
+  index,
+  rows,
+  setRows,
+  id,
+}) {
+  let defaultItem = "";
+  let defaultQuantity = 0;
+
+  if (rows.length > 0) {
+    defaultItem = rows[index].col1;
+    defaultQuantity = rows[index].col2;
+  }
+
+  const handleEditItem = () => {
+    if (!item) setItem(defaultItem);
+    if (!quantity) setQuantity(defaultQuantity);
+    if (item && quantity > 0) {
+      setRows((rows) =>
+        rows
+          .slice(0, index)
+          .concat({ id: id, col1: item, col2: quantity })
+          .concat(rows.slice(index + 1, rows.length))
+      );
+    }
+    handleEditClose();
+  };
+
+  return (
+    <>
+      <Dialog open={editOpen} onClose={handleEditClose}>
+        <DialogTitle>Edit Item</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Edit Item</DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="nameEdit"
+            label="Item Name"
+            type="text"
+            fullWidth
+            variant="standard"
+            defaultValue={defaultItem}
+            onChange={(event) => {
+              setItem(() => {
+                console.log(event.target.value);
+                if (!event.target.value) return defaultItem;
+                else return event.target.value;
+              });
+            }}
+          />
+          <TextField
+            autoFocus
+            required
+            margin="dense"
+            id="quantityEdit"
+            label="Quantity"
+            type="number"
+            fullWidth
+            variant="standard"
+            defaultValue={defaultQuantity}
+            onChange={(event) => {
+              setQuantity(() => {
+                console.log(event.target.value);
+                if (event.target.value === 0) return defaultQuantity;
+                else return event.target.value;
+              });
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleEditItem}>Update</Button>
+          <Button onClick={handleEditClose}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+}
+
 /**
  * Creates homepage which lists inventory in a DataGrid format and allows volunteers and organizers to input inventory into the database
  * @returns Home page
  */
-export default function Home() {
+export default function PantryHome() {
   // States for form dialog
   const [open, setOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  let [editIndex, setEditIndex] = useState(0);
   let [item, setItem] = useState("");
   let [quantity, setQuantity] = useState(0);
+  let [editId, setEditId] = useState(0);
 
   /**
    * Function for handling opening the form dialog
@@ -108,6 +201,7 @@ export default function Home() {
    */
   const handleClose = () => {
     setOpen(false);
+    setEditOpen(false);
     setItem("");
     setQuantity(0);
   };
@@ -122,29 +216,65 @@ export default function Home() {
     );
   };
 
+  /**
+   * Function for editing a row
+   * Edits respective row and reinitializes row array
+   */
+  const editRowClick = (e, index) => {
+    setEditIndex(index);
+    setEditId(rows[index].id);
+    setItem(rows[index].col1);
+    setQuantity(rows[index].col2);
+    setEditOpen(true);
+  };
+
   // DataGrid columns
   const columns = [
-    { field: "id", headerName: "ID", width: 150, align: "center" },
-    { field: "col1", headerName: "Item", width: 150, align: "center" },
-    { field: "col2", headerName: "Quantity", width: 150, align: "center" },
+    //{ field: "id", headerName: "ID", width: 150, align: "center" },
+    {
+      field: "col1",
+      headerName: "Item",
+      flex: 1,
+      width: "25%",
+      align: "center",
+    },
+    {
+      field: "col2",
+      headerName: "Quantity",
+      flex: 1,
+      width: "25%",
+      align: "center",
+    },
     {
       field: "actions",
       headerName: "Edit",
-      width: 150,
+      width: "25%",
       align: "center",
+      flex: 1,
       renderCell: (params) => {
         return (
           // Delete/trash button for each row
-          <IconButton
-            aria-label="delete"
-            size="large"
-            variant="contained"
-            onClick={(e) =>
-              deleteRowClick(e, params.row, rows, rows.indexOf(params.row))
-            }
-          >
-            <DeleteIcon />
-          </IconButton>
+          <>
+            <IconButton
+              aria-label="delete"
+              size="large"
+              variant="contained"
+              onClick={(e) => editRowClick(e, rows.indexOf(params.row))}
+            >
+              <EditIcon />
+            </IconButton>
+
+            <IconButton
+              aria-label="delete"
+              size="large"
+              variant="contained"
+              onClick={(e) =>
+                deleteRowClick(e, params.row, rows, rows.indexOf(params.row))
+              }
+            >
+              <DeleteIcon />
+            </IconButton>
+          </>
         );
       },
     },
@@ -155,14 +285,14 @@ export default function Home() {
     {
       id: 1,
       col1: "Hello",
-      col2: "World",
+      col2: 48,
       align: "center",
     },
-    { id: 2, col1: "DataGridPro", col2: "is Awesome", align: "center" },
-    { id: 3, col1: "MUI", col2: "is Amazing", align: "center" },
+    { id: 2, col1: "Oranges", col2: 4, align: "center" },
+    { id: 3, col1: "Apples", col2: 100, align: "center" },
   ]);
 
-  let [id, setId] = useState(rows.length+1);
+  let [id, setId] = useState(rows.length + 1);
 
   /**
    * Function to handle inserting an item into the row
@@ -199,7 +329,7 @@ export default function Home() {
           Insert Item
         </Fab>
       </Box>
-      <FormDialog
+      <InsertFormDialog
         open={open}
         handleClose={handleClose}
         insertItem={insertItem}
@@ -207,7 +337,21 @@ export default function Home() {
         setItem={setItem}
         quantity={quantity}
         setQuantity={setQuantity}
-      ></FormDialog>
+      ></InsertFormDialog>
+      <EditFormDialog
+        editOpen={editOpen}
+        setEditOpen={setEditOpen}
+        item={item}
+        setItem={setItem}
+        quantity={quantity}
+        setQuantity={setQuantity}
+        handleEditClose={handleClose}
+        index={editIndex}
+        insertItem={insertItem}
+        rows={rows}
+        setRows={setRows}
+        id={editId}
+      ></EditFormDialog>
       <div style={{ height: 300, width: "80%", margin: "auto" }}>
         <DataGrid rows={rows} columns={columns} />
       </div>
