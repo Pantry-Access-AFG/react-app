@@ -1,9 +1,11 @@
-import pencil from "../images/pencil.png";
-//import {EditIcon} from '@mui/icons-material/Edit';
+
 import EditIcon from '@mui/icons-material/Edit';
-import {IconButton, Chip} from "@mui/material";
+import { IconButton, Chip } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import Grid from '@mui/material/Grid'; // Grid version 1
+//import EditRequest from './EditRequest'
+import useState from 'react';
+import Dialog from '@mui/material/Dialog';
 
 /**
  * Makes a request for the my requests page.
@@ -12,71 +14,75 @@ import Grid from '@mui/material/Grid'; // Grid version 1
 export default function Request(props) {
   const navigate = useNavigate();
   const location = useLocation();
+  
+
   //0 is fulfilled, 1 is pending, 2 is cancelled
-  const [requestNum, requestStatus, date, quantity, foodPantryName] = [0, 0, "date", 7, "Food Pantry W"]; //change to use props/query
+  const [requestNum, requestStatus, date, quantity, foodPantryName] = [0, 1, "Date", 7, "Food Pantry W"]; //change to use props/query
   let requestStatusStr; //the string for the request status
-  let requestStatusClass; //the class name for styling the request button
+  let requestStatusColor; //the class name for styling the request button
+  // const handleEdit = () => {
+  //   return <EditRequest></EditRequest>;
+  // }
+
 
   switch (requestStatus) {
     case 0:
-      {requestStatusStr = "Fulfilled";
-      requestStatusClass = "background-color: green";
-      break;}
+      {
+        requestStatusStr = "Fulfilled";
+        requestStatusColor = "lightgreen";
+        break;
+      }
     case 1:
-      {requestStatusStr = "Pending";
-      requestStatusClass = "background-color: yellow";
-      break;}
+      {
+        requestStatusStr = "Pending";
+        requestStatusColor = "#fdff93";
+        break;
+      }
     case 2:
-      {requestStatusStr = "Cancelled";
-      requestStatusClass = "background-color: red";
-      break;}
+      {
+        requestStatusStr = "Cancelled";
+        requestStatusColor = "lightcoral";
+        break;
+      }
     default:
       requestStatusStr = "";
-      requestStatusClass = "";
+      requestStatusColor = "";
   }
 
   return (
-    <>
-      <Grid container spacing={2}>
-        <Grid className="columns-three" item xs={4}>
-          <p>Request #{requestNum}</p>
+    <div className="gray-bottom-border">
+      <Grid container
+        alignItems="center"
+        justifyContent="center"
+        >
+        <Grid item xs={4}>
+          <p className="align-text-left">Request #{requestNum}</p>
         </Grid>
-        <Grid className="columns-three" item xs={4}>
-          <Chip label="Chip Filled" />
+        <Grid item xs={4}>
+          <div className="chip-container">
+            <Chip style={{backgroundColor: requestStatusColor}} label={requestStatusStr} />
+          </div>
         </Grid>
-        <Grid className="columns-three" item xs={4}>
-          <p className="columns-three">{date}</p>
+        <Grid item xs={4}>
+          <p className="align-text-right">{date}</p>
         </Grid>
       </Grid>
 
-      <Grid container spacing={2}>
+      <Grid container alignItems="center"
+        justifyContent="center"
+        >
         <Grid item xs={4}>
-        <p className="columns-three">x {quantity}</p>
+          <p className="align-text-left">x {quantity}</p>
         </Grid>
         <Grid item xs={4}>
-        <p className="columns-three">{foodPantryName}</p>
+          <p className="align-text-center">{foodPantryName}</p>
         </Grid>
         <Grid item xs={4}>
-        <IconButton className="centered" aria-label="delete">
-          <EditIcon/>
-        </IconButton>
+          <IconButton className="centered" aria-label="edit">
+            <EditIcon />
+          </IconButton>
         </Grid>
       </Grid>
-      {/* <div className="flex-container">
-       
-        {/* <p className="columns-three {requestStatusClass}" style={{requestStatusClass}}>{requestStatusStr}</p> */}
-        {/* <Chip label="Chip Filled" /> */}
-        {/* <p className="columns-three">{date}</p> */}
-      {/* </div> */}
-      {/* <div className="flex-container">
-        <p className="columns-three">x {quantity}</p>
-        <p className="columns-three">{foodPantryName}</p>
-        <IconButton className="columns-three" aria-label="delete">
-          <EditIcon />
-        </IconButton>
-        
-        
-      </div> */}
-    </>
+    </div>
   );
 }

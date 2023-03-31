@@ -6,9 +6,8 @@ import NavBar from "./components/NavBar";
 import Login from "./Login";
 import React from "react";
 import FoodPantryProfile from "./FoodPantryProfile";
-import Request from "./components/Request"
 import Home from "./Home";
-
+import MyRequests from "./MyRequests";
 
 function App() {
   return (
@@ -19,7 +18,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home></Home>}/>
         <Route path="/profile"index element={<FoodPantryProfile></FoodPantryProfile>}/>
-        <Route path="/myrequests" element={<Request></Request>} />
+        <Route path="/myrequests" element={<MyRequests/>} />
         <Route path="/login" element={<Login></Login>} />
       </Routes>
     </BrowserRouter>
