@@ -23,6 +23,9 @@ import EditIcon from "@mui/icons-material/Edit";
 
 // TODO: integrate with firebase
 
+// TODO: create a boolean state error for quantityInsert, nameInsert, quantityEdit, nameEdit that is toggled in the components when the text is still empty
+// make the field error in textfield error = {errorQuantityInsert/NameInsert/...}
+
 function InsertFormDialog({
   open,
   handleClose,
@@ -54,7 +57,7 @@ function InsertFormDialog({
             autoFocus
             required
             margin="dense"
-            id="name"
+            id="nameInsert"
             label="Item Name"
             type="text"
             fullWidth
@@ -67,7 +70,7 @@ function InsertFormDialog({
             autoFocus
             required
             margin="dense"
-            id="quantity"
+            id="quantityInsert"
             label="Quantity"
             type="number"
             fullWidth
@@ -111,7 +114,6 @@ function EditFormDialog({
     if (!item) setItem(defaultItem);
     if (!quantity) setQuantity(defaultQuantity);
     if (item && quantity > 0) {
-      console.log("here");
       setRows((rows) =>
         rows
           .slice(0, index)
@@ -119,13 +121,6 @@ function EditFormDialog({
           .concat(rows.slice(index + 1, rows.length))
       );
     }
-
-    console.log(
-      rows
-        .slice(0, index)
-        .concat({ id: id, col1: item, col2: quantity })
-        .concat(rows.slice(index + 1, rows.length))
-    );
     handleEditClose();
   };
 
@@ -138,7 +133,7 @@ function EditFormDialog({
           <TextField
             autoFocus
             margin="dense"
-            id="name"
+            id="nameEdit"
             label="Item Name"
             type="text"
             fullWidth
@@ -156,7 +151,7 @@ function EditFormDialog({
             autoFocus
             required
             margin="dense"
-            id="quantity"
+            id="quantityEdit"
             label="Quantity"
             type="number"
             fullWidth
@@ -184,7 +179,7 @@ function EditFormDialog({
  * Creates homepage which lists inventory in a DataGrid format and allows volunteers and organizers to input inventory into the database
  * @returns Home page
  */
-export default function Home() {
+export default function PantryHome() {
   // States for form dialog
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
