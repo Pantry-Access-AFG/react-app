@@ -8,6 +8,7 @@ import React from "react";
 import FoodPantryProfile from "./FoodPantryProfile";
 import Request from "./components/Request"
 import Home from "./Home";
+import Footer from "./components/Footer";
 
 
 function App() {
@@ -22,6 +23,8 @@ function App() {
         <Route path="/myrequests" element={<Request></Request>} />
         <Route path="/login" element={<Login></Login>} />
       </Routes>
+
+      <Footer></Footer>
     </BrowserRouter>
   );
 }

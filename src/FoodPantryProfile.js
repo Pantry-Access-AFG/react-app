@@ -110,7 +110,10 @@ export default function FoodPantryProfile() {
         handleClose={handleCloseAreYouSure}
       />
 
-      <ConfettiMode confettiOn={confettiOn} setConfettiOn={setConfettiOn}></ConfettiMode>
+      <ConfettiMode
+        confettiOn={confettiOn}
+        setConfettiOn={setConfettiOn}
+      ></ConfettiMode>
     </>
   );
 }
@@ -128,7 +131,7 @@ function UserInfo({
   setZipcode,
 }) {
   const usernameChange = (event) => {
-    console.log("changed username");
+    setUsername(event.target.value);
   };
 
   const usernameSubmit = (event) => {
@@ -138,7 +141,7 @@ function UserInfo({
   };
 
   const passwordChange = (event) => {
-    console.log("password changed");
+    setPassword(event.target.value);
   };
 
   const passwordSubmit = (event) => {
@@ -148,7 +151,7 @@ function UserInfo({
   };
 
   const zipcodeChange = (event) => {
-    console.log("zipcode changed");
+    setZipcode(event.target.value);
   };
 
   const zipcodeSubmit = (event) => {
@@ -162,7 +165,7 @@ function UserInfo({
       <div className="row">
         <p className="row">Username:</p>
         <form className="row" onSubmit={usernameSubmit}>
-          <input type="text" onChange={usernameChange} />
+          <input type="text" value={username} onChange={usernameChange} />
         </form>
       </div>
 
@@ -170,13 +173,13 @@ function UserInfo({
       <div className="row">
         <p className="row">Password:</p>
         <form className="row" onSubmit={passwordSubmit}>
-          <input type="text" onChange={passwordChange} />
+          <input type="text" value={password} onChange={passwordChange} />
         </form>
       </div>
       <div className="row">
         <p className="row">Zipcode:</p>
         <form className="row" onSubmit={zipcodeSubmit}>
-          <input type="text" onChange={zipcodeChange} />
+          <input type="text" value={zipcode} onChange={zipcodeChange} />
         </form>
       </div>
     </div>
@@ -207,8 +210,10 @@ const ConfettiMode = ({ confettiOn, setConfettiOn }) => {
   return (
     <div>
       <Confetti
-        numberOfPieces={confettiOn ? 500 : 0}
+        numberOfPieces={confettiOn ? 200 : 0}
         recycle={false}
+        wind={0.05}
+        gravity={2}
         onConfettiComplete={(confetti) => {
           setConfettiOn(false);
           confetti.reset();
