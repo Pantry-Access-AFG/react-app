@@ -1,4 +1,3 @@
-
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Dialog from '@mui/material/Dialog';
 import useState from 'react';
