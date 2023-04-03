@@ -5,7 +5,7 @@ import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import { Button, CardActions } from "@mui/material";
 
-export default function FoodBankCard({ foodBankName, zipCode, distanceAway, onRequestClick }) {
+export default function FoodBankCard({ id, foodBankName, zipCode, distanceAway, onRequestClick }) {
   return (
     <Card
       sx={{
@@ -24,7 +24,7 @@ export default function FoodBankCard({ foodBankName, zipCode, distanceAway, onRe
           </Grid>
           <Grid item xs={4}>
             <CardActions>
-              <Button size="medium" color="primary" onClick={onRequestClick}>
+              <Button size="medium" color="primary" onClick={() => {onRequestClick(id)}}>
                 Make Request
               </Button>
             </CardActions>
@@ -36,5 +36,6 @@ export default function FoodBankCard({ foodBankName, zipCode, distanceAway, onRe
         </Typography>
       </CardContent>
     </Card>
+    
   );
 }
