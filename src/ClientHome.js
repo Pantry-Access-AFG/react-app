@@ -76,7 +76,7 @@ function MakeRequestDialog({
 }
 
 export default function ClientHome() {
-  let [foodPantries] = useState([
+  let [foodPantries, setFoodPantries] = useState([
     ["Food Pantry A", "01650"],
     ["Food Pantry B", "01772"],
   ]);

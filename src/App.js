@@ -1,6 +1,7 @@
 import "./App.css";
 import Header from "./components/Header";
-
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import Login from "./Login";
