@@ -89,6 +89,12 @@ function InsertFormDialog({
   );
 }
 
+/**
+ * Creates a form for editing items into the Food Bank inventory
+ * Inputs various states for determining whether the form should be open/closed or what functions should be performed when items are edited into the table
+ * @returns Form component
+ */
+
 function EditFormDialog({
   editOpen,
   setEditOpen,
@@ -230,13 +236,14 @@ export default function PantryHome() {
 
   // DataGrid columns
   const columns = [
-    //{ field: "id", headerName: "ID", width: 150, align: "center" },
     {
       field: "col1",
       headerName: "Item",
       flex: 1,
       width: "25%",
       align: "center",
+      headerAlign: "center",
+      headerClassName: "bold",
     },
     {
       field: "col2",
@@ -244,6 +251,8 @@ export default function PantryHome() {
       flex: 1,
       width: "25%",
       align: "center",
+      headerAlign: "center",
+      headerClassName: "bold",
     },
     {
       field: "actions",
@@ -251,6 +260,8 @@ export default function PantryHome() {
       width: "25%",
       align: "center",
       flex: 1,
+      headerAlign: "center",
+      headerClassName: "bold",
       renderCell: (params) => {
         return (
           // Delete/trash button for each row
@@ -353,7 +364,15 @@ export default function PantryHome() {
         id={editId}
       ></EditFormDialog>
       <div style={{ height: 300, width: "80%", margin: "auto" }}>
-        <DataGrid rows={rows} columns={columns} />
+        <DataGrid
+          sx={{
+            "& .bold": {
+              fontWeight: "bold",
+            },
+          }}
+          rows={rows}
+          columns={columns}
+        />
       </div>
     </>
   );

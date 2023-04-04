@@ -9,6 +9,10 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 
+/**
+ * Creates a form for clients to request items from Food Pantries
+ * @returns Form component
+ */
 function MakeRequestDialog({
   open,
   handleClose,
@@ -24,6 +28,9 @@ function MakeRequestDialog({
   let [item, setItem] = React.useState("");
   let [quantity, setQuantity] = React.useState(0);
 
+  /**
+   * Function to handle the request and submitting a request
+   */
   const handleMakeRequest = () => {
     if (item && quantity > 0) {
       makeRequest({ clientID, foodPantryID, item, quantity });
@@ -67,7 +74,15 @@ function MakeRequestDialog({
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleMakeRequest}>Insert</Button>
+          <Button
+            onClick={() => {
+              setItem("");
+              setQuantity(0);
+              handleMakeRequest(item, quantity);
+            }}
+          >
+            Insert
+          </Button>
           <Button onClick={handleClose}>Cancel</Button>
         </DialogActions>
       </Dialog>
@@ -75,6 +90,11 @@ function MakeRequestDialog({
   );
 }
 
+/**
+ * Creates a list of Food Bank Card components
+ * Contains states for opening dialogs and tracking which place was requested from
+ * @returns Client Home Page
+ */
 export default function ClientHome() {
   let [foodPantries, setFoodPantries] = useState([
     ["Food Pantry A", "01650"],
@@ -85,14 +105,23 @@ export default function ClientHome() {
   let [foodPantryID, setFoodPantryID] = useState(0);
   let [indexClicked, setIndexClicked] = useState(0);
 
+  /**
+   * @param index of the food bank to be requested from
+   * Sets index to be index cliekced and opens dialog for requesting foods
+   */
   const onRequestClick = (index) => {
     console.log(index);
     setIndexClicked(index);
-    setOpen(true);
     setFoodPantryID(index);
+    setOpen(true);
   };
 
-  const makeRequest = () => {};
+  /**
+   * TODO: What happens when request is made --> send to firebase
+   */
+  const makeRequest = (item, quantity) => {
+    console.log(item, quantity);
+  };
 
   let temp = foodPantries.slice();
   let food_bank_list = temp.map((x, index) => (
