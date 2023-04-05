@@ -25,5 +25,5 @@ firebase.json
 firestore.indexes.json
 firestore.rules
 .firebaserc
-
+.env.local
 .firebase

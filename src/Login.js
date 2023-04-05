@@ -1,59 +1,96 @@
-/* OLD LOGIN FORMAT
-const Login = () => (
-    <div>
-        <h1 className="title">Login Page</h1>
-        <form>
-            <div className="login-format">
-                <label for="username">Username:</label><br/>
-                <input type="text" id="username" name="username"></input><br/>
-                <label for="password">Password:</label><br/>
-                <input type="password" id="password" name="password"></input><br/><br/>
-                <button className="signInButton" type="button">Login</button>
-            </div>
-        </form>
-    </div>
-
-);
+import  { React, useState } from "react";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, } from "firebase/auth"
+import "./Login.css";
+import {auth} from './firebase-config'; 
+// import { Form, Button, Card } from "react-bootstrap";
 
 
-export default Login;
-*/
-// NEW LOGIN FORMAT
-import { DialogAuth } from "react-mui-auth-page";
-const Login = () => {
-    const SignInResponse = ({ email, password}) => {
-        console.log({ email, password });
-    };
+export default function Login() {
 
-    const SignUpResponse = ({email, username, password}) => {
-        console.log( {email, username, password} )
-    };
+  const [registerUsername, setRegisterUsername] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+  const [loginUsername, setLoginUsername] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+ 
+  const [user, setUser] = useState({});
 
-    const ForgetResponse = ({email}) => {
-        console.log({ email });
-    };
+  onAuthStateChanged(auth, (currentUser) => {
+    setUser(currentUser)
+  })
 
-    const SocialMediaResponse = {
-        Google: () => {},
-        Github: () => {},
-        Twitter: () => {},
-    };
-
-    const CloseResponse = () => {};
-
-    return (
-        <DialogAuth
-            open={true}
-            textFieldVariant="outlined"
-            onClose={CloseResponse}
-            handleSignUp={SignUpResponse}
-            handleForget={ForgetResponse}
-            handleSignIn={SignInResponse}
-            handleSocial={SocialMediaResponse}
-        />
+  const register = async () =>  {
+    try {
+    const user = await createUserWithEmailAndPassword(
+      auth, 
+      registerUsername, 
+      registerPassword
     );
-        
+    console.log(user);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
+  const login = async () => {
+    try {
+      const user = await signInWithEmailAndPassword(
+        auth, 
+        loginUsername, 
+        loginPassword)
+      ;
+      console.log(user);
+      } catch (error) {
+        console.log(error.message);
+      }
+  };
+
+  const logout = async () => {
+
+    await signOut(auth);
+  };
+
+  return (
+    <div className="loginMain">
+      <div>
+        <h3>Register for a New Client Account</h3>
+        <input 
+          placeholder="Username..." 
+          onChange={(event) => 
+            {setRegisterUsername(event.target.value);
+          }}
+        />
+        <input 
+          placeholder="Password..."
+          onChange={(event) => 
+            {setRegisterPassword(event.target.value);
+          }}
+        />
+
+        <button onClick={register}>Create User</button>
+      </div>
+      <div>
+        <h3>Log In to an Existing Client Account</h3>
+        <input 
+          placeholder="Username..."
+          onChange={(event) => 
+            {setLoginUsername(event.target.value);
+          }}
+        />
+        <input 
+          placeholder="Password..."
+          onChange={(event) => 
+            {setLoginPassword(event.target.value);
+          }}
+        />
+        <button onClick={login}>Log In</button>
+      </div>
+
+      <h4>User Logged In: </h4>
+      {user?.email}
+      <button onClick={logout}>Sign Out</button>
+    </div>
+    
+
+  )
 };
 
-export default Login;

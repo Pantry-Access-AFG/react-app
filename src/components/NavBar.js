@@ -39,6 +39,16 @@ export default function NavBar() {
       >
         My Requests
       </button>
+      <button
+        className={
+          location.pathname === "/login"
+          ? "navbar-tab-selected"
+          : "navbar-tab-unselected"
+        }
+        onClick={() => navigate("/login")}
+      >
+        Log In
+      </button>
     </div>
   );
 }
