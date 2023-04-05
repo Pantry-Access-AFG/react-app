@@ -1,12 +1,15 @@
 import React from "react";
-import blank_profile_pic from "./images/blankprofilepic.png";
 import Button from "@mui/material/Button";
 import { Box } from "@mui/system";
 import "./FoodPantryProfile.css";
 import { useState } from "react";
-import { Grid } from "@mui/material";
-import TextField from "@mui/material/TextField";
 import Alert from "@mui/material/Alert";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Confetti from "react-confetti";
 
 /**
  * Page for Food Pantry Profiles
@@ -21,12 +24,15 @@ export default function FoodPantryProfile() {
   let [username, setUsername] = useState("");
   let [password, setPassword] = useState("");
   let [zipcode, setZipcode] = useState("");
+  let [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
+  let [confettiOn, setConfettiOn] = useState(false);
 
   // Delete account function to reset all values and remove user from database (TBD)
-  const deleteAccount = () => {
+  const handleDeleteAccount = () => {
     setUsername("");
     setPassword("");
     setZipcode("");
+    handleCloseAreYouSure();
   };
 
   // Set username listener
@@ -45,16 +51,24 @@ export default function FoodPantryProfile() {
     setZipcode(x);
   };
 
+  const handleOpenAreYouSure = () => {
+    setDeleteAccountOpen(true);
+  };
+
+  const handleCloseAreYouSure = () => {
+    setDeleteAccountOpen(false);
+  };
+
+  const handleSaveChanges = () => {
+    setConfettiOn(true);
+  };
+
   return (
     <>
-      <img
-        src={blank_profile_pic}
-        alt="blankprofilepic"
-        className="profile-image img-center"
-      ></img>
-      <h1 className="text-center">{food_pantry_name}</h1>
+      <h1 className="text-center" style={{ marginTop: "1rem" }}>
+        {food_pantry_name}
+      </h1>
 
-      <hr className="gray-line" />
       <UserInfo
         username={username}
         password={password}
@@ -66,18 +80,40 @@ export default function FoodPantryProfile() {
       <br></br>
 
       {/* Delete account button*/}
-      <Box textAlign="center">
-        <Button variant="outlined" color="error" onClick={deleteAccount}>
+      <Box textAlign="center" alignContent="center" margin="auto">
+        <Button variant="outlined" color="success" onClick={handleSaveChanges}>
+          Save Changes
+        </Button>
+
+        <br />
+        <br />
+
+        <Button variant="outlined" color="error" onClick={handleOpenAreYouSure}>
           Delete Account
         </Button>
 
         <Alert
-          sx={{ width: "50%",'& .MuiAlert-message':{textAlign:"center", width:"inherit"}}}
+          sx={{
+            width: "50%",
+            margin: "auto",
+            marginTop: "1rem",
+          }}
           severity="error"
         >
           Deleting your account is permanent.
         </Alert>
       </Box>
+
+      <AreYourSureDialog
+        deleteAccountOpen={deleteAccountOpen}
+        deleteAccount={handleDeleteAccount}
+        handleClose={handleCloseAreYouSure}
+      />
+
+      <ConfettiMode
+        confettiOn={confettiOn}
+        setConfettiOn={setConfettiOn}
+      ></ConfettiMode>
     </>
   );
 }
@@ -95,7 +131,7 @@ function UserInfo({
   setZipcode,
 }) {
   const usernameChange = (event) => {
-    console.log("changed username");
+    setUsername(event.target.value);
   };
 
   const usernameSubmit = (event) => {
@@ -105,8 +141,8 @@ function UserInfo({
   };
 
   const passwordChange = (event) => {
-    console.log("password changed");
-  };;
+    setPassword(event.target.value);
+  };
 
   const passwordSubmit = (event) => {
     event.preventDefault();
@@ -115,7 +151,7 @@ function UserInfo({
   };
 
   const zipcodeChange = (event) => {
-    console.log("zipcode changed");
+    setZipcode(event.target.value);
   };
 
   const zipcodeSubmit = (event) => {
@@ -126,39 +162,63 @@ function UserInfo({
 
   return (
     <div>
-      <Grid container spacing={2}>
-        <Grid item xs={4} />
-        <Grid item xs={2}></Grid>
-        <Grid item xs={2}>
-          <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="username"
-            label="Username"
-            type="text"
-            fullWidth
-            variant="standard"
-            onChange={usernameChange}
-            onSubmit={usernameSubmit}
-          />
-        </Grid>
-        <Grid item xs={4} />
-      </Grid>
+      <div className="row">
+        <p className="row">Username:</p>
+        <form className="row" onSubmit={usernameSubmit}>
+          <input type="text" value={username} onChange={usernameChange} />
+        </form>
+      </div>
 
       <div className="row"></div>
       <div className="row">
         <p className="row">Password:</p>
         <form className="row" onSubmit={passwordSubmit}>
-          <input type="text" onChange={passwordChange} />
+          <input type="text" value={password} onChange={passwordChange} />
         </form>
       </div>
       <div className="row">
         <p className="row">Zipcode:</p>
         <form className="row" onSubmit={zipcodeSubmit}>
-          <input type="text" onChange={zipcodeChange} />
+          <input type="text" value={zipcode} onChange={zipcodeChange} />
         </form>
       </div>
     </div>
   );
 }
+
+function AreYourSureDialog({ deleteAccountOpen, deleteAccount, handleClose }) {
+  return (
+    <>
+      <Dialog open={deleteAccountOpen} onClose={handleClose}>
+        <DialogTitle>Delete Account Confirmation</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure want to delete your account? All of your information
+            will be lost permanently.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={deleteAccount}>Delete Account</Button>
+          <Button onClick={handleClose}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+}
+
+const ConfettiMode = ({ confettiOn, setConfettiOn }) => {
+  return (
+    <div>
+      <Confetti
+        numberOfPieces={confettiOn ? 200 : 0}
+        recycle={false}
+        wind={0.05}
+        gravity={2}
+        onConfettiComplete={(confetti) => {
+          setConfettiOn(false);
+          confetti.reset();
+        }}
+      />
+    </div>
+  );
+};

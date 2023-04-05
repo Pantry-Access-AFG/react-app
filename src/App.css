@@ -51,9 +51,22 @@ sets up flex container*/
   flex: 1;
 } */
 
-.columns-three {
+/* .columns-three {
   flex: 33%;
   text-align: center;
+  background-color: red;
+} */
+
+.align-text-left {
+  text-align: left;
+}
+
+.align-text-center {
+  text-align: center;
+}
+
+.align-text-right {
+  text-align: right;
 }
 
 /*styles the selected tab in the navbar*/
@@ -76,22 +89,6 @@ sets up flex container*/
   border-style: none;
   background-color: white;
 }
-/*from https://stackoverflow.com/questions/70025571/force-image-in-flex-container-to-match-the-height-of-other-flex-elements*/
-.right {
-  /* width: 40%; */
-  flex: 33%;
-  position: relative;
-}
-
-/*from https://stackoverflow.com/questions/70025571/force-image-in-flex-container-to-match-the-height-of-other-flex-elements*/
-.placeholder{
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 50%;
-  height: 50%;
-  object-fit: contain;
-}
 
 /* from https://stackoverflow.com/questions/38327827/how-to-center-a-child-element-in-css-even-if-it-is-larger-than-the-parent */
 .centered {
@@ -100,6 +97,21 @@ sets up flex container*/
   display: block;
   bottom: 0px;
   top: 0px;
-  left: 50%;
-  transform: translate(-50%, 0);
+  left: 100%;
+  transform: translate(-100%, 0);
+}
+
+/* from https://stackoverflow.com/questions/67932066/how-do-i-center-align-a-material-ui-chip-within-a-grid-item*/
+/* To center chips in the grid */
+.chip-container{
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gray-bottom-border {
+  border-width: 2px;
+  border-color: lightgray;
+  border-bottom-style: solid;
 }
