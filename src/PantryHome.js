@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { useState, useEffect } from "react";
 import { db } from "./firebase-config";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { DataGrid } from "@mui/x-data-grid";
@@ -184,7 +184,7 @@ function EditFormDialog({
 }
 
 /**
- * 
+ *
  * @returns Confetti object!
  */
 const ConfettiMode = ({ confettiOn, setConfettiOn }) => {
@@ -217,6 +217,8 @@ export default function PantryHome() {
   let [quantity, setQuantity] = useState(0);
   let [editId, setEditId] = useState(0);
   const [confettiOn, setConfettiOn] = useState(false);
+  const [itemList, setItemList] = useState([]);
+  const [quantityList, setQuantityList] = useState([]);
 
   /**
    * Function for handling opening the form dialog
@@ -327,7 +329,7 @@ export default function PantryHome() {
     { id: 3, col1: "Apples", col2: 100, align: "center" },
   ]);
 
-  let [id, setId] = useState(rows.length + 1);
+  let [id] = useState(rows.length + 1);
 
   /**
    * Retrieve food pantries (in food-bank-accounts collection) from Firebase
@@ -336,13 +338,18 @@ export default function PantryHome() {
     const fetchData = async () => {
       const docRef = doc(db, "inventory", "pantryUID");
       const docSnap = await getDoc(docRef);
-      
+
       if (docSnap.exists()) {
-        const itemList = docSnap.data()["itemList"];
-        const quantityList = docSnap.data()["quantityList"]
+        setItemList(docSnap.data()["itemList"]);
+        setQuantityList(docSnap.data()["quantityList"]);
         let tempRows = [];
-        for (let i = 0; i < itemList.length; i+=1) {
-          tempRows.push({id: i+1, col1: itemList[i], col2: quantityList[i], align: "center"})
+        for (let i = 0; i < itemList.length; i += 1) {
+          tempRows.push({
+            id: i + 1,
+            col1: itemList[i],
+            col2: quantityList[i],
+            align: "center",
+          });
         }
         setRows(tempRows);
       } else {
@@ -350,7 +357,7 @@ export default function PantryHome() {
       }
     };
     fetchData();
-  }, []);
+  });
 
   /**
    * Function to handle inserting an item into the row
@@ -364,11 +371,19 @@ export default function PantryHome() {
    * Inserts item to row by appending it to the end and increasing the id number
    */
   const insertItem = ({ itemID = id, col1Name, col2Name }) => {
-    setId(id + 1);
+    const docRef = doc(db, "inventory", "pantryUID");
+    const insertData = async () => {
+      await updateDoc(docRef, {
+        itemList: [...itemList, col1Name],
+        quantityList: [...quantityList, col2Name],
+      });
+    };
+    insertData()
+    /* setId(id + 1);
     setRows((rows) => [
       ...rows,
       { id: itemID, col1: col1Name, col2: col2Name },
-    ]);
+    ]);*/
     setConfettiOn(true);
   };
 
