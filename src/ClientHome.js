@@ -92,19 +92,26 @@ function MakeRequestDialog({
   );
 }
 
+/**
+ *
+ * @param {open, handleClose, foodBankName, foodPantryDesription, foodPantryID} parameters to describe the food bank to be described
+ * @returns a dialog that shows the user more about the food pantry in question
+ */
 function LearnMoreDialog({
   open,
   handleClose,
   foodPantryName,
   foodPantryDescription,
   foodPantryID,
+  foodPantryZipCode,
 }) {
   return (
     <>
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog open={open} onClose={handleClose} fullWidth={true} p>
         <DialogTitle>{foodPantryName}</DialogTitle>
         <DialogContent>
-          <DialogContentText>hi</DialogContentText>
+          <DialogContentText>{foodPantryZipCode}</DialogContentText>
+          <DialogContentText>{foodPantryDescription}</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => {}}>Insert</Button>
@@ -122,16 +129,23 @@ function LearnMoreDialog({
  */
 export default function ClientHome() {
   let [foodPantries, setFoodPantries] = useState([
-    ["Food Pantry A", "01650"],
-    ["Food Pantry B", "01772"],
+    ["Food Pantry A", "01650", "Food Pantry A is a nonprofit"],
+    ["Food Pantry B", "01772", "Food Pantry B is collegeboard"],
   ]);
 
+  /**
+   * Retrieve food pantries (in food-bank-accounts collection) from Firebase
+   */
   useEffect(() => {
     const fetchData = async () => {
       const querySnapshot = await getDocs(collection(db, "food-bank-accounts"));
       let foodPantryData = [];
       querySnapshot.forEach((doc) => {
-        foodPantryData.push([doc.data()["name"], doc.data()["zipcode"]]);
+        foodPantryData.push([
+          doc.data()["name"],
+          doc.data()["zipcode"],
+          doc.data()["description"],
+        ]);
       });
       setFoodPantries(foodPantryData);
     };
@@ -154,7 +168,7 @@ export default function ClientHome() {
   };
 
   /**
-   * @param index of food bank to be requested from
+   * @param index of food bank to be learned more about
    * Sets index to be index clicked
    */
   const onLearnMoreClick = (index) => {
@@ -202,6 +216,8 @@ export default function ClientHome() {
         handleClose={() => setLearnMoreDialogOpen(false)}
         foodPantryName={temp[indexClicked][0]}
         foodPantryID={foodPantryID}
+        foodPantryDescription={temp[indexClicked][2]}
+        foodPantryZipCode={temp[indexClicked][1]}
       ></LearnMoreDialog>
     </>
   );

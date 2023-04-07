@@ -1,7 +1,9 @@
 import React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { db } from "./firebase-config";
+import { doc, getDoc } from "firebase/firestore";
 import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { DataGrid } from "@mui/x-data-grid";
@@ -14,6 +16,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import Confetti from "react-confetti";
 
 /**
  * Creates a form for inserting items into the Food Bank inventory
@@ -94,7 +97,6 @@ function InsertFormDialog({
  * Inputs various states for determining whether the form should be open/closed or what functions should be performed when items are edited into the table
  * @returns Form component
  */
-
 function EditFormDialog({
   editOpen,
   setEditOpen,
@@ -182,6 +184,27 @@ function EditFormDialog({
 }
 
 /**
+ * 
+ * @returns Confetti object!
+ */
+const ConfettiMode = ({ confettiOn, setConfettiOn }) => {
+  return (
+    <div>
+      <Confetti
+        numberOfPieces={confettiOn ? 200 : 0}
+        recycle={false}
+        wind={0.05}
+        gravity={2}
+        onConfettiComplete={(confetti) => {
+          setConfettiOn(false);
+          confetti.reset();
+        }}
+      />
+    </div>
+  );
+};
+
+/**
  * Creates homepage which lists inventory in a DataGrid format and allows volunteers and organizers to input inventory into the database
  * @returns Home page
  */
@@ -193,6 +216,7 @@ export default function PantryHome() {
   let [item, setItem] = useState("");
   let [quantity, setQuantity] = useState(0);
   let [editId, setEditId] = useState(0);
+  const [confettiOn, setConfettiOn] = useState(false);
 
   /**
    * Function for handling opening the form dialog
@@ -306,6 +330,29 @@ export default function PantryHome() {
   let [id, setId] = useState(rows.length + 1);
 
   /**
+   * Retrieve food pantries (in food-bank-accounts collection) from Firebase
+   */
+  useEffect(() => {
+    const fetchData = async () => {
+      const docRef = doc(db, "inventory", "pantryUID");
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        const itemList = docSnap.data()["itemList"];
+        const quantityList = docSnap.data()["quantityList"]
+        let tempRows = [];
+        for (let i = 0; i < itemList.length; i+=1) {
+          tempRows.push({id: i+1, col1: itemList[i], col2: quantityList[i], align: "center"})
+        }
+        setRows(tempRows);
+      } else {
+        console.log("Nothing!");
+      }
+    };
+    fetchData();
+  }, []);
+
+  /**
    * Function to handle inserting an item into the row
    * Opens the form dialog
    */
@@ -322,6 +369,7 @@ export default function PantryHome() {
       ...rows,
       { id: itemID, col1: col1Name, col2: col2Name },
     ]);
+    setConfettiOn(true);
   };
 
   let food_bank_name = "Food Bank X";
@@ -363,6 +411,10 @@ export default function PantryHome() {
         setRows={setRows}
         id={editId}
       ></EditFormDialog>
+      <ConfettiMode
+        confettiOn={confettiOn}
+        setConfettiOn={setConfettiOn}
+      ></ConfettiMode>
       <div style={{ height: 300, width: "80%", margin: "auto" }}>
         <DataGrid
           sx={{
