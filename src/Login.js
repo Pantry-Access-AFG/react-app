@@ -19,6 +19,7 @@ export default function Login() {
   })
 
   const register = async () =>  {
+
     try {
     const user = await createUserWithEmailAndPassword(
       auth, 
@@ -32,13 +33,25 @@ export default function Login() {
   };
 
   const login = async () => {
+
     try {
-      const user = await signInWithEmailAndPassword(
-        auth, 
-        loginUsername, 
-        loginPassword)
-      ;
-      console.log(user);
+      if (loginUsername.includes("@")) {
+        const user = await signInWithEmailAndPassword(
+          auth, 
+          loginUsername, 
+          loginPassword)
+        ;
+        console.log(user);
+      }
+      else {
+        const user = await signInWithEmailAndPassword(
+          auth, 
+          loginUsername + "@func.com", 
+          loginPassword)
+        ;
+        console.log(user);
+      }
+      
       } catch (error) {
         console.log(error.message);
       }
