@@ -109,6 +109,8 @@ function EditFormDialog({
   rows,
   setRows,
   id,
+  itemList,
+  quantityList,
 }) {
   let defaultItem = "";
   let defaultQuantity = 0;
@@ -122,12 +124,26 @@ function EditFormDialog({
     if (!item) setItem(defaultItem);
     if (!quantity) setQuantity(defaultQuantity);
     if (item && quantity > 0) {
-      setRows((rows) =>
-        rows
-          .slice(0, index)
-          .concat({ id: id, col1: item, col2: quantity })
-          .concat(rows.slice(index + 1, rows.length))
-      );
+      //ONLY UPDATE FIREBASE
+      const docRef = doc(db, "inventory", "pantryUID");
+      const editData = async () => {
+        let tempItems = itemList.slice();
+        tempItems[index] = item;
+        let tempQuantity = quantityList.slice();
+        tempQuantity[index] = quantity;
+        await updateDoc(docRef, {
+          itemList: tempItems,
+          quantityList: tempQuantity,
+        });
+      };
+      editData();
+
+      // setRows((rows) =>
+      //   rows
+      //     .slice(0, index)
+      //     .concat({ id: id, col1: item, col2: quantity })
+      //     .concat(rows.slice(index + 1, rows.length))
+      // );
     }
     handleEditClose();
   };
@@ -243,9 +259,22 @@ export default function PantryHome() {
    * Removes respective row and reinitializes row array
    */
   const deleteRowClick = (e, row, rows, index) => {
-    setRows((rows) =>
-      rows.slice(0, index).concat(rows.slice(index + 1, rows.length))
-    );
+    const docRef = doc(db, "inventory", "pantryUID");
+    const deleteData = async () => {
+      await updateDoc(docRef, {
+        itemList: itemList
+          .slice(0, index)
+          .concat(itemList.slice(index + 1, rows.length)),
+        quantityList: quantityList
+          .slice(0, index)
+          .concat(quantityList.slice(index + 1, rows.length)),
+      });
+    };
+    deleteData();
+
+    // setRows((rows) =>
+    //   rows.slice(0, index).concat(rows.slice(index + 1, rows.length))
+    // );
   };
 
   /**
@@ -378,7 +407,7 @@ export default function PantryHome() {
         quantityList: [...quantityList, col2Name],
       });
     };
-    insertData()
+    insertData();
     /* setId(id + 1);
     setRows((rows) => [
       ...rows,
@@ -425,6 +454,8 @@ export default function PantryHome() {
         rows={rows}
         setRows={setRows}
         id={editId}
+        itemList={itemList}
+        quantityList={quantityList}
       ></EditFormDialog>
       <ConfettiMode
         confettiOn={confettiOn}
