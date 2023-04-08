@@ -14,6 +14,9 @@ export default function FoodBankCard({
   onRequestClick,
   onLearnMoreClick,
 }) {
+  const zipCodeData = require('zipcode-city-distance');
+  let clientZip = "01772"
+  let zipCodeDistance = parseInt(zipCodeData.zipCodeDistance(clientZip, zipCode,'M'));
   return (
     <Card
       sx={{
@@ -56,7 +59,7 @@ export default function FoodBankCard({
           </CardActions>
 
           <Typography variant="body2" color="text.secondary" textAlign="center">
-            {zipCode} -- {distanceAway} mi from you.
+            {zipCode} -- {(zipCodeDistance)? zipCodeDistance : "error"} mi from you.
           </Typography>
         </Stack>
       </CardContent>

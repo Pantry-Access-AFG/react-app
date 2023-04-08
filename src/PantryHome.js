@@ -24,11 +24,8 @@ import Confetti from "react-confetti";
  * @returns Form component
  */
 
-// TODO: integrate with firebase
-
 // TODO: create a boolean state error for quantityInsert, nameInsert, quantityEdit, nameEdit that is toggled in the components when the text is still empty
 // make the field error in textfield error = {errorQuantityInsert/NameInsert/...}
-
 function InsertFormDialog({
   open,
   handleClose,
@@ -137,7 +134,6 @@ function EditFormDialog({
         });
       };
       editData();
-
       // setRows((rows) =>
       //   rows
       //     .slice(0, index)
@@ -348,14 +344,14 @@ export default function PantryHome() {
 
   // State variable for holding rows in the table to be modified
   let [rows, setRows] = useState(() => [
-    {
-      id: 1,
-      col1: "Hello",
-      col2: 48,
-      align: "center",
-    },
-    { id: 2, col1: "Oranges", col2: 4, align: "center" },
-    { id: 3, col1: "Apples", col2: 100, align: "center" },
+    // {
+    //   id: 1,
+    //   col1: "Hello",
+    //   col2: 48,
+    //   align: "center",
+    // },
+    // { id: 2, col1: "Oranges", col2: 4, align: "center" },
+    // { id: 3, col1: "Apples", col2: 100, align: "center" },
   ]);
 
   let [id] = useState(rows.length + 1);

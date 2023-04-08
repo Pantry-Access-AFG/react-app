@@ -83,7 +83,7 @@ function MakeRequestDialog({
               handleMakeRequest(item, quantity);
             }}
           >
-            Insert
+            Make Request
           </Button>
           <Button onClick={handleClose}>Cancel</Button>
         </DialogActions>
@@ -114,8 +114,7 @@ function LearnMoreDialog({
           <DialogContentText>{foodPantryDescription}</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => {}}>Insert</Button>
-          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleClose}>Back</Button>
         </DialogActions>
       </Dialog>
     </>
