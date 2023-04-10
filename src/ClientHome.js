@@ -127,6 +127,7 @@ function LearnMoreDialog({
  * @returns Client Home Page
  */
 export default function ClientHome() {
+
   let [foodPantries, setFoodPantries] = useState([
     ["Food Pantry A", "01650", "Food Pantry A is a nonprofit"],
     ["Food Pantry B", "01772", "Food Pantry B is collegeboard"],

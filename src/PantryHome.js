@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { useState, useEffect } from "react";
 import { db } from "./firebase-config";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, onSnapshot } from "firebase/firestore";
 import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { DataGrid } from "@mui/x-data-grid";
@@ -161,7 +161,6 @@ function EditFormDialog({
             defaultValue={defaultItem}
             onChange={(event) => {
               setItem(() => {
-                console.log(event.target.value);
                 if (!event.target.value) return defaultItem;
                 else return event.target.value;
               });
@@ -179,7 +178,6 @@ function EditFormDialog({
             defaultValue={defaultQuantity}
             onChange={(event) => {
               setQuantity(() => {
-                console.log(event.target.value);
                 if (event.target.value === 0) return defaultQuantity;
                 else return event.target.value;
               });
@@ -343,46 +341,62 @@ export default function PantryHome() {
   ];
 
   // State variable for holding rows in the table to be modified
-  let [rows, setRows] = useState(() => [
-    // {
-    //   id: 1,
-    //   col1: "Hello",
-    //   col2: 48,
-    //   align: "center",
-    // },
-    // { id: 2, col1: "Oranges", col2: 4, align: "center" },
-    // { id: 3, col1: "Apples", col2: 100, align: "center" },
-  ]);
+  let [rows, setRows] = useState(() => []);
 
   let [id] = useState(rows.length + 1);
 
   /**
-   * Retrieve food pantries (in food-bank-accounts collection) from Firebase
+   * Retrives items and quantities from firebase for this food pantry
    */
   useEffect(() => {
-    const fetchData = async () => {
-      const docRef = doc(db, "inventory", "pantryUID");
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        setItemList(docSnap.data()["itemList"]);
-        setQuantityList(docSnap.data()["quantityList"]);
-        let tempRows = [];
-        for (let i = 0; i < itemList.length; i += 1) {
-          tempRows.push({
-            id: i + 1,
-            col1: itemList[i],
-            col2: quantityList[i],
-            align: "center",
-          });
+    async function getInventoryData() {
+      onSnapshot(doc(db, "inventory", "pantryUID"), (doc) => {
+        if (doc.exists()) {
+          setItemList(doc.data()["itemList"]);
+          setQuantityList(doc.data()["quantityList"]);
+        } else {
+          console.log("Nothing!");
         }
-        setRows(tempRows);
-      } else {
-        console.log("Nothing!");
-      }
-    };
-    fetchData();
-  });
+      });
+    }
+    getInventoryData();
+  }, []);
+
+  useEffect(() => {
+    let tempRows = [];
+    for (let i = 0; i < itemList.length; i += 1) {
+      tempRows.push({
+        id: i + 1,
+        col1: itemList[i],
+        col2: quantityList[i],
+        align: "center",
+      });
+    }
+    setRows(tempRows);
+  }, [itemList, quantityList]);
+
+  // const fetchData = async () => {
+  //   const docRef = doc(db, "inventory", "pantryUID");
+  //   const docSnap = await getDoc(docRef);
+
+  //   if (docSnap.exists()) {
+  //     setItemList(docSnap.data()["itemList"]);
+  //     setQuantityList(docSnap.data()["quantityList"]);
+  //     let tempRows = [];
+  //     for (let i = 0; i < itemList.length; i += 1) {
+  //       tempRows.push({
+  //         id: i + 1,
+  //         col1: itemList[i],
+  //         col2: quantityList[i],
+  //         align: "center",
+  //       });
+  //     }
+  //     setRows(tempRows);
+  //   } else {
+  //     console.log("Nothing!");
+  //   }
+  // };
+  // fetchData();
 
   /**
    * Function to handle inserting an item into the row
