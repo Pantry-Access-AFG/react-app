@@ -1,5 +1,6 @@
 import  { React, useState } from "react";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, } from "firebase/auth"
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification } from "firebase/auth";
+import { getData } from "firebase/firestore";
 import "./Login.css";
 import {auth} from './firebase-config'; 
 // import { Form, Button, Card } from "react-bootstrap";
@@ -26,6 +27,10 @@ export default function Login() {
       registerUsername, 
       registerPassword
     );
+    sendEmailVerification(auth.currentUser).then(() => 
+    {
+      console.log("yay email sent!")
+    });
     console.log(user);
     } catch (error) {
       console.log(error.message);
@@ -74,6 +79,7 @@ export default function Login() {
         />
         <input 
           placeholder="Password..."
+          type="password"
           onChange={(event) => 
             {setRegisterPassword(event.target.value);
           }}
@@ -91,6 +97,7 @@ export default function Login() {
         />
         <input 
           placeholder="Password..."
+          type="password"
           onChange={(event) => 
             {setLoginPassword(event.target.value);
           }}
