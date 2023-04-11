@@ -9,7 +9,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { db } from "./firebase-config";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, addDoc } from "firebase/firestore";
 
 /**
  * Creates a form for clients to request items from Food Pantries
@@ -35,7 +35,7 @@ function MakeRequestDialog({
    */
   const handleMakeRequest = () => {
     if (item && quantity > 0) {
-      makeRequest({ clientID, foodPantryID, item, quantity });
+      makeRequest(clientID, foodPantryID, item, quantity);
       handleClose();
     }
   };
@@ -127,7 +127,6 @@ function LearnMoreDialog({
  * @returns Client Home Page
  */
 export default function ClientHome() {
-
   let [foodPantries, setFoodPantries] = useState([
     ["Food Pantry A", "01650", "Food Pantry A is a nonprofit"],
     ["Food Pantry B", "01772", "Food Pantry B is collegeboard"],
@@ -180,8 +179,30 @@ export default function ClientHome() {
   /**
    * TODO: What happens when request is made --> send to firebase
    */
-  const makeRequest = (item, quantity) => {
-    console.log(item, quantity);
+  const makeRequest = (clientID, pantryID, item, quantity) => {
+    const request = {
+      "Client UID": 3480242,
+      "Food Bank UID": 238408934,
+      "Client Notes": null,
+      "Food Pantry Notes": null,
+      item: item,
+      quantity: quantity,
+      status: 0,
+    };
+    const sendRequest = async (request) => {
+      await addDoc(collection(db, "requests"), request)
+      .then((docRef) => {
+        console.log("Document has been added successfully");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    setRequestDialogOpen(false);
+    }
+    
+    sendRequest(request);
+
+    // TODO: add doc to firebase
   };
 
   let temp = foodPantries.slice();

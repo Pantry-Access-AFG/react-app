@@ -112,7 +112,7 @@ function EditFormDialog({
   let defaultItem = "";
   let defaultQuantity = 0;
 
-  if (rows.length > 0) {
+  if (rows.length > 0 && index >= 0 && index < rows.length) {
     defaultItem = rows[index].col1;
     defaultQuantity = rows[index].col2;
   }
@@ -220,7 +220,7 @@ const ConfettiMode = ({ confettiOn, setConfettiOn }) => {
  */
 export default function PantryHome() {
   // States for form dialog
-  const [open, setOpen] = useState(false);
+  const [insertOpen, setRequestOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   let [editIndex, setEditIndex] = useState(0);
   let [item, setItem] = useState("");
@@ -229,12 +229,14 @@ export default function PantryHome() {
   const [confettiOn, setConfettiOn] = useState(false);
   const [itemList, setItemList] = useState([]);
   const [quantityList, setQuantityList] = useState([]);
+  const [inventoryRows, setInventoryRows] = useState(() => []);
+  const [id] = useState(inventoryRows.length + 1);
 
   /**
    * Function for handling opening the form dialog
    */
   const handleClickOpen = () => {
-    setOpen(true);
+    setRequestOpen(true);
   };
 
   /**
@@ -242,7 +244,7 @@ export default function PantryHome() {
    * Makes sure to reset the item and quantity state
    */
   const handleClose = () => {
-    setOpen(false);
+    setRequestOpen(false);
     setEditOpen(false);
     setItem("");
     setQuantity(0);
@@ -277,9 +279,9 @@ export default function PantryHome() {
    */
   const editRowClick = (e, index) => {
     setEditIndex(index);
-    setEditId(rows[index].id);
-    setItem(rows[index].col1);
-    setQuantity(rows[index].col2);
+    setEditId(inventoryRows[index].id);
+    setItem(inventoryRows[index].col1);
+    setQuantity(inventoryRows[index].col2);
     setEditOpen(true);
   };
 
@@ -319,7 +321,7 @@ export default function PantryHome() {
               aria-label="delete"
               size="large"
               variant="contained"
-              onClick={(e) => editRowClick(e, rows.indexOf(params.row))}
+              onClick={(e) => editRowClick(e, inventoryRows.indexOf(params.row))}
             >
               <EditIcon />
             </IconButton>
@@ -329,7 +331,7 @@ export default function PantryHome() {
               size="large"
               variant="contained"
               onClick={(e) =>
-                deleteRowClick(e, params.row, rows, rows.indexOf(params.row))
+                deleteRowClick(e, params.row, inventoryRows, inventoryRows.indexOf(params.row))
               }
             >
               <DeleteIcon />
@@ -339,11 +341,6 @@ export default function PantryHome() {
       },
     },
   ];
-
-  // State variable for holding rows in the table to be modified
-  let [rows, setRows] = useState(() => []);
-
-  let [id] = useState(rows.length + 1);
 
   /**
    * Retrives items and quantities from firebase for this food pantry
@@ -372,7 +369,7 @@ export default function PantryHome() {
         align: "center",
       });
     }
-    setRows(tempRows);
+    setInventoryRows(tempRows);
   }, [itemList, quantityList]);
 
   // const fetchData = async () => {
@@ -443,7 +440,7 @@ export default function PantryHome() {
         </Fab>
       </Box>
       <InsertFormDialog
-        open={open}
+        open={insertOpen}
         handleClose={handleClose}
         insertItem={insertItem}
         item={item}
@@ -461,8 +458,8 @@ export default function PantryHome() {
         handleEditClose={handleClose}
         index={editIndex}
         insertItem={insertItem}
-        rows={rows}
-        setRows={setRows}
+        rows={inventoryRows}
+        setRows={setInventoryRows}
         id={editId}
         itemList={itemList}
         quantityList={quantityList}
@@ -478,10 +475,11 @@ export default function PantryHome() {
               fontWeight: "bold",
             },
           }}
-          rows={rows}
+          rows={inventoryRows}
           columns={columns}
         />
       </div>
+      <h1 style={{ textAlign: "center" }}>Food Needed</h1>
     </>
   );
 }
