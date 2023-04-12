@@ -1,6 +1,7 @@
 import  { React, useState } from "react";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification } from "firebase/auth";
-import { getData } from "firebase/firestore";
+import { db } from "./firebase-config";
+import { doc, updateDoc, onSnapshot } from "firebase/firestore";
 import "./Login.css";
 import {auth} from './firebase-config'; 
 // import { Form, Button, Card } from "react-bootstrap";
@@ -10,6 +11,8 @@ export default function Login() {
 
   const [registerUsername, setRegisterUsername] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
+  const [registerFullName, setRegisterFullName] = useState("");
+  const [registerZipcode, setRegisterZipcode] = useState("");
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
  
@@ -27,11 +30,24 @@ export default function Login() {
       registerUsername, 
       registerPassword
     );
+
     sendEmailVerification(auth.currentUser).then(() => 
     {
       console.log("yay email sent!")
     });
+
     console.log(user);
+
+    const dbRef = doc(db, "client-accounts", "UID");
+    const insertUser = async () => {
+      await updateDoc(dbRef, {
+        full_name: registerFullName,
+        password: registerPassword,
+        username: registerUsername,
+        zipcode: registerZipcode,
+      });
+    };
+    insertUser();
     } catch (error) {
       console.log(error.message);
     }
@@ -84,7 +100,18 @@ export default function Login() {
             {setRegisterPassword(event.target.value);
           }}
         />
-
+        <input 
+          placeholder="Full Name"
+          onChange={(event) => 
+            {setRegisterFullName(event.target.value);
+          }}
+        />
+        <input 
+          placeholder="Zipcode"
+          onChange={(event) => 
+            {setRegisterZipcode(event.target.value);
+          }}
+        />
         <button onClick={register}>Create User</button>
       </div>
       <div>
