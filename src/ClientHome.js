@@ -191,20 +191,19 @@ export default function ClientHome() {
     };
     const sendRequest = async (request) => {
       await addDoc(collection(db, "requests"), request)
-      .then((docRef) => {
-        console.log("Document has been added successfully");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    setRequestDialogOpen(false);
-    }
-    
+        .then((docRef) => {
+          console.log("Document has been added successfully");
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      setRequestDialogOpen(false);
+    };
     sendRequest(request);
-
-    // TODO: add doc to firebase
   };
 
+  
+  //process food bank cards and load them
   let temp = foodPantries.slice();
   let food_bank_list = temp.map((x, index) => (
     <FoodBankCard
