@@ -16,6 +16,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 export default function MyRequests(props) {
     // States for form dialog
@@ -25,6 +26,8 @@ export default function MyRequests(props) {
     let [quantity, setQuantity] = useState(0);
     let [foodPantryName, setFoodPantryName] = useState(0);
     let [editId, setEditId] = useState(0);
+    let [clientNotes, setClientNotes] = useState("");
+    let [pantryNotes, setPantryNotes] = useState("");
 
     /**
    * Function for editing a row
@@ -35,31 +38,39 @@ export default function MyRequests(props) {
    * Function for handling closing the form dialog
    * Makes sure to reset the item and quantity state
    */
-  const handleEditClose = () => {
-    setEditOpen(false);
-    setItem("");
-    setQuantity(0);
-  };
+    const handleEditClose = () => {
+        setEditOpen(false);
+        setItem("");
+        setClientNotes("");
+        setPantryNotes("");
+        setQuantity(0);
+    };
 
     //TODO replace with actual array
     const [requests, setRequests] = useState([{
-        item: "potato", 
-        requestStatus: 0, 
-        date: 34, 
-        quantity: 2, 
-        foodPantryName: "Food Pantry W"
+        item: "potato",
+        requestStatus: 1,
+        date: 34,
+        quantity: 2,
+        foodPantryName: "Food Pantry W",
+        clientNotes: "feaujseoi",
+        pantryNotes: "jfeaoiaoei"
     }, {
-        item: "corn", 
-        requestStatus: 0, 
-        date: 34, 
-        quantity: 2, 
-        foodPantryName: "Food Pantry W"
+        item: "corn",
+        requestStatus: 0,
+        date: 34,
+        quantity: 2,
+        foodPantryName: "Food Pantry W",
+        clientNotes: "feaujseoi",
+        pantryNotes: "jfeaoiaoei"
     }, {
-        item: "wheat", 
-        requestStatus: 0, 
-        date: 34, 
-        quantity: 2, 
-        foodPantryName: "Food Pantry W"
+        item: "wheat",
+        requestStatus: 0,
+        date: 34,
+        quantity: 2,
+        foodPantryName: "Food Pantry W",
+        clientNotes: "feaujseoi",
+        pantryNotes: "jfeaoiaoei"
     }]);
 
     const editRequestsClick = (index) => {
@@ -68,9 +79,10 @@ export default function MyRequests(props) {
         setItem(requests[index].item);
         setQuantity(requests[index].quantity);
         setFoodPantryName(requests[index].foodPantryName);
-
+        setClientNotes(requests[index].clientNotes);
+        setPantryNotes(requests[index].pantryNotes);
         setEditOpen(true);
-      };
+    };
 
     let requestsArrayUI = requests.map((request, index) => <Request key={request.toString()}
         item={request.item}
@@ -81,41 +93,53 @@ export default function MyRequests(props) {
         index={index}
         editRequestsClick={editRequestsClick}
         requests={requests}
+        clientNotes={request.clientNotes}
+        pantryNotes={request.pantryNotes}
     ></Request>);
     return (
         <div style={{ marginLeft: "16px", marginRight: "16px" }}>
-            <RequestsHeader />
+            <RequestsHeader title="Pending Requests" />
             {requestsArrayUI}
-            <EditRequestDialog editOpen={editOpen}
+            <EditRequestDialog 
+                editOpen={editOpen}
                 item={item}
                 setItem={setItem}
                 quantity={quantity}
                 setQuantity={setQuantity}
                 handleEditClose={handleEditClose}
                 index={editIndex}
+                clientNotes={clientNotes}
+                setClientNotes={setClientNotes}
                 insertItem={() => { }}
+                pantryNotes={pantryNotes}
                 requests={requests}
                 setRequests={setRequests}
                 foodPantryName={foodPantryName}
                 setFoodPantryName={setFoodPantryName}
                 id={6}
             />
+            <MoreVertIcon fontSize="large" style={{ marginRight: "auto", marginLeft: "auto", marginTop: "10px", display: "block", color: "darkgray" }} />
+            <RequestsHeader title="Past Requests" />
+            {/* TODO add past request array here! */}
+            {requestsArrayUI}
+            <MoreVertIcon fontSize="large" style={{ marginRight: "auto", marginLeft: "auto", marginTop: "10px", display: "block", color: "darkgray" }} />
         </div>
 
     )
 
 }
 
-
-
 function EditRequestDialog({
     editOpen,
+    pantryNotes,
     item,
     setItem,
     quantity,
     setQuantity,
     handleEditClose,
     index,
+    clientNotes,
+    setClientNotes,
     requests,
     setRequests,
     foodPantryName,
@@ -126,15 +150,15 @@ function EditRequestDialog({
     let defaultFoodPantryName = "";
     let defaultItem = "";
     let defaultQuantity = 0;
-    let defaultNotes = "";
+    let defaultClientNotes = "";
 
     //TODO integrate w/ firebase
     if (requests.length > 0) {
         defaultFoodPantryName = requests[index].foodPantryName;
         defaultItem = requests[index].item;
         defaultQuantity = requests[index].quantity;
-        defaultNotes = requests[index].notes;
-      }
+        defaultClientNotes = requests[index].clientNotes;
+    }
 
     // if (rows.length > 0) {
     //   defaultItem = rows[index].col1;
@@ -144,7 +168,9 @@ function EditRequestDialog({
     const handleEditItem = () => {
         if (!item) setItem(defaultItem);
         if (!quantity) setQuantity(defaultQuantity);
-        if (item && quantity > 0) {
+        if (!clientNotes) setClientNotes(defaultClientNotes);
+        if (item && clientNotes && quantity > 0) {
+            // console.log(item)
             // setRows((rows) =>
             //   rows
             //     .slice(0, index)
@@ -153,13 +179,17 @@ function EditRequestDialog({
             // );
             //updates the requests when the item has been edited
             setRequests((requests) => requests
-            .slice(0, index)
-            .concat({item: item, 
-                requestStatus: 1, 
-                date: "new date", 
-                quantity: quantity, 
-                foodPantryName: foodPantryName})
-            .concat(requests.slice(index+1, requests.length)))
+                .slice(0, index)
+                .concat({
+                    item: item,
+                    requestStatus: 1,
+                    date: "new date", //TODO change to updated date
+                    quantity: quantity,
+                    foodPantryName: foodPantryName,
+                    clientNotes: clientNotes,
+                    pantryNotes: pantryNotes
+                })
+                .concat(requests.slice(index + 1, requests.length)))
         }
         handleEditClose();
     };
@@ -226,19 +256,25 @@ function EditRequestDialog({
                         autoFocus
                         margin="dense"
                         id="notesEdit"
-                        label="Additional Notes"
+                        label="Client Notes"
                         type="text"
                         fullWidth
                         variant="standard"
-                        defaultValue={defaultNotes}
+                        defaultValue={defaultClientNotes}
                         onChange={(event) => {
-                            setItem(() => {
+                            setClientNotes(() => {
                                 console.log(event.target.value);
-                                if (!event.target.value) return defaultNotes;
+                                if (!event.target.value) return defaultClientNotes;
                                 else return event.target.value;
                             });
                         }}
                     />
+                    <DialogContentText style={{fontSize: "small", marginTop:"8px"}}>
+                    Pantry Notes
+                    </DialogContentText>
+                    <DialogContentText style={{color:"black"}}>
+                    {pantryNotes}
+                    </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleEditItem}>Update</Button>

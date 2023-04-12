@@ -4,16 +4,19 @@ import { IconButton, Chip } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import Grid from '@mui/material/Grid'; // Grid version 1
 //import EditRequest from './EditRequest'
-import {useState} from 'react';
+import { useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 
 /**
  * Makes a request for the my requests page.
  * @returns the navigation bar
  */
-export default function Request({item, requestStatus, date, quantity, foodPantryName, index, editRequestsClick, requests}) {
+export default function Request({ item, requestStatus, date, quantity, foodPantryName, index, editRequestsClick, clientNotes, pantryNotes}) {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // console.log({clientNotes});
+  // console.log({pantryNotes});
 
   //from Home
   // const [open, setOpen] = useState(false);
@@ -22,9 +25,9 @@ export default function Request({item, requestStatus, date, quantity, foodPantry
   // const [item, setItem] = useState("");
   // const [quantity, setQuantity] = useState(0);
   const [editId, setEditId] = useState(0);
-  
 
-  //0 is fulfilled, 1 is pending, 2 is cancelled
+
+  //0 is fulfilled, 1 is pending, 2 is cancelled, 3 is accepted
   //const [requestNum, requestStatus, date, quantity, foodPantryName] = [0, 1, "Date", 7, "Food Pantry W"]; //change to use props/query
   let requestStatusStr; //the string for the request status
   let requestStatusColor; //the class name for styling the request button
@@ -52,6 +55,12 @@ export default function Request({item, requestStatus, date, quantity, foodPantry
         requestStatusColor = "lightcoral";
         break;
       }
+    case 3:
+      {
+        requestStatusStr = "Accepted";
+        requestStatusColor = "lightskyblue";
+        break;
+      }
     default:
       requestStatusStr = "";
       requestStatusColor = "";
@@ -62,13 +71,13 @@ export default function Request({item, requestStatus, date, quantity, foodPantry
       <Grid container
         alignItems="center"
         justifyContent="center"
-        >
+      >
         <Grid item xs={4}>
           <p className="align-text-left">{item}</p>
         </Grid>
         <Grid item xs={4}>
           <div className="chip-container">
-            <Chip style={{backgroundColor: requestStatusColor}} label={requestStatusStr} />
+            <Chip style={{ backgroundColor: requestStatusColor }} label={requestStatusStr} /> 
           </div>
         </Grid>
         <Grid item xs={4}>
@@ -78,7 +87,7 @@ export default function Request({item, requestStatus, date, quantity, foodPantry
 
       <Grid container alignItems="center"
         justifyContent="center"
-        >
+      >
         <Grid item xs={4}>
           <p className="align-text-left">x {quantity}</p>
         </Grid>
@@ -86,13 +95,13 @@ export default function Request({item, requestStatus, date, quantity, foodPantry
           <p className="align-text-center">{foodPantryName}</p>
         </Grid>
         <Grid item xs={4}>
-          <IconButton className="centered" aria-label="edit"
-              size="large"
-              variant="contained"
-              onClick={() => editRequestsClick(index)}
-              >
+          {requestStatus === 1 ? <IconButton className="centered" aria-label="edit"
+            size="large"
+            variant="contained"
+            onClick={() => editRequestsClick(index)}
+          >
             <EditIcon />
-          </IconButton>
+          </IconButton> : <div></div>}
         </Grid>
       </Grid>
     </div>

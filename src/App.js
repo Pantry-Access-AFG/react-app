@@ -5,7 +5,7 @@ import NavBar from "./components/NavBar";
 import Login from "./Login";
 import React from "react";
 import FoodPantryProfile from "./FoodPantryProfile";
-import MyRequests from "./MyRequests";
+import MyRequests from "./PantryMyRequests";
 import PantryHome from "./PantryHome";
 import Footer from "./components/Footer";
 import ClientHome from "./ClientHome";
