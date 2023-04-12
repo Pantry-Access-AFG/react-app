@@ -1,6 +1,6 @@
 import React from "react";
 import FoodBankCard from "./components/FoodBankCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
@@ -8,6 +8,8 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import { db } from "./firebase-config";
+import { collection, getDocs, addDoc } from "firebase/firestore";
 
 /**
  * Creates a form for clients to request items from Food Pantries
@@ -33,7 +35,7 @@ function MakeRequestDialog({
    */
   const handleMakeRequest = () => {
     if (item && quantity > 0) {
-      makeRequest({ clientID, foodPantryID, item, quantity });
+      makeRequest(clientID, foodPantryID, item, quantity);
       handleClose();
     }
   };
@@ -81,9 +83,38 @@ function MakeRequestDialog({
               handleMakeRequest(item, quantity);
             }}
           >
-            Insert
+            Make Request
           </Button>
           <Button onClick={handleClose}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+}
+
+/**
+ *
+ * @param {open, handleClose, foodBankName, foodPantryDesription, foodPantryID} parameters to describe the food bank to be described
+ * @returns a dialog that shows the user more about the food pantry in question
+ */
+function LearnMoreDialog({
+  open,
+  handleClose,
+  foodPantryName,
+  foodPantryDescription,
+  foodPantryID,
+  foodPantryZipCode,
+}) {
+  return (
+    <>
+      <Dialog open={open} onClose={handleClose} fullWidth={true} p>
+        <DialogTitle>{foodPantryName}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{foodPantryZipCode}</DialogContentText>
+          <DialogContentText>{foodPantryDescription}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Back</Button>
         </DialogActions>
       </Dialog>
     </>
@@ -97,32 +128,82 @@ function MakeRequestDialog({
  */
 export default function ClientHome() {
   let [foodPantries, setFoodPantries] = useState([
-    ["Food Pantry A", "01650"],
-    ["Food Pantry B", "01772"],
+    ["Food Pantry A", "01650", "Food Pantry A is a nonprofit"],
+    ["Food Pantry B", "01772", "Food Pantry B is collegeboard"],
   ]);
 
-  let [open, setOpen] = useState(false);
+  /**
+   * Retrieve food pantries (in food-bank-accounts collection) from Firebase
+   */
+  useEffect(() => {
+    const fetchData = async () => {
+      const querySnapshot = await getDocs(collection(db, "food-bank-accounts"));
+      let foodPantryData = [];
+      querySnapshot.forEach((doc) => {
+        foodPantryData.push([
+          doc.data()["name"],
+          doc.data()["zipcode"],
+          doc.data()["description"],
+        ]);
+      });
+      setFoodPantries(foodPantryData);
+    };
+    fetchData();
+  }, []);
+
+  let [requestDialogOpen, setRequestDialogOpen] = useState(false);
+  let [learnMoreDialogOpen, setLearnMoreDialogOpen] = useState(false);
   let [foodPantryID, setFoodPantryID] = useState(0);
   let [indexClicked, setIndexClicked] = useState(0);
 
   /**
    * @param index of the food bank to be requested from
-   * Sets index to be index cliekced and opens dialog for requesting foods
+   * Sets index to be index clicked and opens dialog for requesting foods
    */
   const onRequestClick = (index) => {
-    console.log(index);
     setIndexClicked(index);
     setFoodPantryID(index);
-    setOpen(true);
+    setRequestDialogOpen(true);
+  };
+
+  /**
+   * @param index of food bank to be learned more about
+   * Sets index to be index clicked
+   */
+  const onLearnMoreClick = (index) => {
+    setIndexClicked(index);
+    setFoodPantryID(index);
+    setLearnMoreDialogOpen(true);
   };
 
   /**
    * TODO: What happens when request is made --> send to firebase
    */
-  const makeRequest = (item, quantity) => {
-    console.log(item, quantity);
+  const makeRequest = (clientID, pantryID, item, quantity) => {
+    const request = {
+      "Client UID": 3480242,
+      "Food Bank UID": 238408934,
+      "Client Notes": null,
+      "Food Pantry Notes": null,
+      item: item,
+      quantity: quantity,
+      status: 0,
+    };
+    const sendRequest = async (request) => {
+      await addDoc(collection(db, "requests"), request)
+        .then((docRef) => {
+          console.log("Document has been added successfully");
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      setRequestDialogOpen(false);
+    };
+    sendRequest(request);
   };
 
+  
+  //process food bank cards and load them
   let temp = foodPantries.slice();
   let food_bank_list = temp.map((x, index) => (
     <FoodBankCard
@@ -132,6 +213,7 @@ export default function ClientHome() {
       zipCode={x[1]}
       distanceAway="5"
       onRequestClick={onRequestClick}
+      onLearnMoreClick={onLearnMoreClick}
     ></FoodBankCard>
   ));
 
@@ -143,12 +225,20 @@ export default function ClientHome() {
       </h1>
       {food_bank_list}
       <MakeRequestDialog
-        open={open}
-        handleClose={() => setOpen(false)}
+        open={requestDialogOpen}
+        handleClose={() => setRequestDialogOpen(false)}
         makeRequest={makeRequest}
         foodPantryID={foodPantryID}
         foodPantryName={temp[indexClicked][0]}
       ></MakeRequestDialog>
+      <LearnMoreDialog
+        open={learnMoreDialogOpen}
+        handleClose={() => setLearnMoreDialogOpen(false)}
+        foodPantryName={temp[indexClicked][0]}
+        foodPantryID={foodPantryID}
+        foodPantryDescription={temp[indexClicked][2]}
+        foodPantryZipCode={temp[indexClicked][1]}
+      ></LearnMoreDialog>
     </>
   );
 }

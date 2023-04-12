@@ -206,6 +206,10 @@ function AreYourSureDialog({ deleteAccountOpen, deleteAccount, handleClose }) {
   );
 }
 
+/**
+ * 
+ * @returns confetti mode component to be used for submission of new inventory items
+ */
 const ConfettiMode = ({ confettiOn, setConfettiOn }) => {
   return (
     <div>

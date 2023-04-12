@@ -9,6 +9,7 @@ import MyRequests from "./MyRequests";
 import PantryHome from "./PantryHome";
 import Footer from "./components/Footer";
 import ClientHome from "./ClientHome";
+import FourOhFour from "./404";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         />
         <Route path="/myrequests" element={<MyRequests></MyRequests>} />
         <Route path="/login" element={<Login></Login>} />
+        <Route path='*' element={<FourOhFour />}/>
       </Routes>
 
       <Footer></Footer>
