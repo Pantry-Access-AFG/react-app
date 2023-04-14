@@ -20,6 +20,8 @@
     "react-mui-auth-page": "^1.6.0",
     "react-router-dom": "^6.9.0",
     "react-scripts": "5.0.1",
+    "react-use": "^17.4.0",
+    "react-use-window-size": "^1.0.1",
     "web-vitals": "^2.1.4",
     "zipcode-city-distance": "^1.0.6"
   },

@@ -18,6 +18,8 @@ import {
   InsertWantedFormDialog,
   EditWantedFormDialog,
 } from "./components/WantedInventory";
+import useWindowSize from "react-use/lib/useWindowSize"
+
 /**
  *
  * @returns Confetti object!
@@ -61,6 +63,7 @@ export default function PantryHome() {
   const [wantedItemList, setWantedItemList] = useState([]);
   const [wantedQuantityList, setWantedQuantityList] = useState([]);
   const [wantedRows, setWantedRows] = useState(() => []);
+  const { width, height } = useWindowSize()
 
   /**
    * Function for handling opening the form dialog
@@ -432,10 +435,6 @@ export default function PantryHome() {
         itemList={wantedItemList}
         quantityList={wantedQuantityList}
       ></EditWantedFormDialog>
-      <ConfettiMode
-        confettiOn={confettiOn}
-        setConfettiOn={setConfettiOn}
-      ></ConfettiMode>
       <div style={{ height: 300, width: "80%", margin: "auto" }}>
         <DataGrid
           sx={{
@@ -470,6 +469,12 @@ export default function PantryHome() {
           columns={wantedColumns}
         />
       </div>
+      <ConfettiMode
+        confettiOn={confettiOn}
+        setConfettiOn={setConfettiOn}
+        width={width}
+        height={height}
+      ></ConfettiMode>
     </>
   );
 }
