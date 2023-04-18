@@ -1,197 +1,24 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import { useState, useEffect } from "react";
 import { db } from "./firebase-config";
 import { doc, updateDoc, onSnapshot } from "firebase/firestore";
 import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { DataGrid } from "@mui/x-data-grid";
-import TextField from "@mui/material/TextField";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import Confetti from "react-confetti";
-
-/**
- * Creates a form for inserting items into the Food Bank inventory
- * Inputs various states for determining whether the form should be open/closed or what functions should be performed when items are submitted into the table
- * @returns Form component
- */
-
-// TODO: create a boolean state error for quantityInsert, nameInsert, quantityEdit, nameEdit that is toggled in the components when the text is still empty
-// make the field error in textfield error = {errorQuantityInsert/NameInsert/...}
-function InsertFormDialog({
-  open,
-  handleClose,
-  insertItem,
-  item,
-  setItem,
-  quantity,
-  setQuantity,
-}) {
-  /**
-   * Function to handle insertting items into the DataGrid
-   */
-  const handleInsertItem2 = () => {
-    if (item && quantity > 0) {
-      insertItem({ col1Name: item, col2Name: quantity });
-      handleClose();
-    }
-  };
-
-  return (
-    <>
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Insert Item</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Enter item to be added to the inventory.
-          </DialogContentText>
-          <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="nameInsert"
-            label="Item Name"
-            type="text"
-            fullWidth
-            variant="standard"
-            onChange={(event) => {
-              setItem(event.target.value);
-            }}
-          />
-          <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="quantityInsert"
-            label="Quantity"
-            type="number"
-            fullWidth
-            variant="standard"
-            onChange={(event) => {
-              setQuantity(event.target.value);
-            }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleInsertItem2}>Insert</Button>
-          <Button onClick={handleClose}>Cancel</Button>
-        </DialogActions>
-      </Dialog>
-    </>
-  );
-}
-
-/**
- * Creates a form for editing items into the Food Bank inventory
- * Inputs various states for determining whether the form should be open/closed or what functions should be performed when items are edited into the table
- * @returns Form component
- */
-function EditFormDialog({
-  editOpen,
-  setEditOpen,
-  item,
-  setItem,
-  quantity,
-  setQuantity,
-  handleEditClose,
-  index,
-  rows,
-  setRows,
-  id,
-  itemList,
-  quantityList,
-}) {
-  let defaultItem = "";
-  let defaultQuantity = 0;
-
-  if (rows.length > 0 && index >= 0 && index < rows.length) {
-    defaultItem = rows[index].col1;
-    defaultQuantity = rows[index].col2;
-  }
-
-  const handleEditItem = () => {
-    if (!item) setItem(defaultItem);
-    if (!quantity) setQuantity(defaultQuantity);
-    if (item && quantity > 0) {
-      //ONLY UPDATE FIREBASE
-      const docRef = doc(db, "inventory", "pantryUID");
-      const editData = async () => {
-        let tempItems = itemList.slice();
-        tempItems[index] = item;
-        let tempQuantity = quantityList.slice();
-        tempQuantity[index] = quantity;
-        await updateDoc(docRef, {
-          itemList: tempItems,
-          quantityList: tempQuantity,
-        });
-      };
-      editData();
-      // setRows((rows) =>
-      //   rows
-      //     .slice(0, index)
-      //     .concat({ id: id, col1: item, col2: quantity })
-      //     .concat(rows.slice(index + 1, rows.length))
-      // );
-    }
-    handleEditClose();
-  };
-
-  return (
-    <>
-      <Dialog open={editOpen} onClose={handleEditClose}>
-        <DialogTitle>Edit Item</DialogTitle>
-        <DialogContent>
-          <DialogContentText>Edit Item</DialogContentText>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="nameEdit"
-            label="Item Name"
-            type="text"
-            fullWidth
-            variant="standard"
-            defaultValue={defaultItem}
-            onChange={(event) => {
-              setItem(() => {
-                if (!event.target.value) return defaultItem;
-                else return event.target.value;
-              });
-            }}
-          />
-          <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="quantityEdit"
-            label="Quantity"
-            type="number"
-            fullWidth
-            variant="standard"
-            defaultValue={defaultQuantity}
-            onChange={(event) => {
-              setQuantity(() => {
-                if (event.target.value === 0) return defaultQuantity;
-                else return event.target.value;
-              });
-            }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleEditItem}>Update</Button>
-          <Button onClick={handleEditClose}>Cancel</Button>
-        </DialogActions>
-      </Dialog>
-    </>
-  );
-}
+import {
+  InsertInventoryFormDialog,
+  EditInventoryFormDialog,
+} from "./components/Inventory";
+import {
+  InsertWantedFormDialog,
+  EditWantedFormDialog,
+} from "./components/WantedInventory";
+import useWindowSize from "react-use/lib/useWindowSize"
 
 /**
  *
@@ -220,8 +47,10 @@ const ConfettiMode = ({ confettiOn, setConfettiOn }) => {
  */
 export default function PantryHome() {
   // States for form dialog
-  const [insertOpen, setRequestOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
+  const [insertOpen, setInsertOpen] = useState(false);
+  const [editInventoryOpen, setInventoryEditOpen] = useState(false);
+  const [insertWantedOpen, setInsertWantedOpen] = useState(false);
+  const [editWantedOpen, setEditWantedOpen] = useState(false);
   let [editIndex, setEditIndex] = useState(0);
   let [item, setItem] = useState("");
   let [quantity, setQuantity] = useState(0);
@@ -231,12 +60,23 @@ export default function PantryHome() {
   const [quantityList, setQuantityList] = useState([]);
   const [inventoryRows, setInventoryRows] = useState(() => []);
   const [id] = useState(inventoryRows.length + 1);
+  const [wantedItemList, setWantedItemList] = useState([]);
+  const [wantedQuantityList, setWantedQuantityList] = useState([]);
+  const [wantedRows, setWantedRows] = useState(() => []);
+  const { width, height } = useWindowSize()
 
   /**
    * Function for handling opening the form dialog
    */
-  const handleClickOpen = () => {
-    setRequestOpen(true);
+  const handleClickOpenInsert = () => {
+    setInsertOpen(true);
+  };
+
+  /**
+   * Function for handling opening the form dialog for wanted items
+   */
+  const handleClickOpenWanted = () => {
+    setInsertWantedOpen(true);
   };
 
   /**
@@ -244,8 +84,11 @@ export default function PantryHome() {
    * Makes sure to reset the item and quantity state
    */
   const handleClose = () => {
-    setRequestOpen(false);
-    setEditOpen(false);
+    setInsertOpen(false);
+    setInsertWantedOpen(false);
+    setInventoryEditOpen(false);
+    setEditWantedOpen(false);
+    setInsertWantedOpen(false);
     setItem("");
     setQuantity(0);
   };
@@ -254,7 +97,7 @@ export default function PantryHome() {
    * Function for deleting rows
    * Removes respective row and reinitializes row array
    */
-  const deleteRowClick = (e, row, rows, index) => {
+  const deleteInventoryRowClick = (e, row, rows, index) => {
     const docRef = doc(db, "inventory", "pantryUID");
     const deleteData = async () => {
       await updateDoc(docRef, {
@@ -267,25 +110,44 @@ export default function PantryHome() {
       });
     };
     deleteData();
+  };
 
-    // setRows((rows) =>
-    //   rows.slice(0, index).concat(rows.slice(index + 1, rows.length))
-    // );
+  const deleteWantedRowClick = (e, row, rows, index) => {
+    const docRef = doc(db, "inventory", "pantryUID");
+    const deleteData = async () => {
+      await updateDoc(docRef, {
+        wantedItemList: wantedItemList
+          .slice(0, index)
+          .concat(wantedItemList.slice(index + 1, rows.length)),
+        wantedQuantityList: wantedQuantityList
+          .slice(0, index)
+          .concat(wantedQuantityList.slice(index + 1, rows.length)),
+      });
+    };
+    deleteData();
   };
 
   /**
    * Function for editing a row
    * Edits respective row and reinitializes row array
    */
-  const editRowClick = (e, index) => {
+  const editInventoryRowClick = (e, index) => {
     setEditIndex(index);
     setEditId(inventoryRows[index].id);
     setItem(inventoryRows[index].col1);
     setQuantity(inventoryRows[index].col2);
-    setEditOpen(true);
+    setInventoryEditOpen(true);
   };
 
-  // DataGrid columns
+  const editWantedRowClick = (e, index) => {
+    setEditIndex(index);
+    setEditId(wantedRows[index].id);
+    setItem(wantedRows[index].col1);
+    setQuantity(wantedRows[index].col2);
+    setEditWantedOpen(true);
+  };
+
+  // Inventory DataGrid columns
   const columns = [
     {
       field: "col1",
@@ -321,7 +183,9 @@ export default function PantryHome() {
               aria-label="delete"
               size="large"
               variant="contained"
-              onClick={(e) => editRowClick(e, inventoryRows.indexOf(params.row))}
+              onClick={(e) =>
+                editInventoryRowClick(e, inventoryRows.indexOf(params.row))
+              }
             >
               <EditIcon />
             </IconButton>
@@ -331,7 +195,76 @@ export default function PantryHome() {
               size="large"
               variant="contained"
               onClick={(e) =>
-                deleteRowClick(e, params.row, inventoryRows, inventoryRows.indexOf(params.row))
+                deleteInventoryRowClick(
+                  e,
+                  params.row,
+                  inventoryRows,
+                  inventoryRows.indexOf(params.row)
+                )
+              }
+            >
+              <DeleteIcon />
+            </IconButton>
+          </>
+        );
+      },
+    },
+  ];
+
+  // Wanted DataGrid columns
+  const wantedColumns = [
+    {
+      field: "col1",
+      headerName: "Item",
+      flex: 1,
+      width: "25%",
+      align: "center",
+      headerAlign: "center",
+      headerClassName: "bold",
+    },
+    {
+      field: "col2",
+      headerName: "Quantity",
+      flex: 1,
+      width: "25%",
+      align: "center",
+      headerAlign: "center",
+      headerClassName: "bold",
+    },
+    {
+      field: "actions",
+      headerName: "Edit",
+      width: "25%",
+      align: "center",
+      flex: 1,
+      headerAlign: "center",
+      headerClassName: "bold",
+      renderCell: (params) => {
+        return (
+          // Delete/trash button for each row
+          <>
+            <IconButton
+              aria-label="delete"
+              size="large"
+              variant="contained"
+              onClick={(e) =>
+                editWantedRowClick(e, wantedRows.indexOf(params.row))
+              }
+            >
+              <EditIcon />
+            </IconButton>
+
+            <IconButton
+              aria-label="delete"
+              size="large"
+              variant="contained"
+              onClick={(e) =>
+                deleteWantedRowClick(
+                  e,
+                  params.row,
+                  wantedRows,
+                  wantedRows.indexOf(params.row)
+                )
               }
             >
               <DeleteIcon />
@@ -350,7 +283,9 @@ export default function PantryHome() {
       onSnapshot(doc(db, "inventory", "pantryUID"), (doc) => {
         if (doc.exists()) {
           setItemList(doc.data()["itemList"]);
+          setWantedItemList(doc.data()["wantedItemList"]);
           setQuantityList(doc.data()["quantityList"]);
+          setWantedQuantityList(doc.data()["wantedQuantityList"]);
         } else {
           console.log("Nothing!");
         }
@@ -372,41 +307,31 @@ export default function PantryHome() {
     setInventoryRows(tempRows);
   }, [itemList, quantityList]);
 
-  // const fetchData = async () => {
-  //   const docRef = doc(db, "inventory", "pantryUID");
-  //   const docSnap = await getDoc(docRef);
-
-  //   if (docSnap.exists()) {
-  //     setItemList(docSnap.data()["itemList"]);
-  //     setQuantityList(docSnap.data()["quantityList"]);
-  //     let tempRows = [];
-  //     for (let i = 0; i < itemList.length; i += 1) {
-  //       tempRows.push({
-  //         id: i + 1,
-  //         col1: itemList[i],
-  //         col2: quantityList[i],
-  //         align: "center",
-  //       });
-  //     }
-  //     setRows(tempRows);
-  //   } else {
-  //     console.log("Nothing!");
-  //   }
-  // };
-  // fetchData();
+  useEffect(() => {
+    let tempRows = [];
+    for (let i = 0; i < wantedItemList.length; i += 1) {
+      tempRows.push({
+        id: i + 1,
+        col1: wantedItemList[i],
+        col2: wantedQuantityList[i],
+        align: "center",
+      });
+    }
+    setWantedRows(tempRows);
+  }, [wantedItemList, wantedQuantityList]);
 
   /**
    * Function to handle inserting an item into the row
    * Opens the form dialog
    */
-  const handleInsertItem = () => {
-    handleClickOpen();
+  const handleInsertInventoryItem = () => {
+    handleClickOpenInsert();
   };
 
   /**
    * Inserts item to row by appending it to the end and increasing the id number
    */
-  const insertItem = ({ itemID = id, col1Name, col2Name }) => {
+  const insertItemInventory = ({ itemID = id, col1Name, col2Name }) => {
     const docRef = doc(db, "inventory", "pantryUID");
     const insertData = async () => {
       await updateDoc(docRef, {
@@ -415,15 +340,22 @@ export default function PantryHome() {
       });
     };
     insertData();
-    /* setId(id + 1);
-    setRows((rows) => [
-      ...rows,
-      { id: itemID, col1: col1Name, col2: col2Name },
-    ]);*/
     setConfettiOn(true);
   };
 
-  let food_bank_name = "Food Bank X";
+  const insertItemWanted = ({ itemID = id, col1Name, col2Name }) => {
+    const docRef = doc(db, "inventory", "pantryUID");
+    const insertData = async () => {
+      await updateDoc(docRef, {
+        wantedItemList: [...wantedItemList, col1Name],
+        wantedQuantityList: [...wantedQuantityList, col2Name],
+      });
+    };
+    insertData();
+    setConfettiOn(true);
+  };
+
+  let food_bank_name = "Food Pantry X";
 
   return (
     <>
@@ -433,41 +365,76 @@ export default function PantryHome() {
           color="primary"
           aria-label="add"
           variant="extended"
-          onClick={handleInsertItem}
+          onClick={handleInsertInventoryItem}
         >
           <AddIcon />
           Insert Item
         </Fab>
       </Box>
-      <InsertFormDialog
+      <InsertInventoryFormDialog
         open={insertOpen}
         handleClose={handleClose}
-        insertItem={insertItem}
+        insertItem={insertItemInventory}
         item={item}
         setItem={setItem}
         quantity={quantity}
         setQuantity={setQuantity}
-      ></InsertFormDialog>
-      <EditFormDialog
-        editOpen={editOpen}
-        setEditOpen={setEditOpen}
+      ></InsertInventoryFormDialog>
+      <EditInventoryFormDialog
+        editOpen={editInventoryOpen}
+        setEditOpen={setInventoryEditOpen}
         item={item}
         setItem={setItem}
         quantity={quantity}
         setQuantity={setQuantity}
         handleEditClose={handleClose}
         index={editIndex}
-        insertItem={insertItem}
         rows={inventoryRows}
         setRows={setInventoryRows}
         id={editId}
         itemList={itemList}
         quantityList={quantityList}
-      ></EditFormDialog>
-      <ConfettiMode
-        confettiOn={confettiOn}
-        setConfettiOn={setConfettiOn}
-      ></ConfettiMode>
+      ></EditInventoryFormDialog>
+      <InsertWantedFormDialog
+        open={insertWantedOpen}
+        handleClose={handleClose}
+        insertItem={insertItemWanted}
+        item={item}
+        setItem={setItem}
+        quantity={quantity}
+        setQuantity={setQuantity}
+      ></InsertWantedFormDialog>
+      <InsertInventoryFormDialog
+        editOpen={insertWantedOpen}
+        setEditOpen={setEditWantedOpen}
+        item={item}
+        setItem={setItem}
+        quantity={quantity}
+        setQuantity={setQuantity}
+        handleEditClose={handleClose}
+        index={editIndex}
+        insertItem={insertItemWanted}
+        rows={wantedRows}
+        setRows={setWantedRows}
+        id={editId}
+        itemList={wantedItemList}
+        quantityList={wantedQuantityList}
+      ></InsertInventoryFormDialog>
+      <EditWantedFormDialog
+        editOpen={editWantedOpen}
+        setEditOpen={setEditWantedOpen}
+        item={item}
+        setItem={setItem}
+        quantity={quantity}
+        setQuantity={setQuantity}
+        handleEditClose={handleClose}
+        index={editIndex}
+        rows={wantedRows}
+        setRows={setWantedRows}
+        id={editId}
+        itemList={wantedItemList}
+        quantityList={wantedQuantityList}
+      ></EditWantedFormDialog>
       <div style={{ height: 300, width: "80%", margin: "auto" }}>
         <DataGrid
           sx={{
@@ -480,6 +447,34 @@ export default function PantryHome() {
         />
       </div>
       <h1 style={{ textAlign: "center" }}>Food Needed</h1>
+      <Box sx={{ "& > :not(style)": { m: 3 } }} textAlign="center">
+        <Fab
+          color="primary"
+          aria-label="add"
+          variant="extended"
+          onClick={() => handleClickOpenWanted()}
+        >
+          <AddIcon />
+          Insert Item
+        </Fab>
+      </Box>
+      <div style={{ height: 300, width: "80%", margin: "auto" }}>
+        <DataGrid
+          sx={{
+            "& .bold": {
+              fontWeight: "bold",
+            },
+          }}
+          rows={wantedRows}
+          columns={wantedColumns}
+        />
+      </div>
+      <ConfettiMode
+        confettiOn={confettiOn}
+        setConfettiOn={setConfettiOn}
+        width={width}
+        height={height}
+      ></ConfettiMode>
     </>
   );
 }

@@ -137,7 +137,6 @@ function UserInfo({
   const usernameSubmit = (event) => {
     event.preventDefault();
     setUsername(event.target.value);
-    console.log("submitted new username");
   };
 
   const passwordChange = (event) => {
@@ -147,7 +146,6 @@ function UserInfo({
   const passwordSubmit = (event) => {
     event.preventDefault();
     setPassword(event.target.value);
-    console.log("password submitted");
   };
 
   const zipcodeChange = (event) => {
@@ -157,7 +155,6 @@ function UserInfo({
   const zipcodeSubmit = (event) => {
     event.preventDefault();
     setZipcode(event.target.value);
-    console.log("zipcode submitted");
   };
 
   return (
