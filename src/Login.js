@@ -1,8 +1,9 @@
-import  { React, useState } from "react";
+import  { React, useState, useEffect } from "react";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification } from "firebase/auth";
 import { db } from "./firebase-config";
-import { doc, updateDoc, onSnapshot } from "firebase/firestore";
+import { doc, updateDoc, onSnapshot, addDoc, setDoc } from "firebase/firestore";
 import "./Login.css";
+import { useNavigate, useLocation } from "react-router-dom";
 import {auth} from './firebase-config'; 
 // import { Form, Button, Card } from "react-bootstrap";
 
@@ -18,9 +19,18 @@ export default function Login() {
  
   const [user, setUser] = useState({});
 
-  onAuthStateChanged(auth, (currentUser) => {
-    setUser(currentUser)
-  })
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   const register = async () =>  {
 
@@ -38,9 +48,9 @@ export default function Login() {
 
     console.log(user);
 
-    const dbRef = doc(db, "client-accounts", "UID");
+    const dbRef = doc(db, "client-accounts", user.user.uid);
     const insertUser = async () => {
-      await updateDoc(dbRef, {
+      await setDoc(dbRef, {
         full_name: registerFullName,
         password: registerPassword,
         username: registerUsername,
@@ -79,8 +89,9 @@ export default function Login() {
   };
 
   const logout = async () => {
-
+    setLoading(true);
     await signOut(auth);
+    setLoading(false);
   };
 
   return (
