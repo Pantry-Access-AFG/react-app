@@ -1,6 +1,6 @@
 import Request from './components/Request';
 import RequestsHeader from './components/RequestsHeader';
-import React from "react";
+import {useEffect} from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { useState } from "react";
@@ -17,6 +17,9 @@ import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { Chip } from "@mui/material";
+import { db } from "./firebase-config";
+import { doc, updateDoc, onSnapshot,query, where, collection } from "firebase/firestore";
 
 // import Box from '@mui/material/Box';
 import InputLabel from '@mui/material/InputLabel';
@@ -36,10 +39,31 @@ export default function MyRequests(props) {
     let [pantryNotes, setPantryNotes] = useState("");
     let [requestStatus, setRequestStatus] = useState(1);
 
+    const signedInUser = ""
+
+    // const requestsRef = collection(db, "requests")
+    // const q = query(citiesRef, where("foodPantryUID", "==", "3480242"));
+
+
+    // useEffect(() => {
+    //     async function getInventoryData() {
+    //       onSnapshot(doc(db, "requests", "pantryUID"), (doc) => { //TODO CHANGE PANTRYUID TO ACTUAL UID
+    //         if (doc.exists()) {
+    //           setItemList(doc.data()["itemList"]);
+    //           setQuantityList(doc.data()["quantityList"]);
+    //         } else {
+    //           console.log("Nothing!");
+    //         }
+    //       });
+    //     }
+    //     getInventoryData();
+    //   }, []);
+
     /**
    * Function for editing a row
    * Edits respective row and reinitializes row array
    */
+
 
     /**
    * Function for handling closing the form dialog
@@ -65,7 +89,7 @@ export default function MyRequests(props) {
         pantryNotes: "jfeaoiaoei"
     }, {
         item: "corn",
-        requestStatus: 0,
+        requestStatus: 2,
         date: 34,
         quantity: 2,
         foodPantryName: "Food Pantry W",
@@ -73,13 +97,15 @@ export default function MyRequests(props) {
         pantryNotes: "jfeaoiaoei"
     }, {
         item: "wheat",
-        requestStatus: 0,
+        requestStatus: 4,
         date: 34,
         quantity: 2,
         foodPantryName: "Food Pantry W",
         clientNotes: "feaujseoi",
         pantryNotes: "jfeaoiaoei"
     }]);
+
+    
 
     const editRequestsClick = (index) => {
         setEditIndex(index);
@@ -267,7 +293,8 @@ function EditRequestDialog({
                         }}
                     />
                     {/* from https://mui.com/material-ui/react-select/ */}
-                    <FormControl fullWidth style={{marginTop: "8px" }}>
+                    <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                    <FormControl sx={{ m: 1, minWidth: 120 }} fullWidth style={{ marginTop: "8px" }}>
                         <InputLabel id="demo-simple-select-label">Request Status</InputLabel>
                         <Select
                             labelId="demo-simple-select-label"
@@ -282,12 +309,29 @@ function EditRequestDialog({
                                 });
                             }}
                         >
-                            <MenuItem value={0}>Cancelled</MenuItem>
-                            <MenuItem value={1}>Pending</MenuItem>
-                            <MenuItem value={2}>Fulfilled</MenuItem>
-                            <MenuItem value={3}>Accepted</MenuItem>
+                            <MenuItem value={1}>
+                                <div className="chip-container">
+                                    <Chip style={{ backgroundColor: "#fdff93", fontSize: "large" }} label="Pending" />
+                                </div>
+                            </MenuItem>
+                            <MenuItem value={2}>
+                                <div className="chip-container">
+                                    <Chip style={{ backgroundColor: "lightskyblue", fontSize: "large" }} label="Accepted" />
+                                </div>
+                            </MenuItem>
+                            <MenuItem value={3}>
+                                <div className="chip-container">
+                                    <Chip style={{ backgroundColor: "lightgreen", fontSize: "large" }} label="Fulfilled" />
+                                </div>
+                            </MenuItem>
+                            <MenuItem value={4}>
+                                <div className="chip-container">
+                                    <Chip style={{ backgroundColor: "lightcoral", fontSize: "large" }} label="Cancelled" />
+                                </div>
+                            </MenuItem>
                         </Select>
                     </FormControl>
+                    </Box>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleEditItem}>Update</Button>

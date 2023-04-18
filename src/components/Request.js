@@ -11,7 +11,7 @@ import Dialog from '@mui/material/Dialog';
  * Makes a request for the my requests page.
  * @returns the navigation bar
  */
-export default function Request({ item, requestStatus, date, quantity, foodPantryName, index, editRequestsClick, clientNotes, pantryNotes}) {
+export default function Request({ item, requestStatus, date, quantity, foodPantryName, index, editRequestsClick, clientNotes, pantryNotes }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -27,7 +27,7 @@ export default function Request({ item, requestStatus, date, quantity, foodPantr
   const [editId, setEditId] = useState(0);
 
 
-  //0 is fulfilled, 1 is pending, 2 is cancelled, 3 is accepted
+  //1 is pending, 2 is accepted, 3 is fulfilled, 4 is cancelled
   //const [requestNum, requestStatus, date, quantity, foodPantryName] = [0, 1, "Date", 7, "Food Pantry W"]; //change to use props/query
   let requestStatusStr; //the string for the request status
   let requestStatusColor; //the class name for styling the request button
@@ -37,12 +37,6 @@ export default function Request({ item, requestStatus, date, quantity, foodPantr
 
 
   switch (requestStatus) {
-    case 0:
-      {
-        requestStatusStr = "Fulfilled";
-        requestStatusColor = "lightgreen";
-        break;
-      }
     case 1:
       {
         requestStatusStr = "Pending";
@@ -51,14 +45,20 @@ export default function Request({ item, requestStatus, date, quantity, foodPantr
       }
     case 2:
       {
-        requestStatusStr = "Cancelled";
-        requestStatusColor = "lightcoral";
+        requestStatusStr = "Accepted";
+        requestStatusColor = "lightskyblue";
         break;
       }
     case 3:
       {
-        requestStatusStr = "Accepted";
-        requestStatusColor = "lightskyblue";
+        requestStatusStr = "Fulfilled";
+        requestStatusColor = "lightgreen";
+        break;
+      }
+    case 4:
+      {
+        requestStatusStr = "Cancelled";
+        requestStatusColor = "lightcoral";
         break;
       }
     default:
@@ -77,7 +77,7 @@ export default function Request({ item, requestStatus, date, quantity, foodPantr
         </Grid>
         <Grid item xs={4}>
           <div className="chip-container">
-            <Chip style={{ backgroundColor: requestStatusColor }} label={requestStatusStr} /> 
+            <Chip style={{ backgroundColor: requestStatusColor }} label={requestStatusStr} />
           </div>
         </Grid>
         <Grid item xs={4}>

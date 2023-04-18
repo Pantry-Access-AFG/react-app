@@ -57,7 +57,7 @@ export default function MyRequests(props) {
         pantryNotes: "jfeaoiaoei"
     }, {
         item: "corn",
-        requestStatus: 0,
+        requestStatus: 4,
         date: 34,
         quantity: 2,
         foodPantryName: "Food Pantry W",
@@ -65,7 +65,7 @@ export default function MyRequests(props) {
         pantryNotes: "jfeaoiaoei"
     }, {
         item: "wheat",
-        requestStatus: 0,
+        requestStatus: 3,
         date: 34,
         quantity: 2,
         foodPantryName: "Food Pantry W",
