@@ -79,7 +79,7 @@ function MakeRequestDialog({
             autoFocus
             margin="dense"
             id="clientNotes"
-            label="Notes to Food Bank"
+            label="Notes to Food Pantry"
             type="text"
             fullWidth
             variant="standard"
@@ -195,10 +195,10 @@ export default function ClientHome() {
    */
   const makeRequest = (clientID, pantryID, item, quantity, clientNotes) => {
     const request = {
-      "Client UID": 3480242,
-      "Food Bank UID": 238408934,
-      "Client Notes": clientNotes ? clientNotes : null,
-      "Food Pantry Notes": null,
+      clientUID: 3480242,
+      foodPantryUID: 238408934,
+      clientNotes: clientNotes ? clientNotes : null,
+      foodPantryNotes: null,
       item: item,
       quantity: quantity,
       status: 0,

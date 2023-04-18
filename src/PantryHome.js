@@ -355,7 +355,7 @@ export default function PantryHome() {
     setConfettiOn(true);
   };
 
-  let food_bank_name = "Food Bank X";
+  let food_bank_name = "Food Pantry X";
 
   return (
     <>
