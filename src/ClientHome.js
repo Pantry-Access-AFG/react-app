@@ -29,13 +29,14 @@ function MakeRequestDialog({
 
   let [item, setItem] = React.useState("");
   let [quantity, setQuantity] = React.useState(0);
+  let [clientNotes, setClientNotes] = React.useState("");
 
   /**
    * Function to handle the request and submitting a request
    */
   const handleMakeRequest = () => {
     if (item && quantity > 0) {
-      makeRequest(clientID, foodPantryID, item, quantity);
+      makeRequest(clientID, foodPantryID, item, quantity, clientNotes);
       handleClose();
     }
   };
@@ -74,13 +75,26 @@ function MakeRequestDialog({
               setQuantity(event.target.value);
             }}
           />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="clientNotes"
+            label="Notes to Food Pantry"
+            type="text"
+            fullWidth
+            variant="standard"
+            onChange={(event) => {
+              setClientNotes(event.target.value);
+            }}
+          />
         </DialogContent>
         <DialogActions>
           <Button
             onClick={() => {
+              handleMakeRequest();
               setItem("");
               setQuantity(0);
-              handleMakeRequest(item, quantity);
+              setClientNotes("");
             }}
           >
             Make Request
@@ -179,12 +193,12 @@ export default function ClientHome() {
   /**
    * TODO: What happens when request is made --> send to firebase
    */
-  const makeRequest = (clientID, pantryID, item, quantity) => {
+  const makeRequest = (clientID, pantryID, item, quantity, clientNotes) => {
     const request = {
-      "Client UID": 3480242,
-      "Food Bank UID": 238408934,
-      "Client Notes": null,
-      "Food Pantry Notes": null,
+      clientUID: 3480242,
+      foodPantryUID: 238408934,
+      clientNotes: clientNotes ? clientNotes : null,
+      foodPantryNotes: null,
       item: item,
       quantity: quantity,
       status: 0,
@@ -202,7 +216,6 @@ export default function ClientHome() {
     sendRequest(request);
   };
 
-  
   //process food bank cards and load them
   let temp = foodPantries.slice();
   let food_bank_list = temp.map((x, index) => (
