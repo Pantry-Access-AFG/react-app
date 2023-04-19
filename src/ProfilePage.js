@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Button from "@mui/material/Button";
 import { Box } from "@mui/system";
 import "./FoodPantryProfile.css";
@@ -10,6 +10,11 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Confetti from "react-confetti";
+import { auth } from "./firebase-config";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { signOut } from 'firebase/auth';
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "./firebase-config";
 
 /**
  * Page for Food Pantry Profiles
@@ -18,14 +23,17 @@ import Confetti from "react-confetti";
 
 // TODO: Integrate with Firebase authentication and create more conditionals for checking and confirmation dialogs
 
-export default function FoodPantryProfile() {
-  let food_pantry_name = "Food Pantry X";
+export default function ProfilePage() {
+  let [name, setName] = useState("");
 
   let [username, setUsername] = useState("");
   let [password, setPassword] = useState("");
   let [zipcode, setZipcode] = useState("");
+  let [description, setDescription] = useState("");
   let [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
   let [confettiOn, setConfettiOn] = useState(false);
+  let [isPantry, setIsFoodPantry] = useState(false);
+  const [user, loading, error] = useAuthState(auth);
 
   // Delete account function to reset all values and remove user from database (TBD)
   const handleDeleteAccount = () => {
@@ -51,6 +59,10 @@ export default function FoodPantryProfile() {
     setZipcode(x);
   };
 
+  const handleSetDescription = (x) => {
+    setDescription(x);
+  };
+
   const handleOpenAreYouSure = () => {
     setDeleteAccountOpen(true);
   };
@@ -63,19 +75,43 @@ export default function FoodPantryProfile() {
     setConfettiOn(true);
   };
 
+  const logout = () => {
+    signOut(auth);
+  }
+
+  useEffect(() => {
+    if (user) {
+      const getName = async () => {
+        let docRef = doc(db, "client-accounts", user.uid);
+        let docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setName(docSnap.data().full_name)
+        } else {
+          docRef = doc(db, "food-bank-accounts", user.uid);
+          docSnap = await getDoc(docRef);
+          setName(docSnap.data().full_name)
+        }        
+      }
+      getName();
+    }
+  }, [])
+
   return (
     <>
       <h1 className="text-center" style={{ marginTop: "1rem" }}>
-        {food_pantry_name}
+        {name}
       </h1>
 
       <UserInfo
         username={username}
         password={password}
         zipcode={zipcode}
+        description={description}
         setUsername={handleSetUsername}
         setPassword={handleSetPassword}
         setZipcode={handleSetZipcode}
+        setDescription={handleSetDescription}
+        isPantry={isPantry}
       />
       <br></br>
 
@@ -83,6 +119,13 @@ export default function FoodPantryProfile() {
       <Box textAlign="center" alignContent="center" margin="auto">
         <Button variant="outlined" color="success" onClick={handleSaveChanges}>
           Save Changes
+        </Button>
+
+        <br />
+        <br />
+
+        <Button variant="outlined" color="error" onClick={logout}>
+          Log Out
         </Button>
 
         <br />
@@ -126,9 +169,12 @@ function UserInfo({
   username,
   password,
   zipcode,
+  description,
   setUsername,
   setPassword,
   setZipcode,
+  setDescription,
+  isPantry
 }) {
   const usernameChange = (event) => {
     setUsername(event.target.value);
@@ -157,6 +203,15 @@ function UserInfo({
     setZipcode(event.target.value);
   };
 
+  const descriptionChange = (event) => {
+    setDescription(event.target.value);
+  }
+
+  const descriptionSubmit = (event) => {
+    event.preventDefault();
+    setDescription(event.target.value);
+  };
+
   return (
     <div>
       <div className="row">
@@ -179,6 +234,12 @@ function UserInfo({
           <input type="text" value={zipcode} onChange={zipcodeChange} />
         </form>
       </div>
+      {isPantry && <div className="row">
+        <p className="row">Description:</p>
+        <form className="row" onSubmit={descriptionSubmit}>
+          <input type="text" value={description} onChange={descriptionChange} />
+        </form>
+      </div>}
     </div>
   );
 }

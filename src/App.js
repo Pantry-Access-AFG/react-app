@@ -4,7 +4,7 @@ import { Routes, Route, BrowserRouter } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import Login from "./Login";
 import React from "react";
-import FoodPantryProfile from "./FoodPantryProfile";
+import ProfilePage from "./ProfilePage";
 import MyRequests from "./PantryMyRequests";
 import PantryHome from "./PantryHome";
 import Footer from "./components/Footer";
@@ -27,14 +27,10 @@ function App() {
             </>
           }
         />
-        <Route
-          path="/profile"
-          index
-          element={<FoodPantryProfile></FoodPantryProfile>}
-        />
+        <Route path="/profile" index element={<ProfilePage></ProfilePage>} />
         <Route path="/myrequests" element={<MyRequests></MyRequests>} />
         <Route path="/login" element={<Login></Login>} />
-        <Route path='*' element={<FourOhFour />}/>
+        <Route path="*" element={<FourOhFour />} />
       </Routes>
 
       <Footer></Footer>
