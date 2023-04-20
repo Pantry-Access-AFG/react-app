@@ -10,6 +10,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { db } from "./firebase-config";
 import { collection, getDocs, addDoc } from "firebase/firestore";
+import { auth } from "./firebase-config";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 /**
  * Creates a form for clients to request items from Food Pantries
@@ -146,6 +148,8 @@ export default function ClientHome() {
     ["Food Pantry B", "01772", "Food Pantry B is collegeboard"],
   ]);
 
+  const [user, loading, error] = useAuthState(auth);
+
   /**
    * Retrieve food pantries (in food-bank-accounts collection) from Firebase
    */
@@ -195,7 +199,7 @@ export default function ClientHome() {
    */
   const makeRequest = (clientID, pantryID, item, quantity, clientNotes) => {
     const request = {
-      clientUID: 3480242,
+      clientUID: user? user.uid : 0,
       foodPantryUID: 238408934,
       clientNotes: clientNotes ? clientNotes : null,
       foodPantryNotes: null,

@@ -3,12 +3,11 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  //sendEmailVerification,
 } from "firebase/auth";
 import { db } from "./firebase-config";
 import { doc, setDoc } from "firebase/firestore";
 import "./Login.css";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { auth } from "./firebase-config";
 import { useAuthState } from "react-firebase-hooks/auth";
 
@@ -24,16 +23,7 @@ export default function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-    //   setUser(currentUser);
-    // });
-
-    // return () => {
-    //   unsubscribe();
-    // };
-
     if (loading) {
-      // maybe trigger a loading screen
       return;
     }
     if (user) {
@@ -56,13 +46,23 @@ export default function Login() {
       }
       const dbRef = doc(db, path, user.user.uid);
       const insertUser = async () => {
+        if (!isPantry) {
         await setDoc(dbRef, {
           full_name: registerFullName,
-          // password: registerPassword,
+          password: registerPassword,
           username: registerUsername,
           zipcode: registerZipcode,
-          description: ""
-        });
+          description: "",
+        });}
+        else {
+          await setDoc(dbRef, {
+            name: registerFullName,
+            password: registerPassword,
+            username: registerUsername,
+            zipcode: registerZipcode,
+            description: "",
+          })
+        }
       };
       insertUser();
     } catch (error) {

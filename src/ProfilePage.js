@@ -12,9 +12,10 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Confetti from "react-confetti";
 import { auth } from "./firebase-config";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { signOut } from 'firebase/auth';
-import { doc, getDoc } from "firebase/firestore";
+import { signOut, deleteUser } from "firebase/auth";
+import { doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { db } from "./firebase-config";
+import { useNavigate } from "react-router-dom";
 
 /**
  * Page for Food Pantry Profiles
@@ -34,13 +35,31 @@ export default function ProfilePage() {
   let [confettiOn, setConfettiOn] = useState(false);
   let [isPantry, setIsFoodPantry] = useState(false);
   const [user, loading, error] = useAuthState(auth);
+  const navigate = useNavigate();
 
   // Delete account function to reset all values and remove user from database (TBD)
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     setUsername("");
     setPassword("");
     setZipcode("");
-    handleCloseAreYouSure();
+    let docRef = doc(
+      db,
+      isPantry ? "food-bank-accounts" : "client-accounts",
+      user.uid
+    );
+    deleteDoc(docRef);
+
+    try {
+      deleteUser(user)
+        .then(() => {
+          setConfettiOn(true);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      handleCloseAreYouSure();
+      navigate("/");
+    } catch (error) {}
   };
 
   // Set username listener
@@ -72,12 +91,22 @@ export default function ProfilePage() {
   };
 
   const handleSaveChanges = () => {
+    let docRef = doc(
+      db,
+      isPantry ? "food-bank-accounts" : "client-accounts",
+      user.uid
+    );
+    setDoc(
+      docRef,
+      { zipcode: zipcode, description: description },
+      { merge: true }
+    );
     setConfettiOn(true);
   };
 
   const logout = () => {
     signOut(auth);
-  }
+  };
 
   useEffect(() => {
     if (user) {
@@ -85,16 +114,27 @@ export default function ProfilePage() {
         let docRef = doc(db, "client-accounts", user.uid);
         let docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setName(docSnap.data().full_name)
+          setName(docSnap.data().full_name);
+          setUsername(docSnap.data().full_name);
+          setUsername(docSnap.data().username);
+          setPassword(docSnap.data().password);
+          setZipcode(docSnap.data().zipcode);
+          setIsFoodPantry(false);
         } else {
           docRef = doc(db, "food-bank-accounts", user.uid);
           docSnap = await getDoc(docRef);
-          setName(docSnap.data().full_name)
-        }        
-      }
+          setName(docSnap.data().name);
+          setUsername(docSnap.data().name);
+          setPassword(docSnap.data().password);
+          setZipcode(docSnap.data().zipcode);
+          setDescription(docSnap.data().description);
+          setIsFoodPantry(true);
+          console.log(name);
+        }
+      };
       getName();
     }
-  }, [])
+  }, [user]);
 
   return (
     <>
@@ -174,7 +214,7 @@ function UserInfo({
   setPassword,
   setZipcode,
   setDescription,
-  isPantry
+  isPantry,
 }) {
   const usernameChange = (event) => {
     setUsername(event.target.value);
@@ -205,7 +245,7 @@ function UserInfo({
 
   const descriptionChange = (event) => {
     setDescription(event.target.value);
-  }
+  };
 
   const descriptionSubmit = (event) => {
     event.preventDefault();
@@ -217,7 +257,12 @@ function UserInfo({
       <div className="row">
         <p className="row">Username:</p>
         <form className="row" onSubmit={usernameSubmit}>
-          <input type="text" value={username} onChange={usernameChange} />
+          <input
+            readOnly={true}
+            type="text"
+            value={username}
+            onChange={usernameChange}
+          />
         </form>
       </div>
 
@@ -225,7 +270,12 @@ function UserInfo({
       <div className="row">
         <p className="row">Password:</p>
         <form className="row" onSubmit={passwordSubmit}>
-          <input type="text" value={password} onChange={passwordChange} />
+          <input
+            readOnly={true}
+            type="text"
+            value={password}
+            onChange={passwordChange}
+          />
         </form>
       </div>
       <div className="row">
@@ -234,12 +284,18 @@ function UserInfo({
           <input type="text" value={zipcode} onChange={zipcodeChange} />
         </form>
       </div>
-      {isPantry && <div className="row">
-        <p className="row">Description:</p>
-        <form className="row" onSubmit={descriptionSubmit}>
-          <input type="text" value={description} onChange={descriptionChange} />
-        </form>
-      </div>}
+      {isPantry && (
+        <div className="row">
+          <p className="row">Description:</p>
+          <form className="row" onSubmit={descriptionSubmit}>
+            <input
+              type="text"
+              value={description}
+              onChange={descriptionChange}
+            />
+          </form>
+        </div>
+      )}
     </div>
   );
 }
@@ -265,7 +321,7 @@ function AreYourSureDialog({ deleteAccountOpen, deleteAccount, handleClose }) {
 }
 
 /**
- * 
+ *
  * @returns confetti mode component to be used for submission of new inventory items
  */
 const ConfettiMode = ({ confettiOn, setConfettiOn }) => {

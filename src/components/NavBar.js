@@ -12,7 +12,7 @@ export default function NavBar() {
 
   return (
     <div className="flex-container">
-      <button
+      {user && (<button
         className={
           location.pathname === "/profile"
             ? "navbar-tab-selected"
@@ -21,7 +21,7 @@ export default function NavBar() {
         onClick={() => navigate("/profile")}
       >
         Profile
-      </button>
+      </button>)}
       <button
         className={
           location.pathname === "/"
