@@ -61,10 +61,19 @@ export default function Login() {
             username: registerUsername,
             zipcode: registerZipcode,
             description: "",
-          })
+          });
+          const dbRef2 = doc(db, "inventory", user.user.uid);
+          await setDoc(dbRef2, {
+            "Pantry UID" : user.user.uid,
+            itemList: [],
+            quantityList: [],
+            wantedItemList: [],
+            wantedQuantityList: []
+          });
         }
       };
       insertUser();
+      navigate("/");
     } catch (error) {
       console.log(error.message);
     }

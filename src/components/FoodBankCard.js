@@ -66,7 +66,7 @@ export default function FoodBankCard({
                 alignItems="center"
                 justifyContent="center"
               >
-                <Button
+                {user && <Button
                   size="medium"
                   color="primary"
                   onClick={() => {
@@ -74,7 +74,7 @@ export default function FoodBankCard({
                   }}
                 >
                   Make Request
-                </Button>
+                </Button>}
               </Grid>
               <Grid
                 item
@@ -97,7 +97,7 @@ export default function FoodBankCard({
           </CardActions>
 
           <Typography variant="body2" color="text.secondary" textAlign="center">
-            {zipCode} -- {zipCodeDistance ? zipCodeDistance : "error"} mi from
+            {zipCode} -- {zipCodeDistance ? zipCodeDistance : "Unkwown"} miles from
             you.
           </Typography>
         </Stack>

@@ -9,7 +9,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { db } from "./firebase-config";
-import { collection, getDocs, addDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, doc, onSnapshot } from "firebase/firestore";
 import { auth } from "./firebase-config";
 import { useAuthState } from "react-firebase-hooks/auth";
 
@@ -118,7 +118,8 @@ function LearnMoreDialog({
   handleClose,
   foodPantryName,
   foodPantryDescription,
-  foodPantryID,
+  itemList,
+  wantedItemList,
   foodPantryZipCode,
 }) {
   return (
@@ -128,6 +129,8 @@ function LearnMoreDialog({
         <DialogContent>
           <DialogContentText>{foodPantryZipCode}</DialogContentText>
           <DialogContentText>{foodPantryDescription}</DialogContentText>
+          <DialogContentText>Available Items: {itemList}</DialogContentText>
+          <DialogContentText>Requesting Donations: {wantedItemList}</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Back</Button>
@@ -162,6 +165,7 @@ export default function ClientHome() {
           doc.data()["name"],
           doc.data()["zipcode"],
           doc.data()["description"],
+          doc.id,
         ]);
       });
       setFoodPantries(foodPantryData);
@@ -169,10 +173,29 @@ export default function ClientHome() {
     fetchData();
   }, []);
 
-  let [requestDialogOpen, setRequestDialogOpen] = useState(false);
-  let [learnMoreDialogOpen, setLearnMoreDialogOpen] = useState(false);
-  let [foodPantryID, setFoodPantryID] = useState(0);
-  let [indexClicked, setIndexClicked] = useState(0);
+  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+  const [learnMoreDialogOpen, setLearnMoreDialogOpen] = useState(false);
+  const [foodPantryID, setFoodPantryID] = useState(0);
+  const [indexClicked, setIndexClicked] = useState(0);
+  const [itemList, setItemList] = useState([]);
+  const [wantedItemList, setwantedItemList] = useState([]);
+
+  /**
+   * Retrive items of pantry clicked
+   */
+  useEffect(() => {
+    const fetchData = async () => {
+      await onSnapshot(doc(db, "inventory", foodPantryID), (doc) => {
+        if (doc.exists()) {
+          setItemList(doc.data()["itemList"]);
+          setwantedItemList(doc.data()["wantedItemList"]);
+        } else {
+          console.log("Nothing!");
+        }
+      });
+    }
+    fetchData();
+  }, [foodPantryID])
 
   /**
    * @param index of the food bank to be requested from
@@ -180,7 +203,7 @@ export default function ClientHome() {
    */
   const onRequestClick = (index) => {
     setIndexClicked(index);
-    setFoodPantryID(index);
+    setFoodPantryID(foodPantries[index][3]);
     setRequestDialogOpen(true);
   };
 
@@ -190,7 +213,7 @@ export default function ClientHome() {
    */
   const onLearnMoreClick = (index) => {
     setIndexClicked(index);
-    setFoodPantryID(index);
+    setFoodPantryID(foodPantries[index][3]);
     setLearnMoreDialogOpen(true);
   };
 
@@ -199,7 +222,7 @@ export default function ClientHome() {
    */
   const makeRequest = (clientID, pantryID, item, quantity, clientNotes) => {
     const request = {
-      clientUID: user? user.uid : 0,
+      clientUID: user ? user.uid : 0,
       foodPantryUID: 238408934,
       clientNotes: clientNotes ? clientNotes : null,
       foodPantryNotes: null,
@@ -236,7 +259,6 @@ export default function ClientHome() {
 
   return (
     <>
-      <p className="text-center">...client side in development below...</p>
       <h1 className="text-center" style={{ marginTop: "1rem" }}>
         Food Pantries Near You
       </h1>
@@ -245,16 +267,16 @@ export default function ClientHome() {
         open={requestDialogOpen}
         handleClose={() => setRequestDialogOpen(false)}
         makeRequest={makeRequest}
-        foodPantryID={foodPantryID}
         foodPantryName={temp[indexClicked][0]}
       ></MakeRequestDialog>
       <LearnMoreDialog
         open={learnMoreDialogOpen}
         handleClose={() => setLearnMoreDialogOpen(false)}
         foodPantryName={temp[indexClicked][0]}
-        foodPantryID={foodPantryID}
         foodPantryDescription={temp[indexClicked][2]}
         foodPantryZipCode={temp[indexClicked][1]}
+        itemList={itemList}
+        wantedItemList={wantedItemList}
       ></LearnMoreDialog>
     </>
   );

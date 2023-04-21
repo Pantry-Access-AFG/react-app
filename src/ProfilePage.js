@@ -17,6 +17,7 @@ import { doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { db } from "./firebase-config";
 import { useNavigate } from "react-router-dom";
 
+
 /**
  * Page for Food Pantry Profiles
  * @returns Component for Food Pantry Profile page
@@ -58,7 +59,7 @@ export default function ProfilePage() {
           console.log(error);
         });
       handleCloseAreYouSure();
-      navigate("/");
+      navigate("/login");
     } catch (error) {}
   };
 
@@ -106,6 +107,7 @@ export default function ProfilePage() {
 
   const logout = () => {
     signOut(auth);
+    navigate("/login");
   };
 
   useEffect(() => {
@@ -129,7 +131,6 @@ export default function ProfilePage() {
           setZipcode(docSnap.data().zipcode);
           setDescription(docSnap.data().description);
           setIsFoodPantry(true);
-          console.log(name);
         }
       };
       getName();
