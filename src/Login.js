@@ -10,6 +10,7 @@ import "./Login.css";
 import { useNavigate } from "react-router-dom";
 import { auth } from "./firebase-config";
 import { useAuthState } from "react-firebase-hooks/auth";
+import Stack from "@mui/material/Stack";
 
 export default function Login() {
   const [registerUsername, setRegisterUsername] = useState("");
@@ -19,6 +20,7 @@ export default function Login() {
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [isPantry, setIsPantry] = useState(false);
+  const [registerOpen, setRegisterOpen] = useState(false);
   const [user, loading, error] = useAuthState(auth);
   const navigate = useNavigate();
 
@@ -37,7 +39,7 @@ export default function Login() {
     try {
       const user = await createUserWithEmailAndPassword(
         auth,
-        registerUsername,
+        (registerUsername.includes("@")? registerUsername : registerUsername + "@func.com"),
         registerPassword
       );
       let path = "client-accounts";
@@ -47,14 +49,14 @@ export default function Login() {
       const dbRef = doc(db, path, user.user.uid);
       const insertUser = async () => {
         if (!isPantry) {
-        await setDoc(dbRef, {
-          full_name: registerFullName,
-          password: registerPassword,
-          username: registerUsername,
-          zipcode: registerZipcode,
-          description: "",
-        });}
-        else {
+          await setDoc(dbRef, {
+            full_name: registerFullName,
+            password: registerPassword,
+            username: registerUsername,
+            zipcode: registerZipcode,
+            description: "",
+          });
+        } else {
           await setDoc(dbRef, {
             name: registerFullName,
             password: registerPassword,
@@ -64,11 +66,11 @@ export default function Login() {
           });
           const dbRef2 = doc(db, "inventory", user.user.uid);
           await setDoc(dbRef2, {
-            "Pantry UID" : user.user.uid,
+            "Pantry UID": user.user.uid,
             itemList: [],
             quantityList: [],
             wantedItemList: [],
-            wantedQuantityList: []
+            wantedQuantityList: [],
           });
         }
       };
@@ -106,8 +108,27 @@ export default function Login() {
   };
 
   return (
-    <div className="loginMain">
-      <div>
+    <>
+      {!registerOpen && <Stack className="center" spacing={2}>
+        <h3>Log In to an Existing Account</h3>
+        <input
+          placeholder="Username..."
+          onChange={(event) => {
+            setLoginUsername(event.target.value);
+          }}
+        />
+        <input
+          placeholder="Password..."
+          type="password"
+          onChange={(event) => {
+            setLoginPassword(event.target.value);
+          }}
+        />
+        <button onClick={login}>Log In</button>
+        <button onClick={() => setRegisterOpen(!registerOpen)}>Register Account</button>
+      </Stack>}
+      
+      {registerOpen && <Stack className="center" spacing={2}>
         <h3>Register for a New Client/Food Bank Account</h3>
         <input
           placeholder="Username..."
@@ -142,24 +163,9 @@ export default function Login() {
         />
         <br></br>
         <button onClick={register}>Create User</button>
-      </div>
-      <div>
-        <h3>Log In to an Existing Client Account</h3>
-        <input
-          placeholder="Username..."
-          onChange={(event) => {
-            setLoginUsername(event.target.value);
-          }}
-        />
-        <input
-          placeholder="Password..."
-          type="password"
-          onChange={(event) => {
-            setLoginPassword(event.target.value);
-          }}
-        />
-        <button onClick={login}>Log In</button>
-      </div>
-    </div>
+
+        <button onClick={() => setRegisterOpen(!registerOpen)}>Return to Login</button>
+      </Stack>}
+    </>
   );
 }

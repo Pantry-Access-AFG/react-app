@@ -9,7 +9,13 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { db } from "./firebase-config";
-import { collection, getDocs, addDoc, doc, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  doc,
+  onSnapshot,
+} from "firebase/firestore";
 import { auth } from "./firebase-config";
 import { useAuthState } from "react-firebase-hooks/auth";
 
@@ -129,8 +135,25 @@ function LearnMoreDialog({
         <DialogContent>
           <DialogContentText>{foodPantryZipCode}</DialogContentText>
           <DialogContentText>{foodPantryDescription}</DialogContentText>
-          <DialogContentText>Available Items: {itemList}</DialogContentText>
-          <DialogContentText>Requesting Donations: {wantedItemList}</DialogContentText>
+          <DialogContentText>
+            Available Items:{" "}
+            {itemList.map((element, index) => {
+              if (index != itemList.length - 1) {
+                return element + ", ";
+              } else {
+                return element + ".";
+              }
+            })}
+          </DialogContentText>
+          <DialogContentText>
+            Requesting Donations: {wantedItemList.map((element, index) => {
+              if (index !== itemList.length - 1) {
+                return element + ", ";
+              } else {
+                return element + ".";
+              }
+            })}
+          </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Back</Button>
@@ -193,9 +216,9 @@ export default function ClientHome() {
           console.log("Nothing!");
         }
       });
-    }
+    };
     fetchData();
-  }, [foodPantryID])
+  }, [foodPantryID]);
 
   /**
    * @param index of the food bank to be requested from
