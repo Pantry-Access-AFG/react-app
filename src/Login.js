@@ -89,14 +89,12 @@ export default function Login() {
           loginUsername,
           loginPassword
         );
-        console.log(user);
       } else {
         const user = await signInWithEmailAndPassword(
           auth,
           loginUsername + "@func.com",
           loginPassword
         );
-        console.log(user);
       }
     } catch (error) {
       console.log(error.message);
