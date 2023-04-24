@@ -17,7 +17,6 @@ import { doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { db } from "./firebase-config";
 import { useNavigate } from "react-router-dom";
 
-
 /**
  * Page for Food Pantry Profiles
  * @returns Component for Food Pantry Profile page
@@ -27,7 +26,6 @@ import { useNavigate } from "react-router-dom";
 
 export default function ProfilePage() {
   let [name, setName] = useState("");
-
   let [username, setUsername] = useState("");
   let [password, setPassword] = useState("");
   let [zipcode, setZipcode] = useState("");
@@ -38,7 +36,9 @@ export default function ProfilePage() {
   const [user, loading, error] = useAuthState(auth);
   const navigate = useNavigate();
 
-  // Delete account function to reset all values and remove user from database (TBD)
+  /**
+   * Async function to delete an account by removing it from Firebase Auth and it's document in Firebase Firestore
+   */
   const handleDeleteAccount = async () => {
     setUsername("");
     setPassword("");
@@ -66,7 +66,6 @@ export default function ProfilePage() {
   // Set username listener
   const handleSetUsername = (x) => {
     setUsername(x);
-    // firebase
   };
 
   // Set password listener
@@ -91,6 +90,10 @@ export default function ProfilePage() {
     setDeleteAccountOpen(false);
   };
 
+  /**
+   * Funciton to update the account details.
+   * If an account needs to change a username or a password, they will need to email us.
+   */
   const handleSaveChanges = () => {
     let docRef = doc(
       db,
@@ -105,11 +108,17 @@ export default function ProfilePage() {
     setConfettiOn(true);
   };
 
+  /**
+   * Function to logout by calling the signOut React Firebase Hook and navigating to the default login page.
+   */
   const logout = () => {
     signOut(auth);
     navigate("/login");
   };
 
+  /**
+   * Runs on component load or when user changes to find all of the user's information from Firebase Firestore and display it under account details
+   */
   useEffect(() => {
     if (user) {
       const getName = async () => {
@@ -217,37 +226,45 @@ function UserInfo({
   setDescription,
   isPantry,
 }) {
+  // username listener
   const usernameChange = (event) => {
     setUsername(event.target.value);
   };
 
+  // username submit listener
   const usernameSubmit = (event) => {
     event.preventDefault();
     setUsername(event.target.value);
   };
 
+  // password listener
   const passwordChange = (event) => {
     setPassword(event.target.value);
   };
 
+  // password submit listener
   const passwordSubmit = (event) => {
     event.preventDefault();
     setPassword(event.target.value);
   };
 
+  // zipcode listener
   const zipcodeChange = (event) => {
     setZipcode(event.target.value);
   };
 
+  // zipcode submit listener
   const zipcodeSubmit = (event) => {
     event.preventDefault();
     setZipcode(event.target.value);
   };
 
+  // description listener
   const descriptionChange = (event) => {
     setDescription(event.target.value);
   };
 
+  // description submit listener
   const descriptionSubmit = (event) => {
     event.preventDefault();
     setDescription(event.target.value);
@@ -301,6 +318,10 @@ function UserInfo({
   );
 }
 
+/**
+ *
+ * @returns React Dialog Component for confirming if a person wants to delete their account.
+ */
 function AreYourSureDialog({ deleteAccountOpen, deleteAccount, handleClose }) {
   return (
     <>

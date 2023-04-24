@@ -31,10 +31,6 @@ function MakeRequestDialog({
   foodPantryID,
   clientID,
 }) {
-  /**
-   * Function to handle inserting items into the DataGrid
-   */
-
   let [item, setItem] = React.useState("");
   let [quantity, setQuantity] = React.useState(0);
   let [clientNotes, setClientNotes] = React.useState("");
@@ -146,7 +142,8 @@ function LearnMoreDialog({
             })}
           </DialogContentText>
           <DialogContentText>
-            Requesting Donations: {wantedItemList.map((element, index) => {
+            Requesting Donations:{" "}
+            {wantedItemList.map((element, index) => {
               if (index !== itemList.length - 1) {
                 return element + ", ";
               } else {
@@ -169,12 +166,18 @@ function LearnMoreDialog({
  * @returns Client Home Page
  */
 export default function ClientHome() {
-  let [foodPantries, setFoodPantries] = useState([
-    ["Food Pantry A", "01650", "Food Pantry A is a nonprofit"],
-    ["Food Pantry B", "01772", "Food Pantry B is collegeboard"],
+  // React States
+  const [foodPantries, setFoodPantries] = useState([
+    ["Food Pantry A", "01650", "Food Pantry A is a Food Pantry"],
+    ["Food Pantry B", "01772", "Food Pantry B is a Food Pantry"],
   ]);
-
   const [user, loading, error] = useAuthState(auth);
+  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+  const [learnMoreDialogOpen, setLearnMoreDialogOpen] = useState(false);
+  const [foodPantryID, setFoodPantryID] = useState(0);
+  const [indexClicked, setIndexClicked] = useState(0);
+  const [itemList, setItemList] = useState([]);
+  const [wantedItemList, setwantedItemList] = useState([]);
 
   /**
    * Retrieve food pantries (in food-bank-accounts collection) from Firebase
@@ -196,15 +199,8 @@ export default function ClientHome() {
     fetchData();
   }, []);
 
-  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
-  const [learnMoreDialogOpen, setLearnMoreDialogOpen] = useState(false);
-  const [foodPantryID, setFoodPantryID] = useState(0);
-  const [indexClicked, setIndexClicked] = useState(0);
-  const [itemList, setItemList] = useState([]);
-  const [wantedItemList, setwantedItemList] = useState([]);
-
   /**
-   * Retrive items of pantry clicked
+   * Retrive items of pantry from Firebase to be displayed in Food Bank Cards
    */
   useEffect(() => {
     const fetchData = async () => {
@@ -241,7 +237,7 @@ export default function ClientHome() {
   };
 
   /**
-   * TODO: What happens when request is made --> send to firebase
+   * Function to update a request and send it to the requests collection in Firebase Firestore
    */
   const makeRequest = (clientID, pantryID, item, quantity, clientNotes) => {
     const request = {
@@ -266,7 +262,7 @@ export default function ClientHome() {
     sendRequest(request);
   };
 
-  //process food bank cards and load them
+  // process food bank cards and load them
   let temp = foodPantries.slice();
   let food_bank_list = temp.map((x, index) => (
     <FoodBankCard

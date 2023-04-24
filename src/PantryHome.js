@@ -99,7 +99,7 @@ export default function PantryHome() {
 
   /**
    * Function for deleting rows
-   * Removes respective row and reinitializes row array
+   * Removes respective row and updates it in Firebase firestore
    */
   const deleteInventoryRowClick = (e, row, rows, index) => {
     const docRef = doc(db, "inventory", user.uid);
@@ -116,6 +116,10 @@ export default function PantryHome() {
     deleteData();
   };
 
+  /**
+   * Function for deleting rows in the wanted items table
+   * Removes respective row and updates it in Firebase firestore
+   */
   const deleteWantedRowClick = (e, row, rows, index) => {
     const docRef = doc(db, "inventory", user.uid);
     const deleteData = async () => {
@@ -133,7 +137,7 @@ export default function PantryHome() {
 
   /**
    * Function for editing a row
-   * Edits respective row and reinitializes row array
+   * Edits respective row and opens the dialog to edit the item
    */
   const editInventoryRowClick = (e, index) => {
     setEditIndex(index);
@@ -143,6 +147,10 @@ export default function PantryHome() {
     setInventoryEditOpen(true);
   };
 
+  /**
+   * Function for editing a row in the wanted items table
+   * Edits respective row and opens the dialog to edit the item
+   */
   const editWantedRowClick = (e, index) => {
     setEditIndex(index);
     setEditId(wantedRows[index].id);
@@ -281,6 +289,7 @@ export default function PantryHome() {
 
   /**
    * Retrives items and quantities from firebase for this food pantry
+   * Runs on load of the component
    */
   useEffect(() => {
     async function getInventoryData() {
@@ -298,6 +307,9 @@ export default function PantryHome() {
     getInventoryData();
   }, []);
 
+  /**
+   * For everytime itemList or quantityList changes, it will update the rows array with new updated data
+   */
   useEffect(() => {
     let tempRows = [];
     for (let i = 0; i < itemList.length; i += 1) {
@@ -311,6 +323,9 @@ export default function PantryHome() {
     setInventoryRows(tempRows);
   }, [itemList, quantityList]);
 
+  /**
+   * For everytime wantedItemList or wantedQuantityList changes, it will update the wantedRows array with new data
+   */
   useEffect(() => {
     let tempRows = [];
     for (let i = 0; i < wantedItemList.length; i += 1) {
@@ -324,6 +339,9 @@ export default function PantryHome() {
     setWantedRows(tempRows);
   }, [wantedItemList, wantedQuantityList]);
 
+  /**
+   * On component load or startup, the user's name will be loaded from Firebase firestore and shown at the top of the page
+   */
   useEffect(() => {
     if (user) {
       const getName = async () => {
@@ -350,7 +368,7 @@ export default function PantryHome() {
   };
 
   /**
-   * Inserts item to row by appending it to the end and increasing the id number
+   * Inserts item to row by appending it to the end and updating Firebase Firestore inventory
    */
   const insertItemInventory = ({ itemID = id, col1Name, col2Name }) => {
     const docRef = doc(db, "inventory", user.uid);
@@ -364,6 +382,9 @@ export default function PantryHome() {
     setConfettiOn(true);
   };
 
+  /**
+   * Inserts item to row by appending it to the end and updating Firebase Firestore list
+   */
   const insertItemWanted = ({ itemID = id, col1Name, col2Name }) => {
     const docRef = doc(db, "inventory", user.uid);
     const insertData = async () => {

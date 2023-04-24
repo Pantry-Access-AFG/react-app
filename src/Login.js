@@ -12,6 +12,9 @@ import { auth } from "./firebase-config";
 import { useAuthState } from "react-firebase-hooks/auth";
 import Stack from "@mui/material/Stack";
 
+/**
+ * @returns Component for the LoginPage
+ */
 export default function Login() {
   const [registerUsername, setRegisterUsername] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
@@ -24,6 +27,11 @@ export default function Login() {
   const [user, loading, error] = useAuthState(auth);
   const navigate = useNavigate();
 
+  /**
+   * When logged in, navigate to home page.
+   * Else, navigate by default to the login page.
+   * Runs when user or the loading variables update.
+   */
   useEffect(() => {
     if (loading) {
       return;
@@ -35,11 +43,18 @@ export default function Login() {
     }
   }, [user, loading]);
 
+  /**
+   * Async method to register a user
+   * If the username does not have an email, it will add an automatic "fake" one
+   * Will update account informtaion in Firebase Firestore as well as Firebase Authenatication
+   */
   const register = async () => {
     try {
       const user = await createUserWithEmailAndPassword(
         auth,
-        (registerUsername.includes("@")? registerUsername : registerUsername + "@func.com"),
+        registerUsername.includes("@")
+          ? registerUsername
+          : registerUsername + "@func.com",
         registerPassword
       );
       let path = "client-accounts";
@@ -81,6 +96,10 @@ export default function Login() {
     }
   };
 
+  /**
+   * Async method to log in.
+   * Will automatically apply ending email if not found in the username
+   */
   const login = async () => {
     try {
       if (loginUsername.includes("@")) {
@@ -101,69 +120,80 @@ export default function Login() {
     }
   };
 
+  /**
+   * Method to logout by calling the signOut hook from React Firebase Hooks
+   */
   const logout = () => {
     signOut(auth);
   };
 
   return (
     <>
-      {!registerOpen && <Stack className="center" spacing={2}>
-        <h3>Log In to an Existing Account</h3>
-        <input
-          placeholder="Username..."
-          onChange={(event) => {
-            setLoginUsername(event.target.value);
-          }}
-        />
-        <input
-          placeholder="Password..."
-          type="password"
-          onChange={(event) => {
-            setLoginPassword(event.target.value);
-          }}
-        />
-        <button onClick={login}>Log In</button>
-        <button onClick={() => setRegisterOpen(!registerOpen)}>Register Account</button>
-      </Stack>}
-      
-      {registerOpen && <Stack className="center" spacing={2}>
-        <h3>Register for a New Client/Food Bank Account</h3>
-        <input
-          placeholder="Username..."
-          onChange={(event) => {
-            setRegisterUsername(event.target.value);
-          }}
-        />
-        <input
-          placeholder="Password..."
-          type="password"
-          onChange={(event) => {
-            setRegisterPassword(event.target.value);
-          }}
-        />
-        <input
-          placeholder="Full Name"
-          onChange={(event) => {
-            setRegisterFullName(event.target.value);
-          }}
-        />
-        <input
-          placeholder="Zipcode"
-          onChange={(event) => {
-            setRegisterZipcode(event.target.value);
-          }}
-        />
-        <p>Are you a food pantry?</p>
-        <input
-          type="checkbox"
-          id="isPantry"
-          onClick={() => setIsPantry(!isPantry)}
-        />
-        <br></br>
-        <button onClick={register}>Create User</button>
+      {!registerOpen && (
+        <Stack className="center" spacing={2}>
+          <h3>Log In to an Existing Account</h3>
+          <input
+            placeholder="Username..."
+            onChange={(event) => {
+              setLoginUsername(event.target.value);
+            }}
+          />
+          <input
+            placeholder="Password..."
+            type="password"
+            onChange={(event) => {
+              setLoginPassword(event.target.value);
+            }}
+          />
+          <button onClick={login}>Log In</button>
+          <button onClick={() => setRegisterOpen(!registerOpen)}>
+            Register Account
+          </button>
+        </Stack>
+      )}
 
-        <button onClick={() => setRegisterOpen(!registerOpen)}>Return to Login</button>
-      </Stack>}
+      {registerOpen && (
+        <Stack className="center" spacing={2}>
+          <h3>Register for a New Client/Food Bank Account</h3>
+          <input
+            placeholder="Username..."
+            onChange={(event) => {
+              setRegisterUsername(event.target.value);
+            }}
+          />
+          <input
+            placeholder="Password..."
+            type="password"
+            onChange={(event) => {
+              setRegisterPassword(event.target.value);
+            }}
+          />
+          <input
+            placeholder="Full Name"
+            onChange={(event) => {
+              setRegisterFullName(event.target.value);
+            }}
+          />
+          <input
+            placeholder="Zipcode"
+            onChange={(event) => {
+              setRegisterZipcode(event.target.value);
+            }}
+          />
+          <p>Are you a food pantry?</p>
+          <input
+            type="checkbox"
+            id="isPantry"
+            onClick={() => setIsPantry(!isPantry)}
+          />
+          <br></br>
+          <button onClick={register}>Create User</button>
+
+          <button onClick={() => setRegisterOpen(!registerOpen)}>
+            Return to Login
+          </button>
+        </Stack>
+      )}
     </>
   );
 }
