@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "./firebase-config";
 import { useAuthState } from "react-firebase-hooks/auth";
 import Stack from "@mui/material/Stack";
+import { Typography } from "@mui/material";
 
 /**
  * @returns Component for the LoginPage
@@ -26,6 +27,7 @@ export default function Login() {
   const [registerOpen, setRegisterOpen] = useState(false);
   const [user, loading, error] = useAuthState(auth);
   const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState("");
 
   /**
    * When logged in, navigate to home page.
@@ -91,8 +93,9 @@ export default function Login() {
       };
       insertUser();
       navigate("/");
+      setErrorMessage("");
     } catch (error) {
-      console.log(error.message);
+      setErrorMessage(error.message);
     }
   };
 
@@ -116,7 +119,7 @@ export default function Login() {
         );
       }
     } catch (error) {
-      console.log(error.message);
+      setErrorMessage(error.message);
     }
   };
 
@@ -136,6 +139,7 @@ export default function Login() {
             placeholder="Username..."
             onChange={(event) => {
               setLoginUsername(event.target.value);
+              setErrorMessage("");
             }}
           />
           <input
@@ -143,10 +147,16 @@ export default function Login() {
             type="password"
             onChange={(event) => {
               setLoginPassword(event.target.value);
+              setErrorMessage("");
             }}
           />
           <button onClick={login}>Log In</button>
-          <button onClick={() => setRegisterOpen(!registerOpen)}>
+          <button
+            onClick={() => {
+              setRegisterOpen(!registerOpen);
+              setErrorMessage("");
+            }}
+          >
             Register Account
           </button>
         </Stack>
@@ -159,6 +169,7 @@ export default function Login() {
             placeholder="Username..."
             onChange={(event) => {
               setRegisterUsername(event.target.value);
+              setErrorMessage("");
             }}
           />
           <input
@@ -166,33 +177,49 @@ export default function Login() {
             type="password"
             onChange={(event) => {
               setRegisterPassword(event.target.value);
+              setErrorMessage("");
             }}
           />
           <input
             placeholder="Full Name"
             onChange={(event) => {
               setRegisterFullName(event.target.value);
+              setErrorMessage("");
             }}
           />
           <input
             placeholder="Zipcode"
             onChange={(event) => {
               setRegisterZipcode(event.target.value);
+              setErrorMessage("");
             }}
           />
           <p>Are you a food pantry?</p>
           <input
             type="checkbox"
             id="isPantry"
-            onClick={() => setIsPantry(!isPantry)}
+            onClick={() => {
+              setIsPantry(!isPantry);
+              setErrorMessage("");
+            }}
           />
           <br></br>
           <button onClick={register}>Create User</button>
 
-          <button onClick={() => setRegisterOpen(!registerOpen)}>
+          <button
+            onClick={() => {
+              setRegisterOpen(!registerOpen);
+              setErrorMessage("");
+            }}
+          >
             Return to Login
           </button>
         </Stack>
+      )}
+      {errorMessage && (
+        <Typography component="p" variant="p" align="center" padding={3}>
+          {errorMessage}
+        </Typography>
       )}
     </>
   );
