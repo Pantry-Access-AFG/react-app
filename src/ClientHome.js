@@ -11,6 +11,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { db } from "./firebase-config";
 import { collection, getDocs, addDoc } from "firebase/firestore";
 
+
 /**
  * Creates a form for clients to request items from Food Pantries
  * @returns Form component
@@ -107,7 +108,7 @@ function MakeRequestDialog({
 }
 
 /**
- *
+ * 
  * @param {open, handleClose, foodBankName, foodPantryDesription, foodPantryID} parameters to describe the food bank to be described
  * @returns a dialog that shows the user more about the food pantry in question
  */
@@ -143,7 +144,7 @@ function LearnMoreDialog({
 export default function ClientHome() {
   let [foodPantries, setFoodPantries] = useState([
     ["Food Pantry A", "01650", "Food Pantry A is a nonprofit"],
-    ["Food Pantry B", "01772", "Food Pantry B is collegeboard"],
+    ["Food Pantry B", "01772", "Food Pantry B is CollegeBoard"],
   ]);
 
   /**
