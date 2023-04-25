@@ -1,6 +1,6 @@
 import Request from './components/Request';
 import RequestsHeader from './components/RequestsHeader';
-import {useEffect} from "react";
+import { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { useState } from "react";
@@ -19,7 +19,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Chip } from "@mui/material";
 import { db } from "./firebase-config";
-import { doc, updateDoc, onSnapshot,query, where, collection } from "firebase/firestore";
+import { doc, updateDoc, onSnapshot, query, where, collection } from "firebase/firestore";
 
 // import Box from '@mui/material/Box';
 import InputLabel from '@mui/material/InputLabel';
@@ -39,25 +39,48 @@ export default function MyRequests(props) {
     let [pantryNotes, setPantryNotes] = useState("");
     let [requestStatus, setRequestStatus] = useState(1);
 
+
+    //TODO replace with actual array
+    const [requests, setRequests] = useState([]);
+
     const signedInUser = ""
 
-    // const requestsRef = collection(db, "requests")
-    // const q = query(citiesRef, where("foodPantryUID", "==", "3480242"));
+    const requestsRef = collection(db, "requests")
+    const q = query(requestsRef, where("foodPantryUID", "==", 238408934)); //TODO CHANGE PANTRYUID TO ACTUAL UID
+    
 
-
-    // useEffect(() => {
-    //     async function getInventoryData() {
-    //       onSnapshot(doc(db, "requests", "pantryUID"), (doc) => { //TODO CHANGE PANTRYUID TO ACTUAL UID
-    //         if (doc.exists()) {
-    //           setItemList(doc.data()["itemList"]);
-    //           setQuantityList(doc.data()["quantityList"]);
-    //         } else {
-    //           console.log("Nothing!");
-    //         }
-    //       });
-    //     }
-    //     getInventoryData();
-    //   }, []);
+    useEffect(() => {
+        
+            onSnapshot(q,
+                querySnapshot => {
+                    const requestsArr = [];
+                    querySnapshot.forEach((doc) => {
+                        requestsArr.push({
+                            item: doc.data().item,
+                            requestStatus: doc.data().requestStatus,
+                            date: "oldDate",
+                            //date: doc.data().date.toDate().toDateString(), //TODO CHANGE WHEN DATE IMPLEMENTED
+                            quantity: 2,
+                            foodPantryName: doc.data().foodPantryName,
+                            clientNotes: doc.data().clientNotes,
+                            pantryNotes: doc.data().pantryNotes,
+                            id: doc.id
+                        }
+                            );
+                    
+                    });
+                    console.log(requestsArr);
+                    setRequests(requestsArr);
+                    // (doc) => { //TODO CHANGE PANTRYUID TO ACTUAL UID
+                    // if (doc.exists()) {
+                    //   setItemList(doc.data()["itemList"]);
+                    //   setQuantityList(doc.data()["quantityList"]);
+                    // } else {
+                    //   console.log("Nothing!");
+                    // }
+                });
+        
+    }, []);
 
     /**
    * Function for editing a row
@@ -77,35 +100,6 @@ export default function MyRequests(props) {
         setQuantity(0);
         setRequestStatus(1);
     };
-
-    //TODO replace with actual array
-    const [requests, setRequests] = useState([{
-        item: "potato",
-        requestStatus: 1,
-        date: 34,
-        quantity: 2,
-        foodPantryName: "Food Pantry W",
-        clientNotes: "feaujseoi",
-        pantryNotes: "jfeaoiaoei"
-    }, {
-        item: "corn",
-        requestStatus: 2,
-        date: 34,
-        quantity: 2,
-        foodPantryName: "Food Pantry W",
-        clientNotes: "feaujseoi",
-        pantryNotes: "jfeaoiaoei"
-    }, {
-        item: "wheat",
-        requestStatus: 4,
-        date: 34,
-        quantity: 2,
-        foodPantryName: "Food Pantry W",
-        clientNotes: "feaujseoi",
-        pantryNotes: "jfeaoiaoei"
-    }]);
-
-    
 
     const editRequestsClick = (index) => {
         setEditIndex(index);
@@ -131,6 +125,19 @@ export default function MyRequests(props) {
         clientNotes={request.clientNotes}
         pantryNotes={request.pantryNotes}
     ></Request>);
+
+    let pendingRequestsUI = requests.filter(request => request.requestStatus===1).map((request, index) => <Request key={request.toString()}
+    item={request.item}
+    requestStatus={request.requestStatus}
+    date={request.date}
+    quantity={request.quantity}
+    foodPantryName={request.foodPantryName}
+    index={index}
+    editRequestsClick={editRequestsClick}
+    requests={requests}
+    clientNotes={request.clientNotes}
+    pantryNotes={request.pantryNotes}
+></Request>);
     return (
         <div style={{ marginLeft: "16px", marginRight: "16px" }}>
             <RequestsHeader title="Pending Requests" />
@@ -224,18 +231,30 @@ function EditRequestDialog({
             //     .concat(rows.slice(index + 1, rows.length))
             // );
             //updates the requests when the item has been edited
-            setRequests((requests) => requests
-                .slice(0, index)
-                .concat({
-                    item: item,
-                    requestStatus: requestStatus,
-                    date: "new date", //TODO change to updated date
-                    quantity: quantity,
-                    foodPantryName: foodPantryName,
-                    clientNotes: clientNotes,
-                    pantryNotes: pantryNotes
-                })
-                .concat(requests.slice(index + 1, requests.length)))
+            // setRequests((requests) => requests
+            //     .slice(0, index)
+            //     .concat({
+            //         item: item,
+            //         requestStatus: requestStatus,
+            //         date: "new date", //TODO change to updated date
+            //         quantity: quantity,
+            //         foodPantryName: foodPantryName,
+            //         clientNotes: clientNotes,
+            //         pantryNotes: pantryNotes
+            //     })
+            //     .concat(requests.slice(index + 1, requests.length)))
+            var ref = doc(db, "requests", requests[index].id);
+            
+            updateDoc(ref, {
+                item: item,
+                requestStatus: requestStatus,
+                date: "new date", //TODO change to updated date
+                quantity: quantity,
+                foodPantryName: foodPantryName,
+                clientNotes: clientNotes,
+                pantryNotes: pantryNotes
+            })
+            
         }
         handleEditClose();
     };
@@ -294,43 +313,43 @@ function EditRequestDialog({
                     />
                     {/* from https://mui.com/material-ui/react-select/ */}
                     <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                    <FormControl sx={{ m: 1, minWidth: 120 }} fullWidth style={{ marginTop: "8px" }}>
-                        <InputLabel id="demo-simple-select-label">Request Status</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="requestEdit"
-                            value={requestStatus}
-                            label="Request Status"
-                            onChange={(event) => {
-                                setRequestStatus(() => {
-                                    console.log(event.target.value);
-                                    if (!event.target.value) return defaultRequestStatus;
-                                    else return event.target.value;
-                                });
-                            }}
-                        >
-                            <MenuItem value={1}>
-                                <div className="chip-container">
-                                    <Chip style={{ backgroundColor: "#fdff93", fontSize: "large" }} label="Pending" />
-                                </div>
-                            </MenuItem>
-                            <MenuItem value={2}>
-                                <div className="chip-container">
-                                    <Chip style={{ backgroundColor: "lightskyblue", fontSize: "large" }} label="Accepted" />
-                                </div>
-                            </MenuItem>
-                            <MenuItem value={3}>
-                                <div className="chip-container">
-                                    <Chip style={{ backgroundColor: "lightgreen", fontSize: "large" }} label="Fulfilled" />
-                                </div>
-                            </MenuItem>
-                            <MenuItem value={4}>
-                                <div className="chip-container">
-                                    <Chip style={{ backgroundColor: "lightcoral", fontSize: "large" }} label="Cancelled" />
-                                </div>
-                            </MenuItem>
-                        </Select>
-                    </FormControl>
+                        <FormControl sx={{ m: 1, minWidth: 120 }} fullWidth style={{ marginTop: "8px" }}>
+                            <InputLabel id="demo-simple-select-label">Request Status</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="requestEdit"
+                                value={requestStatus}
+                                label="Request Status"
+                                onChange={(event) => {
+                                    setRequestStatus(() => {
+                                        console.log(event.target.value);
+                                        if (!event.target.value) return defaultRequestStatus;
+                                        else return event.target.value;
+                                    });
+                                }}
+                            >
+                                <MenuItem value={1}>
+                                    <div className="chip-container">
+                                        <Chip style={{ backgroundColor: "#fdff93", fontSize: "large" }} label="Pending" />
+                                    </div>
+                                </MenuItem>
+                                <MenuItem value={2}>
+                                    <div className="chip-container">
+                                        <Chip style={{ backgroundColor: "lightskyblue", fontSize: "large" }} label="Accepted" />
+                                    </div>
+                                </MenuItem>
+                                <MenuItem value={3}>
+                                    <div className="chip-container">
+                                        <Chip style={{ backgroundColor: "lightgreen", fontSize: "large" }} label="Fulfilled" />
+                                    </div>
+                                </MenuItem>
+                                <MenuItem value={4}>
+                                    <div className="chip-container">
+                                        <Chip style={{ backgroundColor: "lightcoral", fontSize: "large" }} label="Cancelled" />
+                                    </div>
+                                </MenuItem>
+                            </Select>
+                        </FormControl>
                     </Box>
                 </DialogContent>
                 <DialogActions>
