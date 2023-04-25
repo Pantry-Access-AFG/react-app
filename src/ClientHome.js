@@ -9,8 +9,15 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { db } from "./firebase-config";
-import { collection, getDocs, addDoc } from "firebase/firestore";
-
+import {
+  collection,
+  getDocs,
+  addDoc,
+  doc,
+  onSnapshot,
+} from "firebase/firestore";
+import { auth } from "./firebase-config";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 /**
  * Creates a form for clients to request items from Food Pantries
@@ -24,10 +31,6 @@ function MakeRequestDialog({
   foodPantryID,
   clientID,
 }) {
-  /**
-   * Function to handle inserting items into the DataGrid
-   */
-
   let [item, setItem] = React.useState("");
   let [quantity, setQuantity] = React.useState(0);
   let [clientNotes, setClientNotes] = React.useState("");
@@ -117,7 +120,8 @@ function LearnMoreDialog({
   handleClose,
   foodPantryName,
   foodPantryDescription,
-  foodPantryID,
+  itemList,
+  wantedItemList,
   foodPantryZipCode,
 }) {
   return (
@@ -127,6 +131,26 @@ function LearnMoreDialog({
         <DialogContent>
           <DialogContentText>{foodPantryZipCode}</DialogContentText>
           <DialogContentText>{foodPantryDescription}</DialogContentText>
+          <DialogContentText>
+            Available Items:{" "}
+            {itemList.map((element, index) => {
+              if (index != itemList.length - 1) {
+                return element + ", ";
+              } else {
+                return element + ".";
+              }
+            })}
+          </DialogContentText>
+          <DialogContentText>
+            Requesting Donations:{" "}
+            {wantedItemList.map((element, index) => {
+              if (index !== itemList.length - 1) {
+                return element + ", ";
+              } else {
+                return element + ".";
+              }
+            })}
+          </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Back</Button>
@@ -142,10 +166,18 @@ function LearnMoreDialog({
  * @returns Client Home Page
  */
 export default function ClientHome() {
-  let [foodPantries, setFoodPantries] = useState([
-    ["Food Pantry A", "01650", "Food Pantry A is a nonprofit"],
-    ["Food Pantry B", "01772", "Food Pantry B is CollegeBoard"],
+  // React States
+  const [foodPantries, setFoodPantries] = useState([
+    ["Food Pantry A", "01650", "Food Pantry A is a Food Pantry"],
+    ["Food Pantry B", "01772", "Food Pantry B is a Food Pantry"],
   ]);
+  const [user, loading, error] = useAuthState(auth);
+  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+  const [learnMoreDialogOpen, setLearnMoreDialogOpen] = useState(false);
+  const [foodPantryID, setFoodPantryID] = useState(0);
+  const [indexClicked, setIndexClicked] = useState(0);
+  const [itemList, setItemList] = useState([]);
+  const [wantedItemList, setwantedItemList] = useState([]);
 
   /**
    * Retrieve food pantries (in food-bank-accounts collection) from Firebase
@@ -159,6 +191,7 @@ export default function ClientHome() {
           doc.data()["name"],
           doc.data()["zipcode"],
           doc.data()["description"],
+          doc.id,
         ]);
       });
       setFoodPantries(foodPantryData);
@@ -166,10 +199,22 @@ export default function ClientHome() {
     fetchData();
   }, []);
 
-  let [requestDialogOpen, setRequestDialogOpen] = useState(false);
-  let [learnMoreDialogOpen, setLearnMoreDialogOpen] = useState(false);
-  let [foodPantryID, setFoodPantryID] = useState(0);
-  let [indexClicked, setIndexClicked] = useState(0);
+  /**
+   * Retrive items of pantry from Firebase to be displayed in Food Bank Cards
+   */
+  useEffect(() => {
+    const fetchData = async () => {
+      await onSnapshot(doc(db, "inventory", foodPantryID), (doc) => {
+        if (doc.exists()) {
+          setItemList(doc.data()["itemList"]);
+          setwantedItemList(doc.data()["wantedItemList"]);
+        } else {
+          console.log("Nothing!");
+        }
+      });
+    };
+    fetchData();
+  }, [foodPantryID]);
 
   /**
    * @param index of the food bank to be requested from
@@ -177,7 +222,7 @@ export default function ClientHome() {
    */
   const onRequestClick = (index) => {
     setIndexClicked(index);
-    setFoodPantryID(index);
+    setFoodPantryID(foodPantries[index][3]);
     setRequestDialogOpen(true);
   };
 
@@ -187,16 +232,16 @@ export default function ClientHome() {
    */
   const onLearnMoreClick = (index) => {
     setIndexClicked(index);
-    setFoodPantryID(index);
+    setFoodPantryID(foodPantries[index][3]);
     setLearnMoreDialogOpen(true);
   };
 
   /**
-   * TODO: What happens when request is made --> send to firebase
+   * Function to update a request and send it to the requests collection in Firebase Firestore
    */
   const makeRequest = (clientID, pantryID, item, quantity, clientNotes) => {
     const request = {
-      clientUID: 3480242,
+      clientUID: user ? user.uid : 0,
       foodPantryUID: 238408934,
       clientNotes: clientNotes ? clientNotes : null,
       foodPantryNotes: null,
@@ -217,7 +262,7 @@ export default function ClientHome() {
     sendRequest(request);
   };
 
-  //process food bank cards and load them
+  // process food bank cards and load them
   let temp = foodPantries.slice();
   let food_bank_list = temp.map((x, index) => (
     <FoodBankCard
@@ -233,7 +278,6 @@ export default function ClientHome() {
 
   return (
     <>
-      <p className="text-center">...client side in development below...</p>
       <h1 className="text-center" style={{ marginTop: "1rem" }}>
         Food Pantries Near You
       </h1>
@@ -242,16 +286,16 @@ export default function ClientHome() {
         open={requestDialogOpen}
         handleClose={() => setRequestDialogOpen(false)}
         makeRequest={makeRequest}
-        foodPantryID={foodPantryID}
         foodPantryName={temp[indexClicked][0]}
       ></MakeRequestDialog>
       <LearnMoreDialog
         open={learnMoreDialogOpen}
         handleClose={() => setLearnMoreDialogOpen(false)}
         foodPantryName={temp[indexClicked][0]}
-        foodPantryID={foodPantryID}
         foodPantryDescription={temp[indexClicked][2]}
         foodPantryZipCode={temp[indexClicked][1]}
+        itemList={itemList}
+        wantedItemList={wantedItemList}
       ></LearnMoreDialog>
     </>
   );

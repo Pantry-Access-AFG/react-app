@@ -2,7 +2,7 @@ import React from "react";
 import Box from "@mui/material/Box";
 import { useState, useEffect } from "react";
 import { db } from "./firebase-config";
-import { doc, updateDoc, onSnapshot } from "firebase/firestore";
+import { doc, updateDoc, onSnapshot, getDoc } from "firebase/firestore";
 import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { DataGrid } from "@mui/x-data-grid";
@@ -18,7 +18,9 @@ import {
   InsertWantedFormDialog,
   EditWantedFormDialog,
 } from "./components/WantedInventory";
-import useWindowSize from "react-use/lib/useWindowSize"
+import useWindowSize from "react-use/lib/useWindowSize";
+import { auth } from "./firebase-config";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 /**
  *
@@ -47,6 +49,7 @@ const ConfettiMode = ({ confettiOn, setConfettiOn }) => {
  */
 export default function PantryHome() {
   // States for form dialog
+  const [food_bank_name, setName] = useState("");
   const [insertOpen, setInsertOpen] = useState(false);
   const [editInventoryOpen, setInventoryEditOpen] = useState(false);
   const [insertWantedOpen, setInsertWantedOpen] = useState(false);
@@ -63,7 +66,8 @@ export default function PantryHome() {
   const [wantedItemList, setWantedItemList] = useState([]);
   const [wantedQuantityList, setWantedQuantityList] = useState([]);
   const [wantedRows, setWantedRows] = useState(() => []);
-  const { width, height } = useWindowSize()
+  const { width, height } = useWindowSize();
+  const [user, loading, error] = useAuthState(auth);
 
   /**
    * Function for handling opening the form dialog
@@ -95,10 +99,10 @@ export default function PantryHome() {
 
   /**
    * Function for deleting rows
-   * Removes respective row and reinitializes row array
+   * Removes respective row and updates it in Firebase firestore
    */
   const deleteInventoryRowClick = (e, row, rows, index) => {
-    const docRef = doc(db, "inventory", "pantryUID");
+    const docRef = doc(db, "inventory", user.uid);
     const deleteData = async () => {
       await updateDoc(docRef, {
         itemList: itemList
@@ -112,8 +116,12 @@ export default function PantryHome() {
     deleteData();
   };
 
+  /**
+   * Function for deleting rows in the wanted items table
+   * Removes respective row and updates it in Firebase firestore
+   */
   const deleteWantedRowClick = (e, row, rows, index) => {
-    const docRef = doc(db, "inventory", "pantryUID");
+    const docRef = doc(db, "inventory", user.uid);
     const deleteData = async () => {
       await updateDoc(docRef, {
         wantedItemList: wantedItemList
@@ -129,7 +137,7 @@ export default function PantryHome() {
 
   /**
    * Function for editing a row
-   * Edits respective row and reinitializes row array
+   * Edits respective row and opens the dialog to edit the item
    */
   const editInventoryRowClick = (e, index) => {
     setEditIndex(index);
@@ -139,6 +147,10 @@ export default function PantryHome() {
     setInventoryEditOpen(true);
   };
 
+  /**
+   * Function for editing a row in the wanted items table
+   * Edits respective row and opens the dialog to edit the item
+   */
   const editWantedRowClick = (e, index) => {
     setEditIndex(index);
     setEditId(wantedRows[index].id);
@@ -277,10 +289,11 @@ export default function PantryHome() {
 
   /**
    * Retrives items and quantities from firebase for this food pantry
+   * Runs on load of the component
    */
   useEffect(() => {
     async function getInventoryData() {
-      onSnapshot(doc(db, "inventory", "pantryUID"), (doc) => {
+      onSnapshot(doc(db, "inventory", user.uid), (doc) => {
         if (doc.exists()) {
           setItemList(doc.data()["itemList"]);
           setWantedItemList(doc.data()["wantedItemList"]);
@@ -294,6 +307,9 @@ export default function PantryHome() {
     getInventoryData();
   }, []);
 
+  /**
+   * For everytime itemList or quantityList changes, it will update the rows array with new updated data
+   */
   useEffect(() => {
     let tempRows = [];
     for (let i = 0; i < itemList.length; i += 1) {
@@ -307,6 +323,9 @@ export default function PantryHome() {
     setInventoryRows(tempRows);
   }, [itemList, quantityList]);
 
+  /**
+   * For everytime wantedItemList or wantedQuantityList changes, it will update the wantedRows array with new data
+   */
   useEffect(() => {
     let tempRows = [];
     for (let i = 0; i < wantedItemList.length; i += 1) {
@@ -321,6 +340,26 @@ export default function PantryHome() {
   }, [wantedItemList, wantedQuantityList]);
 
   /**
+   * On component load or startup, the user's name will be loaded from Firebase firestore and shown at the top of the page
+   */
+  useEffect(() => {
+    if (user) {
+      const getName = async () => {
+        let docRef = doc(db, "client-accounts", user.uid);
+        let docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setName(docSnap.data().full_name);
+        } else {
+          docRef = doc(db, "food-bank-accounts", user.uid);
+          docSnap = await getDoc(docRef);
+          setName(docSnap.data().name);
+        }
+      };
+      getName();
+    }
+  }, [user]);
+
+  /**
    * Function to handle inserting an item into the row
    * Opens the form dialog
    */
@@ -329,10 +368,10 @@ export default function PantryHome() {
   };
 
   /**
-   * Inserts item to row by appending it to the end and increasing the id number
+   * Inserts item to row by appending it to the end and updating Firebase Firestore inventory
    */
   const insertItemInventory = ({ itemID = id, col1Name, col2Name }) => {
-    const docRef = doc(db, "inventory", "pantryUID");
+    const docRef = doc(db, "inventory", user.uid);
     const insertData = async () => {
       await updateDoc(docRef, {
         itemList: [...itemList, col1Name],
@@ -343,8 +382,11 @@ export default function PantryHome() {
     setConfettiOn(true);
   };
 
+  /**
+   * Inserts item to row by appending it to the end and updating Firebase Firestore list
+   */
   const insertItemWanted = ({ itemID = id, col1Name, col2Name }) => {
-    const docRef = doc(db, "inventory", "pantryUID");
+    const docRef = doc(db, "inventory", user.uid);
     const insertData = async () => {
       await updateDoc(docRef, {
         wantedItemList: [...wantedItemList, col1Name],
@@ -354,8 +396,6 @@ export default function PantryHome() {
     insertData();
     setConfettiOn(true);
   };
-
-  let food_bank_name = "Food Pantry X";
 
   return (
     <>
@@ -446,7 +486,7 @@ export default function PantryHome() {
           columns={columns}
         />
       </div>
-      <h1 style={{ textAlign: "center" }}>Food Needed</h1>
+      <h1 style={{ textAlign: "center" }}>{food_bank_name}'s Food Needed</h1>
       <Box sx={{ "& > :not(style)": { m: 3 } }} textAlign="center">
         <Fab
           color="primary"

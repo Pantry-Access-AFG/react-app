@@ -5,6 +5,10 @@ import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import { Button, CardActions } from "@mui/material";
 import Stack from "@mui/material/Stack";
+import { auth } from "../firebase-config";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../firebase-config";
 
 export default function FoodBankCard({
   id,
@@ -14,9 +18,26 @@ export default function FoodBankCard({
   onRequestClick,
   onLearnMoreClick,
 }) {
-  const zipCodeData = require('zipcode-city-distance');
-  let clientZip = "01772"
-  let zipCodeDistance = parseInt(zipCodeData.zipCodeDistance(clientZip, zipCode,'M'));
+  const [user, loading, error] = useAuthState(auth);
+  const zipCodeData = require("zipcode-city-distance");
+  const [clientZip, setClientZip] = React.useState("90001");
+
+  React.useEffect(() => {
+    if (user) {
+      const getZipCode = async () => {
+        let docRef = doc(db, "client-accounts", user.uid);
+        let docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setClientZip(docSnap.data().zipcode)
+        }  
+      };
+      getZipCode()
+    }
+  }, []);
+  
+  let zipCodeDistance = parseInt(
+    zipCodeData.zipCodeDistance(clientZip, zipCode, "M")
+  );
   return (
     <Card
       sx={{
@@ -32,9 +53,20 @@ export default function FoodBankCard({
             {foodBankName}
           </Typography>
           <CardActions>
-            <Grid container justifyContent="center" textAlign="center" spacing={2}>
-              <Grid item xs={6} alignContent="center" alignItems="center" justifyContent="center">
-                <Button
+            <Grid
+              container
+              justifyContent="center"
+              textAlign="center"
+              spacing={2}
+            >
+              <Grid
+                item
+                xs={6}
+                alignContent="center"
+                alignItems="center"
+                justifyContent="center"
+              >
+                {user && <Button
                   size="medium"
                   color="primary"
                   onClick={() => {
@@ -42,9 +74,15 @@ export default function FoodBankCard({
                   }}
                 >
                   Make Request
-                </Button>
+                </Button>}
               </Grid>
-              <Grid item xs={6} alignContent="center" alignItems="center" justifyContent="center">
+              <Grid
+                item
+                xs={6}
+                alignContent="center"
+                alignItems="center"
+                justifyContent="center"
+              >
                 <Button
                   size="medium"
                   color="primary"
@@ -59,7 +97,8 @@ export default function FoodBankCard({
           </CardActions>
 
           <Typography variant="body2" color="text.secondary" textAlign="center">
-            {zipCode} -- {(zipCodeDistance)? zipCodeDistance : "error"} mi from you.
+            {zipCode} -- {zipCodeDistance ? zipCodeDistance : "Unkwown"} miles from
+            you.
           </Typography>
         </Stack>
       </CardContent>

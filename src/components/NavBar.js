@@ -1,4 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import { auth } from "../firebase-config";
+import { useAuthState } from "react-firebase-hooks/auth";
 /**
  * Makes a navigation bar with the profile, home, and my requests tabs.
  * @returns the navigation bar
@@ -6,10 +8,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 export default function NavBar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [user, loading, error] = useAuthState(auth);
 
   return (
     <div className="flex-container">
-      <button
+      {user && (<button
         className={
           location.pathname === "/profile"
             ? "navbar-tab-selected"
@@ -18,7 +21,7 @@ export default function NavBar() {
         onClick={() => navigate("/profile")}
       >
         Profile
-      </button>
+      </button>)}
       <button
         className={
           location.pathname === "/"
@@ -39,16 +42,18 @@ export default function NavBar() {
       >
         My Requests
       </button>
-      <button
-        className={
-          location.pathname === "/login"
-          ? "navbar-tab-selected"
-          : "navbar-tab-unselected"
-        }
-        onClick={() => navigate("/login")}
-      >
-        Log In
-      </button>
+      {!user && (
+        <button
+          className={
+            location.pathname === "/login"
+              ? "navbar-tab-selected"
+              : "navbar-tab-unselected"
+          }
+          onClick={() => navigate("/login")}
+        >
+          Log In
+        </button>
+      )}
     </div>
   );
 }

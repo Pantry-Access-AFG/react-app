@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Button from "@mui/material/Button";
 import { Box } from "@mui/system";
 import "./FoodPantryProfile.css";
@@ -10,6 +10,12 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Confetti from "react-confetti";
+import { auth } from "./firebase-config";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { signOut, deleteUser } from "firebase/auth";
+import { doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+import { db } from "./firebase-config";
+import { useNavigate } from "react-router-dom";
 
 /**
  * Page for Food Pantry Profiles
@@ -18,27 +24,48 @@ import Confetti from "react-confetti";
 
 // TODO: Integrate with Firebase authentication and create more conditionals for checking and confirmation dialogs
 
-export default function FoodPantryProfile() {
-  let food_pantry_name = "Food Pantry X";
-
+export default function ProfilePage() {
+  let [name, setName] = useState("");
   let [username, setUsername] = useState("");
   let [password, setPassword] = useState("");
   let [zipcode, setZipcode] = useState("");
+  let [description, setDescription] = useState("");
   let [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
   let [confettiOn, setConfettiOn] = useState(false);
+  let [isPantry, setIsFoodPantry] = useState(false);
+  const [user, loading, error] = useAuthState(auth);
+  const navigate = useNavigate();
 
-  // Delete account function to reset all values and remove user from database (TBD)
-  const handleDeleteAccount = () => {
+  /**
+   * Async function to delete an account by removing it from Firebase Auth and it's document in Firebase Firestore
+   */
+  const handleDeleteAccount = async () => {
     setUsername("");
     setPassword("");
     setZipcode("");
-    handleCloseAreYouSure();
+    let docRef = doc(
+      db,
+      isPantry ? "food-bank-accounts" : "client-accounts",
+      user.uid
+    );
+    deleteDoc(docRef);
+
+    try {
+      deleteUser(user)
+        .then(() => {
+          setConfettiOn(true);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      handleCloseAreYouSure();
+      navigate("/login");
+    } catch (error) {}
   };
 
   // Set username listener
   const handleSetUsername = (x) => {
     setUsername(x);
-    // firebase
   };
 
   // Set password listener
@@ -51,6 +78,10 @@ export default function FoodPantryProfile() {
     setZipcode(x);
   };
 
+  const handleSetDescription = (x) => {
+    setDescription(x);
+  };
+
   const handleOpenAreYouSure = () => {
     setDeleteAccountOpen(true);
   };
@@ -59,23 +90,78 @@ export default function FoodPantryProfile() {
     setDeleteAccountOpen(false);
   };
 
+  /**
+   * Funciton to update the account details.
+   * If an account needs to change a username or a password, they will need to email us.
+   */
   const handleSaveChanges = () => {
+    let docRef = doc(
+      db,
+      isPantry ? "food-bank-accounts" : "client-accounts",
+      user.uid
+    );
+    setDoc(
+      docRef,
+      { zipcode: zipcode, description: description },
+      { merge: true }
+    );
     setConfettiOn(true);
   };
+
+  /**
+   * Function to logout by calling the signOut React Firebase Hook and navigating to the default login page.
+   */
+  const logout = () => {
+    signOut(auth);
+    navigate("/login");
+  };
+
+  /**
+   * Runs on component load or when user changes to find all of the user's information from Firebase Firestore and display it under account details
+   */
+  useEffect(() => {
+    if (user) {
+      const getName = async () => {
+        let docRef = doc(db, "client-accounts", user.uid);
+        let docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setName(docSnap.data().full_name);
+          setUsername(docSnap.data().full_name);
+          setUsername(docSnap.data().username);
+          setPassword(docSnap.data().password);
+          setZipcode(docSnap.data().zipcode);
+          setIsFoodPantry(false);
+        } else {
+          docRef = doc(db, "food-bank-accounts", user.uid);
+          docSnap = await getDoc(docRef);
+          setName(docSnap.data().name);
+          setUsername(docSnap.data().name);
+          setPassword(docSnap.data().password);
+          setZipcode(docSnap.data().zipcode);
+          setDescription(docSnap.data().description);
+          setIsFoodPantry(true);
+        }
+      };
+      getName();
+    }
+  }, [user]);
 
   return (
     <>
       <h1 className="text-center" style={{ marginTop: "1rem" }}>
-        {food_pantry_name}
+        {name}
       </h1>
 
       <UserInfo
         username={username}
         password={password}
         zipcode={zipcode}
+        description={description}
         setUsername={handleSetUsername}
         setPassword={handleSetPassword}
         setZipcode={handleSetZipcode}
+        setDescription={handleSetDescription}
+        isPantry={isPantry}
       />
       <br></br>
 
@@ -83,6 +169,13 @@ export default function FoodPantryProfile() {
       <Box textAlign="center" alignContent="center" margin="auto">
         <Button variant="outlined" color="success" onClick={handleSaveChanges}>
           Save Changes
+        </Button>
+
+        <br />
+        <br />
+
+        <Button variant="outlined" color="error" onClick={logout}>
+          Log Out
         </Button>
 
         <br />
@@ -126,35 +219,55 @@ function UserInfo({
   username,
   password,
   zipcode,
+  description,
   setUsername,
   setPassword,
   setZipcode,
+  setDescription,
+  isPantry,
 }) {
+  // username listener
   const usernameChange = (event) => {
     setUsername(event.target.value);
   };
 
+  // username submit listener
   const usernameSubmit = (event) => {
     event.preventDefault();
     setUsername(event.target.value);
   };
 
+  // password listener
   const passwordChange = (event) => {
     setPassword(event.target.value);
   };
 
+  // password submit listener
   const passwordSubmit = (event) => {
     event.preventDefault();
     setPassword(event.target.value);
   };
 
+  // zipcode listener
   const zipcodeChange = (event) => {
     setZipcode(event.target.value);
   };
 
+  // zipcode submit listener
   const zipcodeSubmit = (event) => {
     event.preventDefault();
     setZipcode(event.target.value);
+  };
+
+  // description listener
+  const descriptionChange = (event) => {
+    setDescription(event.target.value);
+  };
+
+  // description submit listener
+  const descriptionSubmit = (event) => {
+    event.preventDefault();
+    setDescription(event.target.value);
   };
 
   return (
@@ -162,7 +275,12 @@ function UserInfo({
       <div className="row">
         <p className="row">Username:</p>
         <form className="row" onSubmit={usernameSubmit}>
-          <input type="text" value={username} onChange={usernameChange} />
+          <input
+            readOnly={true}
+            type="text"
+            value={username}
+            onChange={usernameChange}
+          />
         </form>
       </div>
 
@@ -170,7 +288,12 @@ function UserInfo({
       <div className="row">
         <p className="row">Password:</p>
         <form className="row" onSubmit={passwordSubmit}>
-          <input type="text" value={password} onChange={passwordChange} />
+          <input
+            readOnly={true}
+            type="text"
+            value={password}
+            onChange={passwordChange}
+          />
         </form>
       </div>
       <div className="row">
@@ -179,10 +302,26 @@ function UserInfo({
           <input type="text" value={zipcode} onChange={zipcodeChange} />
         </form>
       </div>
+      {isPantry && (
+        <div className="row">
+          <p className="row">Description:</p>
+          <form className="row" onSubmit={descriptionSubmit}>
+            <input
+              type="text"
+              value={description}
+              onChange={descriptionChange}
+            />
+          </form>
+        </div>
+      )}
     </div>
   );
 }
 
+/**
+ *
+ * @returns React Dialog Component for confirming if a person wants to delete their account.
+ */
 function AreYourSureDialog({ deleteAccountOpen, deleteAccount, handleClose }) {
   return (
     <>
@@ -204,7 +343,7 @@ function AreYourSureDialog({ deleteAccountOpen, deleteAccount, handleClose }) {
 }
 
 /**
- * 
+ *
  * @returns confetti mode component to be used for submission of new inventory items
  */
 const ConfettiMode = ({ confettiOn, setConfettiOn }) => {
