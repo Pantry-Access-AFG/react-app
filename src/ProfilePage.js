@@ -8,6 +8,14 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
+import {
+  FormControl,
+  InputLabel,
+  Input,
+  TextField,
+  Typography,
+} from "@material-ui/core";
+import { Stack } from "@mui/material";
 import DialogTitle from "@mui/material/DialogTitle";
 import Confetti from "react-confetti";
 import { auth } from "./firebase-config";
@@ -271,50 +279,103 @@ function UserInfo({
   };
 
   return (
-    <div>
-      <div className="row">
-        <p className="row">Username:</p>
-        <form className="row" onSubmit={usernameSubmit}>
-          <input
-            readOnly={true}
-            type="text"
-            value={username}
-            onChange={usernameChange}
-          />
-        </form>
-      </div>
+    // <div>
+    //   <div className="row">
+    //     <p className="row">Username:</p>
+    //     <form className="row" onSubmit={usernameSubmit}>
+    //       <input
+    //         readOnly={true}
+    //         type="text"
+    //         value={username}
+    //         onChange={usernameChange}
+    //       />
+    //     </form>
+    //   </div>
 
-      <div className="row"></div>
-      <div className="row">
-        <p className="row">Password:</p>
-        <form className="row" onSubmit={passwordSubmit}>
-          <input
-            readOnly={true}
-            type="text"
-            value={password}
-            onChange={passwordChange}
-          />
-        </form>
-      </div>
-      <div className="row">
-        <p className="row">Zipcode:</p>
-        <form className="row" onSubmit={zipcodeSubmit}>
-          <input type="text" value={zipcode} onChange={zipcodeChange} />
-        </form>
-      </div>
-      {isPantry && (
+    //   <div className="row"></div>
+    //   <div className="row">
+    //     <p className="row">Password:</p>
+    //     <form className="row" onSubmit={passwordSubmit}>
+    //       <input
+    //         readOnly={true}
+    //         type="text"
+    //         value={password}
+    //         onChange={passwordChange}
+    //       />
+    //     </form>
+    //   </div>
+    //   <div className="row">
+    //     <p className="row">Zipcode:</p>
+    //     <form className="row" onSubmit={zipcodeSubmit}>
+    //       <input type="text" value={zipcode} onChange={zipcodeChange} />
+    //     </form>
+    //   </div>
+    //   {isPantry && (
+    //     <div className="row">
+    //       <p className="row">Description:</p>
+    //       <form className="row" onSubmit={descriptionSubmit}>
+    //         <input
+    //           type="text"
+    //           value={description}
+    //           onChange={descriptionChange}
+    //         />
+    //       </form>
+    //     </div>
+    //   )}
+    // </div>
+    <>
+      <Stack spacing={3} marginTop={1}>
         <div className="row">
-          <p className="row">Description:</p>
-          <form className="row" onSubmit={descriptionSubmit}>
-            <input
-              type="text"
-              value={description}
-              onChange={descriptionChange}
-            />
+          <form onSubmit={usernameSubmit}>
+            <FormControl>
+              <InputLabel htmlFor="username-input">Username</InputLabel>
+              <Input
+                id="username-input"
+                value={username}
+                onChange={usernameChange}
+                readOnly
+              />
+            </FormControl>
           </form>
         </div>
-      )}
-    </div>
+
+        <div className="row">
+          <form onSubmit={passwordSubmit}>
+            <FormControl>
+              <InputLabel htmlFor="password-input">Password</InputLabel>
+              <Input
+                id="password-input"
+                value={password}
+                onChange={passwordChange}
+                readOnly
+              />
+            </FormControl>
+          </form>
+        </div>
+
+        <div className="row">
+          <form onSubmit={zipcodeSubmit}>
+            <FormControl>
+              <InputLabel htmlFor="zipcode-input">Zipcode</InputLabel>
+              <Input id="zipcode" value={zipcode} onChange={zipcodeChange} />
+            </FormControl>
+          </form>
+        </div>
+
+        {isPantry && (
+          <div className="row">
+            <Typography variant="body1">Description:</Typography>
+            <form onSubmit={descriptionSubmit}>
+              <TextField
+                id="description"
+                value={description}
+                onChange={descriptionChange}
+              />
+            </form>
+          </div>
+        )}
+      </Stack>
+    </>
   );
 }
 

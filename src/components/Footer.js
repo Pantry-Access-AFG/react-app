@@ -5,7 +5,14 @@ import Stack from "@mui/material/Stack";
 function Footer() {
   return (
     <footer
-      style={{ padding: "1rem", backgroundColor: "#EFEFEF", marginTop: "2rem" }}
+      style={{
+        backgroundColor: "#EFEFEF",
+        marginTop: "2rem",
+        bottom: "0",
+        position: "relative",
+        left: "0",
+        right: "0",
+      }}
     >
       <Typography
         variant="subtitle1"
@@ -25,7 +32,7 @@ function Footer() {
         component="p"
       >
         <Stack>
-          Copyright © {new Date().getFullYear()}
+          Pantry Access Copyright © {new Date().getFullYear()}
           <Link
             color="inherit"
             href="https://github.com/Pantry-Access-AFG"
