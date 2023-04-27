@@ -43,6 +43,7 @@ function ContactUs() {
           size="large"
           href="mailto:pantryaccess@gmail.com"
           className={classes.button}
+          sx={{ marginTop: "2rem" }}
         >
           Email Us
         </Button>

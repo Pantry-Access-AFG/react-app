@@ -113,6 +113,13 @@ function LandingPage({ viewFoodPantries, setViewFoodPantries }) {
             Hide Pantries
           </Button>
         )}
+        <Button
+            variant="contained"
+            className={classes.button}
+            onClick={() => navigate("/Contact")}
+          >
+            Contact Us
+          </Button>
       </Container>
     </div>
   );
