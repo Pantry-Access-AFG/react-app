@@ -1,8 +1,10 @@
 import React from "react";
 import { Typography, Link } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import Stack from "@mui/material/Stack";
 
 function Footer() {
+  const navigate = useNavigate();
   return (
     <footer
       style={{
@@ -14,17 +16,6 @@ function Footer() {
         right: "0",
       }}
     >
-      <Typography
-        variant="subtitle1"
-        align="center"
-        color="textSecondary"
-        component="p"
-      >
-        Contact us at{" "}
-        <Link color="inherit" href="#">
-          here
-        </Link>{" "}
-      </Typography>
       <Typography
         variant="subtitle2"
         align="center"

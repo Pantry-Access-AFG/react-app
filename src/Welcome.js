@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "./firebase-config";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useEffect } from "react";
+import { Link } from "@mui/material";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -77,25 +78,41 @@ function LandingPage({ viewFoodPantries, setViewFoodPantries }) {
         </Typography>
         <Typography variant="subtitle2" className={classes.description}>
           This application was developed by Charles Tang, Jennifer Schaughnessy,
-          and Sumanth Sura of Mass Academy in the Apps for Good project.
+          and Sumanth Sura of Mass Academy in the Apps for Good project. This
+          project was also advised by Mrs. Taricco of Mass Academy. The code is{" "}
+          <i>open-source</i>, and the documentation can be found{" "}
+          <Link target="0" href="https://github.com/Pantry-Access-AFG">
+            here
+          </Link>
+          .
         </Typography>
-        <Button
-          variant="contained"
-          className={classes.button}
-          onClick={redirect}
-        >
-          Login/Register Now
-        </Button>
 
-        { !viewFoodPantries && 
+        {!viewFoodPantries ? (
+          <>
+            <Button
+              variant="contained"
+              className={classes.button}
+              onClick={redirect}
+            >
+              Login/Register Now
+            </Button>
+            <Button
+              variant="contained"
+              className={classes.button}
+              onClick={() => setViewFoodPantries(true)}
+            >
+              Skip Registration
+            </Button>
+          </>
+        ) : (
           <Button
             variant="contained"
             className={classes.button}
-            onClick={() => setViewFoodPantries(true)}
+            onClick={() => setViewFoodPantries(false)}
           >
-            Skip Registration
+            Hide Pantries
           </Button>
-        }
+        )}
       </Container>
     </div>
   );

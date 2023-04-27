@@ -11,6 +11,7 @@ import Footer from "./components/Footer";
 import ClientHome from "./ClientHome";
 import FourOhFour from "./404";
 import Welcome from "./Welcome";
+import ContactUs from "./ContactUs";
 import { auth } from "./firebase-config";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { doc, getDoc } from "firebase/firestore";
@@ -64,6 +65,7 @@ function App() {
           }
         />
         <Route path="/profile" index element={<ProfilePage></ProfilePage>} />
+        <Route path="/contact" index element={<ContactUs></ContactUs>} />
         <Route path="/myrequests" element={<MyRequests></MyRequests>} />
         <Route path="/login" element={<Login></Login>} />
         <Route path="/welcome" element={<Welcome></Welcome>} />
