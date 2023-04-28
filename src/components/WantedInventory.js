@@ -99,6 +99,7 @@ export function EditWantedFormDialog({
   id,
   itemList,
   quantityList,
+  pantryID
 }) {
   let defaultItem = "";
   let defaultQuantity = 0;
@@ -113,7 +114,7 @@ export function EditWantedFormDialog({
     if (!quantity) setQuantity(defaultQuantity);
     if (item && quantity > 0) {
       //ONLY UPDATE FIREBASE
-      const docRef = doc(db, "inventory", "pantryUID");
+      const docRef = doc(db, "inventory", pantryID);
       const editData = async () => {
         let tempItems = itemList.slice();
         tempItems[index] = item;

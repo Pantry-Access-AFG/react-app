@@ -279,50 +279,6 @@ function UserInfo({
   };
 
   return (
-    // <div>
-    //   <div className="row">
-    //     <p className="row">Username:</p>
-    //     <form className="row" onSubmit={usernameSubmit}>
-    //       <input
-    //         readOnly={true}
-    //         type="text"
-    //         value={username}
-    //         onChange={usernameChange}
-    //       />
-    //     </form>
-    //   </div>
-
-    //   <div className="row"></div>
-    //   <div className="row">
-    //     <p className="row">Password:</p>
-    //     <form className="row" onSubmit={passwordSubmit}>
-    //       <input
-    //         readOnly={true}
-    //         type="text"
-    //         value={password}
-    //         onChange={passwordChange}
-    //       />
-    //     </form>
-    //   </div>
-    //   <div className="row">
-    //     <p className="row">Zipcode:</p>
-    //     <form className="row" onSubmit={zipcodeSubmit}>
-    //       <input type="text" value={zipcode} onChange={zipcodeChange} />
-    //     </form>
-    //   </div>
-    //   {isPantry && (
-    //     <div className="row">
-    //       <p className="row">Description:</p>
-    //       <form className="row" onSubmit={descriptionSubmit}>
-    //         <input
-    //           type="text"
-    //           value={description}
-    //           onChange={descriptionChange}
-    //         />
-    //       </form>
-    //     </div>
-    //   )}
-    // </div>
     <>
       <Stack spacing={3} marginTop={1}>
         <div className="row">
@@ -364,13 +320,15 @@ function UserInfo({
 
         {isPantry && (
           <div className="row">
-            <Typography variant="body1">Description:</Typography>
             <form onSubmit={descriptionSubmit}>
-              <TextField
-                id="description"
-                value={description}
-                onChange={descriptionChange}
-              />
+              <FormControl>
+                <InputLabel htmlFor="description-input">Description</InputLabel>
+                <Input
+                  id="description"
+                  value={description}
+                  onChange={descriptionChange}
+                />
+              </FormControl>
             </form>
           </div>
         )}

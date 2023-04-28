@@ -411,6 +411,7 @@ export default function PantryHome() {
           Insert Item
         </Fab>
       </Box>
+      {/*Dialogs for inventory */}
       <InsertInventoryFormDialog
         open={insertOpen}
         handleClose={handleClose}
@@ -434,6 +435,7 @@ export default function PantryHome() {
         id={editId}
         itemList={itemList}
         quantityList={quantityList}
+        pantryID={user.uid}
       ></EditInventoryFormDialog>
       <InsertWantedFormDialog
         open={insertWantedOpen}
@@ -444,6 +446,7 @@ export default function PantryHome() {
         quantity={quantity}
         setQuantity={setQuantity}
       ></InsertWantedFormDialog>
+      {/*Dialogs for wanted inventory */}
       <InsertInventoryFormDialog
         editOpen={insertWantedOpen}
         setEditOpen={setEditWantedOpen}
@@ -474,6 +477,7 @@ export default function PantryHome() {
         id={editId}
         itemList={wantedItemList}
         quantityList={wantedQuantityList}
+        pantryID={user.uid}
       ></EditWantedFormDialog>
       <div style={{ height: 300, width: "80%", margin: "auto" }}>
         <DataGrid

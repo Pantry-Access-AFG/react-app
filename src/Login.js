@@ -339,7 +339,7 @@ export default function Login() {
         </Stack>
       )}
       {errorMessage && (
-        <Typography variant="body1" align="center" padding={3}>
+        <Typography variant="body1" align="center" color="red" padding={3}>
           {errorMessage}
         </Typography>
       )}
