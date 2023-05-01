@@ -345,14 +345,16 @@ export default function PantryHome() {
   useEffect(() => {
     if (user) {
       const getName = async () => {
-        let docRef = doc(db, "client-accounts", user.uid);
-        let docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setName(docSnap.data().full_name);
-        } else {
-          docRef = doc(db, "food-bank-accounts", user.uid);
-          docSnap = await getDoc(docRef);
-          setName(docSnap.data().name);
+        if (user) {
+          let docRef = doc(db, "client-accounts", user.uid);
+          let docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setName(docSnap.data().full_name);
+          } else {
+            docRef = doc(db, "food-bank-accounts", user.uid);
+            docSnap = await getDoc(docRef);
+            setName(docSnap.data().name);
+          }
         }
       };
       getName();
@@ -435,7 +437,7 @@ export default function PantryHome() {
         id={editId}
         itemList={itemList}
         quantityList={quantityList}
-        pantryID={user.uid}
+        pantryID={user? user.uid : 0}
       ></EditInventoryFormDialog>
       <InsertWantedFormDialog
         open={insertWantedOpen}
@@ -477,7 +479,7 @@ export default function PantryHome() {
         id={editId}
         itemList={wantedItemList}
         quantityList={wantedQuantityList}
-        pantryID={user.uid}
+        pantryID={user? user.uid : 0}
       ></EditWantedFormDialog>
       <div style={{ height: 300, width: "80%", margin: "auto" }}>
         <DataGrid
