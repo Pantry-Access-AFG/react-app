@@ -28,16 +28,17 @@ export default function FoodBankCard({
         let docRef = doc(db, "client-accounts", user.uid);
         let docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setClientZip(docSnap.data().zipcode)
-        }  
+          setClientZip(docSnap.data().zipcode);
+        }
       };
-      getZipCode()
+      getZipCode();
     }
   }, []);
-  
+
   let zipCodeDistance = parseInt(
     zipCodeData.zipCodeDistance(clientZip, zipCode, "M")
   );
+
   return (
     <Card
       sx={{
@@ -66,15 +67,17 @@ export default function FoodBankCard({
                 alignItems="center"
                 justifyContent="center"
               >
-                {user && <Button
-                  size="medium"
-                  color="primary"
-                  onClick={() => {
-                    onRequestClick(id);
-                  }}
-                >
-                  Make Request
-                </Button>}
+                {user && (
+                  <Button
+                    size="medium"
+                    color="primary"
+                    onClick={() => {
+                      onRequestClick(id);
+                    }}
+                  >
+                    Make Request
+                  </Button>
+                )}
               </Grid>
               <Grid
                 item
@@ -97,8 +100,8 @@ export default function FoodBankCard({
           </CardActions>
 
           <Typography variant="body2" color="text.secondary" textAlign="center">
-            {zipCode} -- {zipCodeDistance ? zipCodeDistance : "Unkwown"} miles from
-            you.
+            {zipCode} -- {zipCodeDistance ? zipCodeDistance : "Unknown"} miles
+            from you.
           </Typography>
         </Stack>
       </CardContent>

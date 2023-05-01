@@ -3,10 +3,17 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthState
 import { db } from "./firebase-config";
 import { doc, updateDoc, onSnapshot, addDoc, setDoc } from "firebase/firestore";
 import "./Login.css";
-import { useNavigate, useLocation } from "react-router-dom";
-import {auth} from './firebase-config'; 
-// import { Form, Button, Card } from "react-bootstrap";
-
+import { useNavigate } from "react-router-dom";
+import { auth } from "./firebase-config";
+import { useAuthState } from "react-firebase-hooks/auth";
+import {
+  Stack,
+  Typography,
+  TextField,
+  Button,
+  FormControlLabel,
+  Checkbox,
+} from "@mui/material";
 
 export default function Login() {
 
@@ -92,61 +99,213 @@ export default function Login() {
     setLoading(false);
   };
 
+  // return (
+  //   <>
+  //     {!registerOpen && (
+  //       <Stack className="center" spacing={2}>
+  //         <h3>Log In to an Existing Account</h3>
+  //         <input
+  //           placeholder="Username..."
+  //           onChange={(event) => {
+  //             setLoginUsername(event.target.value);
+  //             setErrorMessage("");
+  //           }}
+  //         />
+  //         <input
+  //           placeholder="Password..."
+  //           type="password"
+  //           onChange={(event) => {
+  //             setLoginPassword(event.target.value);
+  //             setErrorMessage("");
+  //           }}
+  //         />
+  //         <button onClick={login}>Log In</button>
+  //         <button
+  //           onClick={() => {
+  //             setRegisterOpen(!registerOpen);
+  //             setErrorMessage("");
+  //           }}
+  //         >
+  //           Register Account
+  //         </button>
+  //       </Stack>
+  //     )}
+
+  //     {registerOpen && (
+  //       <Stack className="center" spacing={2}>
+  //         <h3>Register for a New Client/Food Bank Account</h3>
+  //         <input
+  //           placeholder="Username..."
+  //           onChange={(event) => {
+  //             setRegisterUsername(event.target.value);
+  //             setErrorMessage("");
+  //           }}
+  //         />
+  //         <input
+  //           placeholder="Password..."
+  //           type="password"
+  //           onChange={(event) => {
+  //             setRegisterPassword(event.target.value);
+  //             setErrorMessage("");
+  //           }}
+  //         />
+  //         <input
+  //           placeholder="Full Name"
+  //           onChange={(event) => {
+  //             setRegisterFullName(event.target.value);
+  //             setErrorMessage("");
+  //           }}
+  //         />
+  //         <input
+  //           placeholder="Zipcode"
+  //           onChange={(event) => {
+  //             setRegisterZipcode(event.target.value);
+  //             setErrorMessage("");
+  //           }}
+  //         />
+  //         <p>Are you a food pantry?</p>
+  //         <input
+  //           type="checkbox"
+  //           id="isPantry"
+  //           onClick={() => {
+  //             setIsPantry(!isPantry);
+  //             setErrorMessage("");
+  //           }}
+  //         />
+  //         <br></br>
+  //         <button onClick={register}>Create User</button>
+
+  //         <button
+  //           onClick={() => {
+  //             setRegisterOpen(!registerOpen);
+  //             setErrorMessage("");
+  //           }}
+  //         >
+  //           Return to Login
+  //         </button>
+  //       </Stack>
+  //     )}
+  //     {errorMessage && (
+  //       <Typography component="p" variant="p" align="center" padding={3}>
+  //         {errorMessage}
+  //       </Typography>
+  //     )}
+  //   </>
   return (
-    <div className="loginMain">
-      <div>
-        <h3>Register for a New Client Account</h3>
-        <input 
-          placeholder="Email..." 
-          onChange={(event) => 
-            {setRegisterUsername(event.target.value);
-          }}
-        />
-        <input 
-          placeholder="Password..."
-          type="password"
-          onChange={(event) => 
-            {setRegisterPassword(event.target.value);
-          }}
-        />
-        <input 
-          placeholder="Full Name"
-          onChange={(event) => 
-            {setRegisterFullName(event.target.value);
-          }}
-        />
-        <input 
-          placeholder="Zipcode"
-          onChange={(event) => 
-            {setRegisterZipcode(event.target.value);
-          }}
-        />
-        <button onClick={register}>Create User</button>
-      </div>
-      <div>
-        <h3>Log In to an Existing Client Account</h3>
-        <input 
-          placeholder="Email..."
-          onChange={(event) => 
-            {setLoginUsername(event.target.value);
-          }}
-        />
-        <input 
-          placeholder="Password..."
-          type="password"
-          onChange={(event) => 
-            {setLoginPassword(event.target.value);
-          }}
-        />
-        <button onClick={login}>Log In</button>
-      </div>
+    <>
+      {!registerOpen && (
+        <Stack className="center" spacing={2}>
+          <Typography variant="h5" margin={3}>
+            Log In to an Existing Account
+          </Typography>
+          <TextField
+            label="Username"
+            variant="outlined"
+            onChange={(event) => {
+              setLoginUsername(event.target.value);
+              setErrorMessage("");
+            }}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            variant="outlined"
+            onChange={(event) => {
+              setLoginPassword(event.target.value);
+              setErrorMessage("");
+            }}
+          />
+          <Button variant="contained" onClick={login}>
+            Log In
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              setRegisterOpen(!registerOpen);
+              setErrorMessage("");
+            }}
+          >
+            Register Account
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => navigate("/Contact")}
+          >
+            Reset Password
+          </Button>
+        </Stack>
+      )}
 
-      <h4>User Logged In: </h4>
-      {user?.email}
-      <button onClick={logout}>Sign Out</button>
-    </div>
-    
-
-  )
-};
-
+      {registerOpen && (
+        <Stack className="center" spacing={2}>
+          <Typography variant="h5" margin={3}>
+            Register for a New Client/Food Bank Account
+          </Typography>
+          <TextField
+            label="Username"
+            variant="outlined"
+            onChange={(event) => {
+              setRegisterUsername(event.target.value);
+              setErrorMessage("");
+            }}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            variant="outlined"
+            onChange={(event) => {
+              setRegisterPassword(event.target.value);
+              setErrorMessage("");
+            }}
+          />
+          <TextField
+            label="Full Name"
+            variant="outlined"
+            onChange={(event) => {
+              setRegisterFullName(event.target.value);
+              setErrorMessage("");
+            }}
+          />
+          <TextField
+            label="Zipcode"
+            variant="outlined"
+            onChange={(event) => {
+              setRegisterZipcode(event.target.value);
+              setErrorMessage("");
+            }}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                id="isPantry"
+                onChange={() => {
+                  setIsPantry(!isPantry);
+                  setErrorMessage("");
+                }}
+              />
+            }
+            label="Are you a food pantry?"
+          />
+          <br />
+          <Button variant="contained" onClick={register}>
+            Create User
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              setRegisterOpen(!registerOpen);
+              setErrorMessage("");
+            }}
+          >
+            Return to Login
+          </Button>
+        </Stack>
+      )}
+      {errorMessage && (
+        <Typography variant="body1" align="center" color="red" padding={3}>
+          {errorMessage}
+        </Typography>
+      )}
+    </>
+  );
+}
