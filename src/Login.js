@@ -1,7 +1,11 @@
-import  { React, useState, useEffect } from "react";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification } from "firebase/auth";
+import { React, useState, useEffect } from "react";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
 import { db } from "./firebase-config";
-import { doc, updateDoc, onSnapshot, addDoc, setDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
 import { auth } from "./firebase-config";
@@ -15,88 +19,121 @@ import {
   Checkbox,
 } from "@mui/material";
 
+/**
+ * @returns Component for the LoginPage
+ */
 export default function Login() {
-
   const [registerUsername, setRegisterUsername] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerFullName, setRegisterFullName] = useState("");
   const [registerZipcode, setRegisterZipcode] = useState("");
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
- 
-  const [user, setUser] = useState({});
+  const [isPantry, setIsPantry] = useState(false);
+  const [registerOpen, setRegisterOpen] = useState(false);
+  const [user, loading, error] = useAuthState(auth);
+  const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const [loading, setLoading] = useState(true);
-
+  /**
+   * When logged in, navigate to home page.
+   * Else, navigate by default to the login page.
+   * Runs when user or the loading variables update.
+   */
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
+    if (loading) {
+      return;
+    }
+    if (user) {
+      navigate("/");
+    } else {
+      navigate("/login");
+    }
+  }, [user, loading]);
 
-    return () => {
-      unsubscribe();
-    };
-  }, []);
-
-  const register = async () =>  {
-
+  /**
+   * Async method to register a user
+   * If the username does not have an email, it will add an automatic "fake" one
+   * Will update account informtaion in Firebase Firestore as well as Firebase Authenatication
+   */
+  const register = async () => {
     try {
-    const user = await createUserWithEmailAndPassword(
-      auth, 
-      registerUsername, 
-      registerPassword
-    );
-
-    sendEmailVerification(auth.currentUser).then(() => 
-    {
-      console.log("yay email sent!")
-    });
-
-    console.log(user);
-
-    const dbRef = doc(db, "client-accounts", user.user.uid);
-    const insertUser = async () => {
-      await setDoc(dbRef, {
-        full_name: registerFullName,
-        password: registerPassword,
-        username: registerUsername,
-        zipcode: registerZipcode,
-      });
-    };
-    insertUser();
+      const user = await createUserWithEmailAndPassword(
+        auth,
+        registerUsername.includes("@")
+          ? registerUsername
+          : registerUsername + "@func.com",
+        registerPassword
+      );
+      let path = "client-accounts";
+      if (isPantry) {
+        path = "food-bank-accounts";
+      }
+      const dbRef = doc(db, path, user.user.uid);
+      const insertUser = async () => {
+        if (!isPantry) {
+          await setDoc(dbRef, {
+            full_name: registerFullName,
+            password: registerPassword,
+            username: registerUsername,
+            zipcode: registerZipcode,
+            description: "",
+          });
+        } else {
+          await setDoc(dbRef, {
+            name: registerFullName,
+            password: registerPassword,
+            username: registerUsername,
+            zipcode: registerZipcode,
+            description: "",
+          });
+          const dbRef2 = doc(db, "inventory", user.user.uid);
+          await setDoc(dbRef2, {
+            "Pantry UID": user.user.uid,
+            itemList: [],
+            quantityList: [],
+            wantedItemList: [],
+            wantedQuantityList: [],
+          });
+        }
+      };
+      insertUser();
+      navigate("/");
+      setErrorMessage("");
     } catch (error) {
-      console.log(error.message);
+      setErrorMessage(error.message);
     }
   };
 
+  /**
+   * Async method to log in.
+   * Will automatically apply ending email if not found in the username
+   */
   const login = async () => {
-
     try {
       if (loginUsername.includes("@")) {
         const user = await signInWithEmailAndPassword(
-          auth, 
-          loginUsername, 
-          loginPassword)
-        ;
-      }
-      else {
+          auth,
+          loginUsername,
+          loginPassword
+        );
+      } else {
         const user = await signInWithEmailAndPassword(
-          auth, 
-          loginUsername + "@func.com", 
-          loginPassword)
-        ;
+          auth,
+          loginUsername + "@func.com",
+          loginPassword
+        );
       }
-      
-      } catch (error) {
-        console.log(error.message);
-      }
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
   };
 
-  const logout = async () => {
-    setLoading(true);
-    await signOut(auth);
-    setLoading(false);
+  /**
+   * Method to logout by calling the signOut hook from React Firebase Hooks
+   */
+  const logout = () => {
+    signOut(auth);
   };
 
   // return (
@@ -227,10 +264,7 @@ export default function Login() {
           >
             Register Account
           </Button>
-          <Button
-            variant="outlined"
-            onClick={() => navigate("/Contact")}
-          >
+          <Button variant="outlined" onClick={() => navigate("/Contact")}>
             Reset Password
           </Button>
         </Stack>
