@@ -194,7 +194,9 @@ export default function ClientHome() {
           doc.id,
         ]);
       });
-      setFoodPantries(foodPantryData);
+      if (foodPantryData) {
+        setFoodPantries(foodPantryData);
+      }
     };
     fetchData();
   }, []);
