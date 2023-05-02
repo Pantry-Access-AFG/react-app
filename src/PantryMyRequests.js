@@ -4,18 +4,12 @@ import { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { useState } from "react";
-import { Fab } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import { DataGrid } from "@mui/x-data-grid";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import IconButton from "@mui/material/IconButton";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Chip } from "@mui/material";
 import { db } from "./firebase-config";
@@ -25,7 +19,9 @@ import { doc, updateDoc, onSnapshot, query, where, collection } from "firebase/f
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select from '@mui/material/Select';
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "./firebase-config";
 
 export default function MyRequests(props) {
     // States for form dialog
@@ -34,11 +30,13 @@ export default function MyRequests(props) {
     let [item, setItem] = useState("");
     let [quantity, setQuantity] = useState(0);
     let [foodPantryName, setFoodPantryName] = useState(0);
-    let [editId, setEditId] = useState(0);
+    // let [editId, setEditId] = useState(0);
     let [clientNotes, setClientNotes] = useState("");
     let [pantryNotes, setPantryNotes] = useState("");
     let [requestStatus, setRequestStatus] = useState(1);
 
+    const [user, loading, error] = useAuthState(auth);
+    const [username, setUsername] = useState("");
 
     //TODO replace with actual array
     const [requests, setRequests] = useState([]);
@@ -46,28 +44,38 @@ export default function MyRequests(props) {
     const signedInUser = ""
 
     const requestsRef = collection(db, "requests")
-    const q = query(requestsRef, where("foodPantryUID", "==", 238408934)); //TODO CHANGE PANTRYUID TO ACTUAL UID
-    
+
+    let q = null;
+    let docRef = null;
+
+
+    if (user) {
+        q = query(requestsRef, where("foodPantryUID", "==", user?.uid));
+        docRef = doc(db, "food-bank-accounts", user?.uid);
+    }
+
 
     useEffect(() => {
-        
+        if (q !== null)
             onSnapshot(q,
                 querySnapshot => {
                     const requestsArr = [];
+
                     querySnapshot.forEach((doc) => {
+
+
                         requestsArr.push({
                             item: doc.data().item,
-                            requestStatus: doc.data().requestStatus,
-                            date: "oldDate",
-                            //date: doc.data().date.toDate().toDateString(), //TODO CHANGE WHEN DATE IMPLEMENTED
-                            quantity: 2,
-                            foodPantryName: doc.data().foodPantryName,
+                            requestStatus: doc.data().status,
+                            date: doc.data().date,
+                            quantity: doc.data().quantity,
+                            foodPantryName: username,
                             clientNotes: doc.data().clientNotes,
-                            pantryNotes: doc.data().pantryNotes,
+                            pantryNotes: doc.data().foodPantryNotes,
                             id: doc.id
                         }
-                            );
-                    
+                        );
+
                     });
                     console.log(requestsArr);
                     setRequests(requestsArr);
@@ -79,8 +87,11 @@ export default function MyRequests(props) {
                     //   console.log("Nothing!");
                     // }
                 });
-        
-    }, []);
+        if (docRef !== null)
+            onSnapshot(docRef, snapshot => {
+                setUsername(snapshot.data().name);
+            })
+    }, [user, username]);
 
     /**
    * Function for editing a row
@@ -113,61 +124,101 @@ export default function MyRequests(props) {
         setEditOpen(true);
     };
 
-    let requestsArrayUI = requests.map((request, index) => <Request key={request.toString()}
+    let pendingRequestsUI = requests.filter(request => request.requestStatus === 1).map((request, index) => <Request key={request.id.toString()}
         item={request.item}
         requestStatus={request.requestStatus}
         date={request.date}
         quantity={request.quantity}
         foodPantryName={request.foodPantryName}
-        index={index}
+        index={requests.indexOf(request)}
         editRequestsClick={editRequestsClick}
         requests={requests}
         clientNotes={request.clientNotes}
         pantryNotes={request.pantryNotes}
     ></Request>);
 
-    let pendingRequestsUI = requests.filter(request => request.requestStatus===1).map((request, index) => <Request key={request.toString()}
-    item={request.item}
-    requestStatus={request.requestStatus}
-    date={request.date}
-    quantity={request.quantity}
-    foodPantryName={request.foodPantryName}
-    index={index}
-    editRequestsClick={editRequestsClick}
-    requests={requests}
-    clientNotes={request.clientNotes}
-    pantryNotes={request.pantryNotes}
-></Request>);
+    let acceptedRequestsUI = requests.filter(request => request.requestStatus === 2).map((request, index) => <Request key={request.id.toString()}
+        item={request.item}
+        requestStatus={request.requestStatus}
+        date={request.date}
+        quantity={request.quantity}
+        foodPantryName={request.foodPantryName}
+        index={requests.indexOf(request)}
+        editRequestsClick={editRequestsClick}
+        requests={requests}
+        clientNotes={request.clientNotes}
+        pantryNotes={request.pantryNotes}
+    ></Request>);
+
+    let pastRequestsUI = requests.filter(request => request.requestStatus === 3 || request.requestStatus === 4).map((request, index) => <Request key={request.id.toString()}
+        item={request.item}
+        requestStatus={request.requestStatus}
+        date={request.date}
+        quantity={request.quantity}
+        foodPantryName={request.foodPantryName}
+        index={requests.indexOf(request)}
+        editRequestsClick={editRequestsClick}
+        requests={requests}
+        clientNotes={request.clientNotes}
+        pantryNotes={request.pantryNotes}
+    ></Request>);
+
+
+    // let pendingRequestsUI = requests.filter(request => request.requestStatus===1).map((request, index) => <Request key={request.id.toString()}
+    // item={request.item}
+    // requestStatus={request.requestStatus}
+    // date={request.date}
+    // quantity={request.quantity}
+    // foodPantryName={request.foodPantryName}
+    // index={index}
+    // editRequestsClick={editRequestsClick}
+    // requests={requests}
+    // clientNotes={request.clientNotes}
+    // pantryNotes={request.pantryNotes}
+    //></Request>);
     return (
         <div style={{ marginLeft: "16px", marginRight: "16px" }}>
-            <RequestsHeader title="Pending Requests" />
-            {requestsArrayUI}
-            <EditRequestDialog
-                editOpen={editOpen}
-                item={item}
-                setItem={setItem}
-                quantity={quantity}
-                setQuantity={setQuantity}
-                handleEditClose={handleEditClose}
-                index={editIndex}
-                clientNotes={clientNotes}
-                setClientNotes={setClientNotes}
-                insertItem={() => { }}
-                pantryNotes={pantryNotes}
-                setPantryNotes={setPantryNotes}
-                requests={requests}
-                setRequests={setRequests}
-                requestStatus={requestStatus}
-                setRequestStatus={setRequestStatus}
-                foodPantryName={foodPantryName}
-                setFoodPantryName={setFoodPantryName}
-                id={6}
-            />
-            <MoreVertIcon fontSize="large" style={{ marginRight: "auto", marginLeft: "auto", marginTop: "10px", display: "block", color: "darkgray" }} />
+            <div style={{ marginLeft: "16px", marginRight: "16px" }}>
+                <RequestsHeader title="Pending Requests" />
+                {pendingRequestsUI}
+                {pendingRequestsUI.length === 0 ? <MoreVertIcon fontSize="large" style={{ marginRight: "auto", marginLeft: "auto", marginTop: "10px", display: "block", color: "darkgray" }} /> : <div />}
+
+                <RequestsHeader title="Accepted Requests" />
+                {acceptedRequestsUI}
+                {acceptedRequestsUI.length === 0 ? <MoreVertIcon fontSize="large" style={{ marginRight: "auto", marginLeft: "auto", marginTop: "10px", display: "block", color: "darkgray" }} /> : <div />}
+
+                <RequestsHeader title="Past Requests" />
+                {pastRequestsUI}
+                {pastRequestsUI.length === 0 ? <MoreVertIcon fontSize="large" style={{ marginRight: "auto", marginLeft: "auto", marginTop: "10px", display: "block", color: "darkgray" }} /> : <div />}
+
+                <EditRequestDialog
+                    editOpen={editOpen}
+                    item={item}
+                    setItem={setItem}
+                    quantity={quantity}
+                    setQuantity={setQuantity}
+                    handleEditClose={handleEditClose}
+                    index={editIndex}
+                    clientNotes={clientNotes}
+                    setClientNotes={setClientNotes}
+                    insertItem={() => { }}
+                    pantryNotes={pantryNotes}
+                    setPantryNotes={setPantryNotes}
+                    requests={requests}
+                    setRequests={setRequests}
+                    requestStatus={requestStatus}
+                    setRequestStatus={setRequestStatus}
+                    foodPantryName={foodPantryName}
+                    setFoodPantryName={setFoodPantryName}
+                    id={6}
+                />
+
+                {/* <MoreVertIcon fontSize="large" style={{ marginRight: "auto", marginLeft: "auto", marginTop: "10px", display: "block", color: "darkgray" }} />
             <RequestsHeader title="Past Requests" />
             {/* TODO add past request array here! */}
-            {requestsArrayUI}
-            <MoreVertIcon fontSize="large" style={{ marginRight: "auto", marginLeft: "auto", marginTop: "10px", display: "block", color: "darkgray" }} />
+                {/* {requestsArrayUI}
+            <MoreVertIcon fontSize="large" style={{ marginRight: "auto", marginLeft: "auto", marginTop: "10px", display: "block", color: "darkgray" }} /> */}
+            </div>
         </div>
 
     )
@@ -244,28 +295,25 @@ function EditRequestDialog({
             //     })
             //     .concat(requests.slice(index + 1, requests.length)))
             var ref = doc(db, "requests", requests[index].id);
-            
+
             updateDoc(ref, {
                 item: item,
-                requestStatus: requestStatus,
-                date: "new date", //TODO change to updated date
+                status: requestStatus,
+                date: String(new Date().getMonth() + 1) + "-" + String(new Date().getDate()) + "-" + String(new Date().getFullYear()),
                 quantity: quantity,
-                foodPantryName: foodPantryName,
                 clientNotes: clientNotes,
-                pantryNotes: pantryNotes
+                foodPantryNotes: pantryNotes
             })
-            
+
         }
         handleEditClose();
     };
 
     return (
         <>
-            <Dialog open={editOpen} onClose={handleEditClose}>
+            <Dialog PaperProps={{ sx: { width: { xs:"80%", md:"40%"}} }} open={editOpen} onClose={handleEditClose}>
                 <DialogTitle>Edit Request</DialogTitle>
                 <DialogContent>
-                    {/* <DialogContentText>Edit Item</DialogContentText> */}
-
                     <DialogContentText style={{ fontSize: "small", marginTop: "8px" }}>
                         Foodbank Name
                     </DialogContentText>

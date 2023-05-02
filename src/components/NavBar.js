@@ -11,7 +11,9 @@ export default function NavBar() {
   const [user, loading, error] = useAuthState(auth);
 
   return (
-    <div className="flex-container">
+    <div className="flex-container" style={{
+      // marginRight:"8px", marginLeft:"8px"
+      }}>
       {user && (<button
         className={
           location.pathname === "/profile"
