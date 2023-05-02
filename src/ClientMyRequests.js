@@ -83,7 +83,6 @@ export default function MyRequests(props) {
         setPantryNotes(requests[index].pantryNotes);
         setEditOpen(true);
     };
-
     let requestsArrayUI = requests.map((request, index) => <Request key={request.toString()}
         item={request.item}
         requestStatus={request.requestStatus}

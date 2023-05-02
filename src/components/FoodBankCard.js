@@ -97,7 +97,7 @@ export default function FoodBankCard({
           </CardActions>
 
           <Typography variant="body2" color="text.secondary" textAlign="center">
-            {zipCode} -- {zipCodeDistance ? zipCodeDistance : "Unkwown"} miles from
+            {zipCode} -- {zipCodeDistance ? zipCodeDistance : "Unknown"} miles from
             you.
           </Typography>
         </Stack>
