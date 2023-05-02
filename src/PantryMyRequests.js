@@ -1,31 +1,27 @@
 import Request from './components/Request';
 import RequestsHeader from './components/RequestsHeader';
-import {useEffect} from "react";
+import { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { useState } from "react";
-import { Fab } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import { DataGrid } from "@mui/x-data-grid";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import IconButton from "@mui/material/IconButton";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Chip } from "@mui/material";
 import { db } from "./firebase-config";
-import { doc, updateDoc, onSnapshot,query, where, collection } from "firebase/firestore";
+import { doc, updateDoc, onSnapshot, query, where, collection } from "firebase/firestore";
 
 // import Box from '@mui/material/Box';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select from '@mui/material/Select';
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "./firebase-config";
 
 export default function MyRequests(props) {
     // States for form dialog
@@ -34,30 +30,68 @@ export default function MyRequests(props) {
     let [item, setItem] = useState("");
     let [quantity, setQuantity] = useState(0);
     let [foodPantryName, setFoodPantryName] = useState(0);
-    let [editId, setEditId] = useState(0);
+    // let [editId, setEditId] = useState(0);
     let [clientNotes, setClientNotes] = useState("");
     let [pantryNotes, setPantryNotes] = useState("");
     let [requestStatus, setRequestStatus] = useState(1);
 
+    const [user, loading, error] = useAuthState(auth);
+    const [username, setUsername] = useState("");
+
+    //TODO replace with actual array
+    const [requests, setRequests] = useState([]);
+
     const signedInUser = ""
 
-    // const requestsRef = collection(db, "requests")
-    // const q = query(citiesRef, where("foodPantryUID", "==", "3480242"));
+    const requestsRef = collection(db, "requests")
+
+    let q = null;
+    let docRef = null;
 
 
-    // useEffect(() => {
-    //     async function getInventoryData() {
-    //       onSnapshot(doc(db, "requests", "pantryUID"), (doc) => { //TODO CHANGE PANTRYUID TO ACTUAL UID
-    //         if (doc.exists()) {
-    //           setItemList(doc.data()["itemList"]);
-    //           setQuantityList(doc.data()["quantityList"]);
-    //         } else {
-    //           console.log("Nothing!");
-    //         }
-    //       });
-    //     }
-    //     getInventoryData();
-    //   }, []);
+    if (user) {
+        q = query(requestsRef, where("foodPantryUID", "==", user?.uid));
+        docRef = doc(db, "food-bank-accounts", user?.uid);
+    }
+
+
+    useEffect(() => {
+        if (q !== null)
+            onSnapshot(q,
+                querySnapshot => {
+                    const requestsArr = [];
+
+                    querySnapshot.forEach((doc) => {
+
+
+                        requestsArr.push({
+                            item: doc.data().item,
+                            requestStatus: doc.data().status,
+                            date: doc.data().date,
+                            quantity: doc.data().quantity,
+                            foodPantryName: username,
+                            clientNotes: doc.data().clientNotes,
+                            pantryNotes: doc.data().foodPantryNotes,
+                            id: doc.id
+                        }
+                        );
+
+                    });
+                    console.log(requestsArr);
+                    setRequests(requestsArr);
+                    // (doc) => { //TODO CHANGE PANTRYUID TO ACTUAL UID
+                    // if (doc.exists()) {
+                    //   setItemList(doc.data()["itemList"]);
+                    //   setQuantityList(doc.data()["quantityList"]);
+                    // } else {
+                    //   console.log("Nothing!");
+                    // }
+                });
+        if (docRef !== null)
+            onSnapshot(docRef, snapshot => {
+                setUsername(snapshot.data().name);
+            })
+    }, [user, username]);
 
     /**
    * Function for editing a row
@@ -78,35 +112,6 @@ export default function MyRequests(props) {
         setRequestStatus(1);
     };
 
-    //TODO replace with actual array
-    const [requests, setRequests] = useState([{
-        item: "potato",
-        requestStatus: 1,
-        date: 34,
-        quantity: 2,
-        foodPantryName: "Food Pantry W",
-        clientNotes: "feaujseoi",
-        pantryNotes: "jfeaoiaoei"
-    }, {
-        item: "corn",
-        requestStatus: 2,
-        date: 34,
-        quantity: 2,
-        foodPantryName: "Food Pantry W",
-        clientNotes: "feaujseoi",
-        pantryNotes: "jfeaoiaoei"
-    }, {
-        item: "wheat",
-        requestStatus: 4,
-        date: 34,
-        quantity: 2,
-        foodPantryName: "Food Pantry W",
-        clientNotes: "feaujseoi",
-        pantryNotes: "jfeaoiaoei"
-    }]);
-
-    
-
     const editRequestsClick = (index) => {
         setEditIndex(index);
         // setEditId(requests[index].id);
@@ -119,48 +124,101 @@ export default function MyRequests(props) {
         setEditOpen(true);
     };
 
-    let requestsArrayUI = requests.map((request, index) => <Request key={request.toString()}
+    let pendingRequestsUI = requests.filter(request => request.requestStatus === 1).map((request, index) => <Request key={request.id.toString()}
         item={request.item}
         requestStatus={request.requestStatus}
         date={request.date}
         quantity={request.quantity}
         foodPantryName={request.foodPantryName}
-        index={index}
+        index={requests.indexOf(request)}
         editRequestsClick={editRequestsClick}
         requests={requests}
         clientNotes={request.clientNotes}
         pantryNotes={request.pantryNotes}
     ></Request>);
+
+    let acceptedRequestsUI = requests.filter(request => request.requestStatus === 2).map((request, index) => <Request key={request.id.toString()}
+        item={request.item}
+        requestStatus={request.requestStatus}
+        date={request.date}
+        quantity={request.quantity}
+        foodPantryName={request.foodPantryName}
+        index={requests.indexOf(request)}
+        editRequestsClick={editRequestsClick}
+        requests={requests}
+        clientNotes={request.clientNotes}
+        pantryNotes={request.pantryNotes}
+    ></Request>);
+
+    let pastRequestsUI = requests.filter(request => request.requestStatus === 3 || request.requestStatus === 4).map((request, index) => <Request key={request.id.toString()}
+        item={request.item}
+        requestStatus={request.requestStatus}
+        date={request.date}
+        quantity={request.quantity}
+        foodPantryName={request.foodPantryName}
+        index={requests.indexOf(request)}
+        editRequestsClick={editRequestsClick}
+        requests={requests}
+        clientNotes={request.clientNotes}
+        pantryNotes={request.pantryNotes}
+    ></Request>);
+
+
+    // let pendingRequestsUI = requests.filter(request => request.requestStatus===1).map((request, index) => <Request key={request.id.toString()}
+    // item={request.item}
+    // requestStatus={request.requestStatus}
+    // date={request.date}
+    // quantity={request.quantity}
+    // foodPantryName={request.foodPantryName}
+    // index={index}
+    // editRequestsClick={editRequestsClick}
+    // requests={requests}
+    // clientNotes={request.clientNotes}
+    // pantryNotes={request.pantryNotes}
+    //></Request>);
     return (
         <div style={{ marginLeft: "16px", marginRight: "16px" }}>
-            <RequestsHeader title="Pending Requests" />
-            {requestsArrayUI}
-            <EditRequestDialog
-                editOpen={editOpen}
-                item={item}
-                setItem={setItem}
-                quantity={quantity}
-                setQuantity={setQuantity}
-                handleEditClose={handleEditClose}
-                index={editIndex}
-                clientNotes={clientNotes}
-                setClientNotes={setClientNotes}
-                insertItem={() => { }}
-                pantryNotes={pantryNotes}
-                setPantryNotes={setPantryNotes}
-                requests={requests}
-                setRequests={setRequests}
-                requestStatus={requestStatus}
-                setRequestStatus={setRequestStatus}
-                foodPantryName={foodPantryName}
-                setFoodPantryName={setFoodPantryName}
-                id={6}
-            />
-            <MoreVertIcon fontSize="large" style={{ marginRight: "auto", marginLeft: "auto", marginTop: "10px", display: "block", color: "darkgray" }} />
+            <div style={{ marginLeft: "16px", marginRight: "16px" }}>
+                <RequestsHeader title="Pending Requests" />
+                {pendingRequestsUI}
+                {pendingRequestsUI.length === 0 ? <MoreVertIcon fontSize="large" style={{ marginRight: "auto", marginLeft: "auto", marginTop: "10px", display: "block", color: "darkgray" }} /> : <div />}
+
+                <RequestsHeader title="Accepted Requests" />
+                {acceptedRequestsUI}
+                {acceptedRequestsUI.length === 0 ? <MoreVertIcon fontSize="large" style={{ marginRight: "auto", marginLeft: "auto", marginTop: "10px", display: "block", color: "darkgray" }} /> : <div />}
+
+                <RequestsHeader title="Past Requests" />
+                {pastRequestsUI}
+                {pastRequestsUI.length === 0 ? <MoreVertIcon fontSize="large" style={{ marginRight: "auto", marginLeft: "auto", marginTop: "10px", display: "block", color: "darkgray" }} /> : <div />}
+
+                <EditRequestDialog
+                    editOpen={editOpen}
+                    item={item}
+                    setItem={setItem}
+                    quantity={quantity}
+                    setQuantity={setQuantity}
+                    handleEditClose={handleEditClose}
+                    index={editIndex}
+                    clientNotes={clientNotes}
+                    setClientNotes={setClientNotes}
+                    insertItem={() => { }}
+                    pantryNotes={pantryNotes}
+                    setPantryNotes={setPantryNotes}
+                    requests={requests}
+                    setRequests={setRequests}
+                    requestStatus={requestStatus}
+                    setRequestStatus={setRequestStatus}
+                    foodPantryName={foodPantryName}
+                    setFoodPantryName={setFoodPantryName}
+                    id={6}
+                />
+
+                {/* <MoreVertIcon fontSize="large" style={{ marginRight: "auto", marginLeft: "auto", marginTop: "10px", display: "block", color: "darkgray" }} />
             <RequestsHeader title="Past Requests" />
             {/* TODO add past request array here! */}
-            {requestsArrayUI}
-            <MoreVertIcon fontSize="large" style={{ marginRight: "auto", marginLeft: "auto", marginTop: "10px", display: "block", color: "darkgray" }} />
+                {/* {requestsArrayUI}
+            <MoreVertIcon fontSize="large" style={{ marginRight: "auto", marginLeft: "auto", marginTop: "10px", display: "block", color: "darkgray" }} /> */}
+            </div>
         </div>
 
     )
@@ -224,29 +282,38 @@ function EditRequestDialog({
             //     .concat(rows.slice(index + 1, rows.length))
             // );
             //updates the requests when the item has been edited
-            setRequests((requests) => requests
-                .slice(0, index)
-                .concat({
-                    item: item,
-                    requestStatus: requestStatus,
-                    date: "new date", //TODO change to updated date
-                    quantity: quantity,
-                    foodPantryName: foodPantryName,
-                    clientNotes: clientNotes,
-                    pantryNotes: pantryNotes
-                })
-                .concat(requests.slice(index + 1, requests.length)))
+            // setRequests((requests) => requests
+            //     .slice(0, index)
+            //     .concat({
+            //         item: item,
+            //         requestStatus: requestStatus,
+            //         date: "new date", //TODO change to updated date
+            //         quantity: quantity,
+            //         foodPantryName: foodPantryName,
+            //         clientNotes: clientNotes,
+            //         pantryNotes: pantryNotes
+            //     })
+            //     .concat(requests.slice(index + 1, requests.length)))
+            var ref = doc(db, "requests", requests[index].id);
+
+            updateDoc(ref, {
+                item: item,
+                status: requestStatus,
+                date: String(new Date().getMonth() + 1) + "-" + String(new Date().getDate()) + "-" + String(new Date().getFullYear()),
+                quantity: quantity,
+                clientNotes: clientNotes,
+                foodPantryNotes: pantryNotes
+            })
+
         }
         handleEditClose();
     };
 
     return (
         <>
-            <Dialog open={editOpen} onClose={handleEditClose}>
+            <Dialog PaperProps={{ sx: { width: { xs:"80%", md:"40%"}} }} open={editOpen} onClose={handleEditClose}>
                 <DialogTitle>Edit Request</DialogTitle>
                 <DialogContent>
-                    {/* <DialogContentText>Edit Item</DialogContentText> */}
-
                     <DialogContentText style={{ fontSize: "small", marginTop: "8px" }}>
                         Foodbank Name
                     </DialogContentText>
@@ -294,43 +361,43 @@ function EditRequestDialog({
                     />
                     {/* from https://mui.com/material-ui/react-select/ */}
                     <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                    <FormControl sx={{ m: 1, minWidth: 120 }} fullWidth style={{ marginTop: "8px" }}>
-                        <InputLabel id="demo-simple-select-label">Request Status</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="requestEdit"
-                            value={requestStatus}
-                            label="Request Status"
-                            onChange={(event) => {
-                                setRequestStatus(() => {
-                                    console.log(event.target.value);
-                                    if (!event.target.value) return defaultRequestStatus;
-                                    else return event.target.value;
-                                });
-                            }}
-                        >
-                            <MenuItem value={1}>
-                                <div className="chip-container">
-                                    <Chip style={{ backgroundColor: "#fdff93", fontSize: "large" }} label="Pending" />
-                                </div>
-                            </MenuItem>
-                            <MenuItem value={2}>
-                                <div className="chip-container">
-                                    <Chip style={{ backgroundColor: "lightskyblue", fontSize: "large" }} label="Accepted" />
-                                </div>
-                            </MenuItem>
-                            <MenuItem value={3}>
-                                <div className="chip-container">
-                                    <Chip style={{ backgroundColor: "lightgreen", fontSize: "large" }} label="Fulfilled" />
-                                </div>
-                            </MenuItem>
-                            <MenuItem value={4}>
-                                <div className="chip-container">
-                                    <Chip style={{ backgroundColor: "lightcoral", fontSize: "large" }} label="Cancelled" />
-                                </div>
-                            </MenuItem>
-                        </Select>
-                    </FormControl>
+                        <FormControl sx={{ m: 1, minWidth: 120 }} fullWidth style={{ marginTop: "8px" }}>
+                            <InputLabel id="demo-simple-select-label">Request Status</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="requestEdit"
+                                value={requestStatus}
+                                label="Request Status"
+                                onChange={(event) => {
+                                    setRequestStatus(() => {
+                                        console.log(event.target.value);
+                                        if (!event.target.value) return defaultRequestStatus;
+                                        else return event.target.value;
+                                    });
+                                }}
+                            >
+                                <MenuItem value={1}>
+                                    <div className="chip-container">
+                                        <Chip style={{ backgroundColor: "#fdff93", fontSize: "large" }} label="Pending" />
+                                    </div>
+                                </MenuItem>
+                                <MenuItem value={2}>
+                                    <div className="chip-container">
+                                        <Chip style={{ backgroundColor: "lightskyblue", fontSize: "large" }} label="Accepted" />
+                                    </div>
+                                </MenuItem>
+                                <MenuItem value={3}>
+                                    <div className="chip-container">
+                                        <Chip style={{ backgroundColor: "lightgreen", fontSize: "large" }} label="Fulfilled" />
+                                    </div>
+                                </MenuItem>
+                                <MenuItem value={4}>
+                                    <div className="chip-container">
+                                        <Chip style={{ backgroundColor: "lightcoral", fontSize: "large" }} label="Cancelled" />
+                                    </div>
+                                </MenuItem>
+                            </Select>
+                        </FormControl>
                     </Box>
                 </DialogContent>
                 <DialogActions>

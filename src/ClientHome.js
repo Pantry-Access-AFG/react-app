@@ -242,12 +242,13 @@ export default function ClientHome() {
   const makeRequest = (clientID, pantryID, item, quantity, clientNotes) => {
     const request = {
       clientUID: user ? user.uid : 0,
-      foodPantryUID: 238408934,
+      foodPantryUID: pantryID? pantryID : 0,
       clientNotes: clientNotes ? clientNotes : null,
       foodPantryNotes: null,
       item: item,
       quantity: quantity,
       status: 0,
+      date: String(new Date().getMonth() + 1) + "-" + String(new Date().getDate()) + "-" + String(new Date().getFullYear())
     };
     const sendRequest = async (request) => {
       await addDoc(collection(db, "requests"), request)
@@ -284,6 +285,7 @@ export default function ClientHome() {
       {food_bank_list}
       <MakeRequestDialog
         open={requestDialogOpen}
+        pantryID={foodPantryID}
         handleClose={() => setRequestDialogOpen(false)}
         makeRequest={makeRequest}
         foodPantryName={temp[indexClicked][0]}

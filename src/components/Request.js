@@ -95,13 +95,13 @@ export default function Request({ item, requestStatus, date, quantity, foodPantr
           <p className="align-text-center">{foodPantryName}</p>
         </Grid>
         <Grid item xs={4}>
-          {requestStatus === 1 ? <IconButton className="centered" aria-label="edit"
+          <IconButton className="centered" aria-label="edit"
             size="large"
             variant="contained"
             onClick={() => editRequestsClick(index)}
           >
             <EditIcon />
-          </IconButton> : <div></div>}
+          </IconButton>
         </Grid>
       </Grid>
     </div>

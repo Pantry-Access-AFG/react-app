@@ -30,9 +30,9 @@ export default function RequestsHeader({title}) {
                         justifyContent:'flex-end',
                         flexWrap: 'wrap',
                     }}>
-                    <IconButton aria-label="expand">
+                    {/* <IconButton aria-label="expand">
                         <FormatLineSpacingIcon />
-                    </IconButton>
+                    </IconButton> */}
                 </div>
                 </Grid>
             </Grid>
