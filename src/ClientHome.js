@@ -15,6 +15,7 @@ import {
   addDoc,
   doc,
   onSnapshot,
+  getDoc,
 } from "firebase/firestore";
 import { auth } from "./firebase-config";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -172,6 +173,8 @@ export default function ClientHome() {
     ["Food Pantry B", "01772", "Food Pantry B is a Food Pantry"],
   ]);
   const [user, loading, error] = useAuthState(auth);
+  const [clientName, setClientName] = useState("");
+  const [pantryName, setPantryName] = useState("");
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
   const [learnMoreDialogOpen, setLearnMoreDialogOpen] = useState(false);
   const [foodPantryID, setFoodPantryID] = useState(0);
@@ -214,9 +217,29 @@ export default function ClientHome() {
           console.log("Nothing!");
         }
       });
+      await onSnapshot(doc(db, "food-bank-accounts", foodPantryID), (doc) => {
+        if (doc.exists()) {
+          setPantryName(doc.data()["name"]);
+        } else {
+          console.log("Nothing!");
+        }
+      });
     };
     fetchData();
   }, [foodPantryID]);
+
+  useEffect(() => {
+    if (user) {
+      const getName = async () => {
+        let docRef = doc(db, "client-accounts", user.uid);
+        let docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setClientName(docSnap.data().full_name);
+        }
+      };
+      getName();
+    }
+  }, [user]);
 
   /**
    * @param index of the food bank to be requested from
@@ -244,6 +267,8 @@ export default function ClientHome() {
   const makeRequest = (clientID, item, quantity, clientNotes) => {
     const request = {
       clientUID: user ? user.uid : 0,
+      clientName: clientName,
+      pantryName: pantryName,
       foodPantryUID: foodPantryID ? foodPantryID : 0,
       clientNotes: clientNotes ? clientNotes : "",
       foodPantryNotes: "",
