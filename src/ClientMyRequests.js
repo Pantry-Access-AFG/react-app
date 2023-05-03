@@ -18,7 +18,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-export default function MyRequests(props) {
+export default function ClientMyRequests(props) {
     // States for form dialog
     const [editOpen, setEditOpen] = useState(false);
     let [editIndex, setEditIndex] = useState(0);
@@ -83,7 +83,6 @@ export default function MyRequests(props) {
         setPantryNotes(requests[index].pantryNotes);
         setEditOpen(true);
     };
-
     let requestsArrayUI = requests.map((request, index) => <Request key={request.toString()}
         item={request.item}
         requestStatus={request.requestStatus}
