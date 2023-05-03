@@ -329,7 +329,7 @@ function EditRequestDialog({
     var ref = doc(db, "requests", requests[index].id);
 
     updateDoc(ref, {
-      item: item,
+      // item: item,
       status: requestStatus,
       date:
         String(new Date().getMonth() + 1) +
@@ -337,8 +337,8 @@ function EditRequestDialog({
         String(new Date().getDate()) +
         "-" +
         String(new Date().getFullYear()),
-      quantity: quantity,
-      clientNotes: clientNotes,
+      // quantity: quantity,
+      // clientNotes: clientNotes,
       foodPantryNotes: pantryNotes,
     });
 
