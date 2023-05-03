@@ -34,7 +34,7 @@ export default function NavBar() {
       >
         Home
       </button>
-      <button
+      {user && (<button
         className={
           location.pathname === "/myrequests"
             ? "navbar-tab-selected"
@@ -43,7 +43,7 @@ export default function NavBar() {
         onClick={() => navigate("/myrequests")}
       >
         My Requests
-      </button>
+      </button>)}
       {!user && (
         <button
           className={

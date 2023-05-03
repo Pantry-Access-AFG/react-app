@@ -40,7 +40,7 @@ function MakeRequestDialog({
    */
   const handleMakeRequest = () => {
     if (item && quantity > 0) {
-      makeRequest(clientID, foodPantryID, item, quantity, clientNotes);
+      makeRequest(clientID, item, quantity, clientNotes);
       handleClose();
     }
   };
@@ -111,7 +111,7 @@ function MakeRequestDialog({
 }
 
 /**
- * 
+ *
  * @param {open, handleClose, foodBankName, foodPantryDesription, foodPantryID} parameters to describe the food bank to be described
  * @returns a dialog that shows the user more about the food pantry in question
  */
@@ -194,7 +194,9 @@ export default function ClientHome() {
           doc.id,
         ]);
       });
-      setFoodPantries(foodPantryData);
+      if (foodPantryData) {
+        setFoodPantries(foodPantryData);
+      }
     };
     fetchData();
   }, []);
@@ -239,16 +241,21 @@ export default function ClientHome() {
   /**
    * Function to update a request and send it to the requests collection in Firebase Firestore
    */
-  const makeRequest = (clientID, pantryID, item, quantity, clientNotes) => {
+  const makeRequest = (clientID, item, quantity, clientNotes) => {
     const request = {
       clientUID: user ? user.uid : 0,
-      foodPantryUID: pantryID? pantryID : 0,
-      clientNotes: clientNotes ? clientNotes : null,
-      foodPantryNotes: null,
+      foodPantryUID: foodPantryID ? foodPantryID : 0,
+      clientNotes: clientNotes ? clientNotes : "",
+      foodPantryNotes: "",
       item: item,
-      quantity: quantity,
-      status: 0,
-      date: String(new Date().getMonth() + 1) + "-" + String(new Date().getDate()) + "-" + String(new Date().getFullYear())
+      quantity: parseInt(quantity),
+      status: 1,
+      date:
+        String(new Date().getMonth() + 1) +
+        "-" +
+        String(new Date().getDate()) +
+        "-" +
+        String(new Date().getFullYear()),
     };
     const sendRequest = async (request) => {
       await addDoc(collection(db, "requests"), request)
@@ -285,7 +292,6 @@ export default function ClientHome() {
       {food_bank_list}
       <MakeRequestDialog
         open={requestDialogOpen}
-        pantryID={foodPantryID}
         handleClose={() => setRequestDialogOpen(false)}
         makeRequest={makeRequest}
         foodPantryName={temp[indexClicked][0]}
