@@ -1,9 +1,9 @@
-import Request from './components/Request';
-import RequestsHeader from './components/RequestsHeader';
+import Request from "./components/Request";
+import RequestsHeader from "./components/RequestsHeader";
 import React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { DataGrid } from "@mui/x-data-grid";
@@ -16,190 +16,381 @@ import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "./firebase-config";
+import {
+  doc,
+  updateDoc,
+  onSnapshot,
+  query,
+  where,
+  collection,
+  deleteDoc,
+} from "firebase/firestore";
+import { db } from "./firebase-config";
+import { Chip } from "@mui/material";
 
 export default function MyRequests(props) {
-    // States for form dialog
-    const [editOpen, setEditOpen] = useState(false);
-    let [editIndex, setEditIndex] = useState(0);
-    let [item, setItem] = useState("");
-    let [quantity, setQuantity] = useState(0);
-    let [foodPantryName, setFoodPantryName] = useState(0);
-    let [editId, setEditId] = useState(0);
-    let [clientNotes, setClientNotes] = useState("");
-    let [pantryNotes, setPantryNotes] = useState("");
+  // States for form dialog
+  const [editOpen, setEditOpen] = useState(false);
+  let [editIndex, setEditIndex] = useState(0);
+  let [item, setItem] = useState("");
+  let [quantity, setQuantity] = useState(0);
+  let [foodPantryName, setFoodPantryName] = useState("");
+  let [editId, setEditId] = useState(0);
+  let [clientNotes, setClientNotes] = useState("");
+  let [pantryNotes, setPantryNotes] = useState("");
+  let [clientName, setClientName] = useState("");
+  let [requestStatus, setRequestStatus] = useState(0);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
-    /**
+  const [user, loading, error] = useAuthState(auth);
+
+  /**
    * Function for editing a row
    * Edits respective row and reinitializes row array
    */
 
-    /**
+  /**
    * Function for handling closing the form dialog
    * Makes sure to reset the item and quantity state
    */
-    const handleEditClose = () => {
-        setEditOpen(false);
-        setItem("");
-        setClientNotes("");
-        setPantryNotes("");
-        setQuantity(0);
-    };
+  const handleEditClose = () => {
+    setEditOpen(false);
+    setItem("");
+    setClientNotes("");
+    setPantryNotes("");
+    setQuantity(0);
+  };
+  const handleDeleteOpen = () => {
+    setDeleteOpen(true);
+  };
 
-    //TODO replace with actual array
-    const [requests, setRequests] = useState([{
-        item: "potato",
-        requestStatus: 1,
-        date: 34,
-        quantity: 2,
-        foodPantryName: "Food Pantry W",
-        clientNotes: "feaujseoi",
-        pantryNotes: "jfeaoiaoei"
-    }, {
-        item: "corn",
-        requestStatus: 4,
-        date: 34,
-        quantity: 2,
-        foodPantryName: "Food Pantry W",
-        clientNotes: "feaujseoi",
-        pantryNotes: "jfeaoiaoei"
-    }, {
-        item: "wheat",
-        requestStatus: 3,
-        date: 34,
-        quantity: 2,
-        foodPantryName: "Food Pantry W",
-        clientNotes: "feaujseoi",
-        pantryNotes: "jfeaoiaoei"
-    }]);
+  const handleDeleteClose = () => {
+    setDeleteOpen(false);
+  };
+  //TODO replace with actual array
+  const [requests, setRequests] = useState([]);
 
-    const editRequestsClick = (index) => {
-        setEditIndex(index);
-        // setEditId(requests[index].id);
-        setItem(requests[index].item);
-        setQuantity(requests[index].quantity);
-        setFoodPantryName(requests[index].foodPantryName);
-        setClientNotes(requests[index].clientNotes);
-        setPantryNotes(requests[index].pantryNotes);
-        setEditOpen(true);
-    };
-    let requestsArrayUI = requests.map((request, index) => <Request key={request.toString()}
+  const requestsRef = collection(db, "requests");
+
+  let q = null;
+  let foodbankRef = null;
+
+  if (user) {
+    q = query(requestsRef, where("clientUID", "==", user?.uid));
+    foodbankRef = doc(db, "client-accounts", user?.uid);
+  }
+
+  useEffect(() => {
+    if (q !== null)
+      onSnapshot(q, (querySnapshot) => {
+        const requestsArr = [];
+
+        querySnapshot.forEach((doc) => {
+          requestsArr.push({
+            item: doc.data().item,
+            requestStatus: doc.data().status,
+            date: doc.data().date,
+            quantity: doc.data().quantity,
+            foodPantryName: doc.data().pantryName,
+            clientName: doc.data().clientName,
+            clientNotes: doc.data().clientNotes,
+            pantryNotes: doc.data().foodPantryNotes,
+            id: doc.id,
+          });
+        });
+        console.log(requestsArr);
+        setRequests(requestsArr);
+      });
+  }, [user]);
+
+  const handleDeleteItem = () => {
+    console.log(pantryNotes);
+    var ref = doc(db, "requests", requests[editIndex].id);
+
+    deleteDoc(ref);
+    handleDeleteClose();
+    handleEditClose();
+  };
+
+  const editRequestsClick = (index) => {
+    setEditIndex(index);
+    // setEditId(requests[index].id);
+    setItem(requests[index].item);
+    setQuantity(requests[index].quantity);
+    setFoodPantryName(requests[index].foodPantryName);
+    setClientNotes(requests[index].clientNotes);
+    setPantryNotes(requests[index].pantryNotes);
+    setEditOpen(true);
+    // setFoodPantryName(requests[index].pantryName);
+    setClientName(requests[index].clientName);
+    setRequestStatus(requests[index].requestStatus);
+  };
+
+
+  let pendingRequestsUI = requests
+    .filter((request) => request.requestStatus === 1)
+    .map((request, index) => (
+      <Request
+        key={request.id.toString()}
         item={request.item}
         requestStatus={request.requestStatus}
         date={request.date}
         quantity={request.quantity}
         foodPantryName={request.foodPantryName}
-        index={index}
+        index={requests.indexOf(request)}
         editRequestsClick={editRequestsClick}
         requests={requests}
         clientNotes={request.clientNotes}
         pantryNotes={request.pantryNotes}
-    ></Request>);
-    return (
-        <div style={{ marginLeft: "16px", marginRight: "16px" }}>
-            <RequestsHeader title="Pending Requests" />
-            {requestsArrayUI}
-            <EditRequestDialog 
-                editOpen={editOpen}
-                item={item}
-                setItem={setItem}
-                quantity={quantity}
-                setQuantity={setQuantity}
-                handleEditClose={handleEditClose}
-                index={editIndex}
-                clientNotes={clientNotes}
-                setClientNotes={setClientNotes}
-                insertItem={() => { }}
-                pantryNotes={pantryNotes}
-                requests={requests}
-                setRequests={setRequests}
-                foodPantryName={foodPantryName}
-                setFoodPantryName={setFoodPantryName}
-                id={6}
-            />
-            <MoreVertIcon fontSize="large" style={{ marginRight: "auto", marginLeft: "auto", marginTop: "10px", display: "block", color: "darkgray" }} />
-            <RequestsHeader title="Past Requests" />
-            {/* TODO add past request array here! */}
-            {requestsArrayUI}
-            <MoreVertIcon fontSize="large" style={{ marginRight: "auto", marginLeft: "auto", marginTop: "10px", display: "block", color: "darkgray" }} />
-        </div>
+      ></Request>
+    ));
 
+  let acceptedRequestsUI = requests
+    .filter((request) => request.requestStatus === 2)
+    .map((request, index) => (
+      <Request
+        key={request.id.toString()}
+        item={request.item}
+        requestStatus={request.requestStatus}
+        date={request.date}
+        quantity={request.quantity}
+        foodPantryName={request.foodPantryName}
+        index={requests.indexOf(request)}
+        editRequestsClick={editRequestsClick}
+        requests={requests}
+        clientNotes={request.clientNotes}
+        pantryNotes={request.pantryNotes}
+      ></Request>
+    ));
+
+  let pastRequestsUI = requests
+    .filter(
+      (request) => request.requestStatus === 3 || request.requestStatus === 4
     )
+    .map((request, index) => (
+      <Request
+        key={request.id.toString()}
+        item={request.item}
+        requestStatus={request.requestStatus}
+        date={request.date}
+        quantity={request.quantity}
+        foodPantryName={request.foodPantryName}
+        index={requests.indexOf(request)}
+        editRequestsClick={editRequestsClick}
+        requests={requests}
+        clientNotes={request.clientNotes}
+        pantryNotes={request.pantryNotes}
+      ></Request>
+    ));
 
+  return (
+    <div style={{ marginLeft: "16px", marginRight: "16px" }}>
+      <RequestsHeader title="Pending Requests" />
+      {pendingRequestsUI}
+      {pendingRequestsUI.length === 0 ? (
+        <MoreVertIcon
+          fontSize="large"
+          style={{
+            marginRight: "auto",
+            marginLeft: "auto",
+            marginTop: "10px",
+            display: "block",
+            color: "darkgray",
+          }}
+        />
+      ) : (
+        <div />
+      )}
+
+      <RequestsHeader title="Accepted Requests" />
+      {acceptedRequestsUI}
+      {acceptedRequestsUI.length === 0 ? (
+        <MoreVertIcon
+          fontSize="large"
+          style={{
+            marginRight: "auto",
+            marginLeft: "auto",
+            marginTop: "10px",
+            display: "block",
+            color: "darkgray",
+          }}
+        />
+      ) : (
+        <div />
+      )}
+
+      <RequestsHeader title="Past Requests" />
+      {pastRequestsUI}
+      {pastRequestsUI.length === 0 ? (
+        <MoreVertIcon
+          fontSize="large"
+          style={{
+            marginRight: "auto",
+            marginLeft: "auto",
+            marginTop: "10px",
+            display: "block",
+            color: "darkgray",
+          }}
+        />
+      ) : (
+        <div />
+      )}
+
+      <EditRequestDialog
+        editOpen={editOpen}
+        item={item}
+        setItem={setItem}
+        quantity={quantity}
+        setQuantity={setQuantity}
+        handleEditClose={handleEditClose}
+        index={editIndex}
+        clientNotes={clientNotes}
+        setClientNotes={setClientNotes}
+        insertItem={() => {}}
+        pantryNotes={pantryNotes}
+        requests={requests}
+        requestStatus={requestStatus}
+        setRequestStatus={setRequestStatus}
+        setRequests={setRequests}
+        foodPantryName={foodPantryName}
+        setFoodPantryName={setFoodPantryName}
+        clientName={clientName}
+        handleDeleteOpen={handleDeleteOpen}
+        handleDeleteClose={handleDeleteClose}
+        id={6}
+      />
+      <AreYourSureDialog
+        handleDeleteItem={handleDeleteItem}
+        deleteOpen={deleteOpen}
+        setDeleteOpen={setDeleteOpen}
+      />
+    </div>
+  );
 }
 
 function EditRequestDialog({
-    editOpen,
-    pantryNotes,
-    item,
-    setItem,
-    quantity,
-    setQuantity,
-    handleEditClose,
-    index,
-    clientNotes,
-    setClientNotes,
-    requests,
-    setRequests,
-    foodPantryName,
-    setFoodPantryName,
-    id,
+  editOpen,
+  pantryNotes,
+  item,
+  setItem,
+  quantity,
+  setQuantity,
+  handleEditClose,
+  handleDeleteClose,
+  index,
+  clientNotes,
+  setClientNotes,
+  requests,
+  setRequests,
+  foodPantryName,
+  requestStatus,
+  setRequestStatus,
+  clientName,
+  setFoodPantryName,
+  handleDeleteOpen,
+  handleDeleteItem,
+  id,
 }) {
+  // let defaultFoodPantryName = "";
+  let defaultItem = "";
+  let defaultQuantity = 0;
+  let defaultClientNotes = "";
 
-    let defaultFoodPantryName = "";
-    let defaultItem = "";
-    let defaultQuantity = 0;
-    let defaultClientNotes = "";
+  //TODO integrate w/ firebase
+  if (requests.length > 0) {
+    // defaultFoodPantryName = requests[index].foodPantryName;
+    defaultItem = requests[index].item;
+    defaultQuantity = requests[index].quantity;
+    defaultClientNotes = requests[index].clientNotes;
+  }
 
-    //TODO integrate w/ firebase
-    if (requests.length > 0) {
-        defaultFoodPantryName = requests[index].foodPantryName;
-        defaultItem = requests[index].item;
-        defaultQuantity = requests[index].quantity;
-        defaultClientNotes = requests[index].clientNotes;
+  // if (rows.length > 0) {
+  //   defaultItem = rows[index].col1;
+  //   defaultQuantity = rows[index].col2;
+  // }
+
+  const handleEditItem = () => {
+    console.log(pantryNotes);
+    var ref = doc(db, "requests", requests[index].id);
+
+    updateDoc(ref, {
+      item: item,
+    //   status: requestStatus,
+      date:
+        String(new Date().getMonth() + 1) +
+        "-" +
+        String(new Date().getDate()) +
+        "-" +
+        String(new Date().getFullYear()),
+        quantity: quantity,
+      clientNotes: clientNotes,
+    //   foodPantryNotes: pantryNotes,
+    });
+    handleEditClose();
+  };
+
+  
+
+  let requestStatusStr; //the string for the request status
+  let requestStatusColor; //the class name for styling the request button
+
+  switch (requestStatus) {
+    case 1: {
+      requestStatusStr = "Pending";
+      requestStatusColor = "#fdff93";
+      break;
     }
+    case 2: {
+      requestStatusStr = "Accepted";
+      requestStatusColor = "lightskyblue";
+      break;
+    }
+    case 3: {
+      requestStatusStr = "Fulfilled";
+      requestStatusColor = "lightgreen";
+      break;
+    }
+    case 4: {
+      requestStatusStr = "Cancelled";
+      requestStatusColor = "lightcoral";
+      break;
+    }
+    default:
+      requestStatusStr = "";
+      requestStatusColor = "";
+  }
 
-    // if (rows.length > 0) {
-    //   defaultItem = rows[index].col1;
-    //   defaultQuantity = rows[index].col2;
-    // }
+  return (
+    <>
+      <Dialog open={editOpen} onClose={handleEditClose}>
+        <DialogTitle>Edit Request</DialogTitle>
 
-    const handleEditItem = () => {
-        if (!item) setItem(defaultItem);
-        if (!quantity) setQuantity(defaultQuantity);
-        if (!clientNotes) setClientNotes(defaultClientNotes);
-        if (item && clientNotes && quantity > 0) {
-            // console.log(item)
-            // setRows((rows) =>
-            //   rows
-            //     .slice(0, index)
-            //     .concat({ id: id, col1: item, col2: quantity })
-            //     .concat(rows.slice(index + 1, rows.length))
-            // );
-            //updates the requests when the item has been edited
-            setRequests((requests) => requests
-                .slice(0, index)
-                .concat({
-                    item: item,
-                    requestStatus: 1,
-                    date: "new date", //TODO change to updated date
-                    quantity: quantity,
-                    foodPantryName: foodPantryName,
-                    clientNotes: clientNotes,
-                    pantryNotes: pantryNotes
-                })
-                .concat(requests.slice(index + 1, requests.length)))
-        }
-        handleEditClose();
-    };
+        <DialogContent>
+          <div className="chip-container">
+            <Chip
+              style={{ backgroundColor: requestStatusColor, fontSize: "large" }}
+              label={requestStatusStr}
+            />
+          </div>
+          {/* <DialogContentText>Edit Item</DialogContentText> */}
+          <DialogContentText style={{ fontSize: "small", marginTop: "8px" }}>
+            Client Name
+          </DialogContentText>
+          <DialogContentText style={{ color: "black" }}>
+            {clientName}
+          </DialogContentText>
 
-    return (
-        <>
-            <Dialog open={editOpen} onClose={handleEditClose}>
-                <DialogTitle>Edit Request</DialogTitle>
-                <DialogContent>
-                    {/* <DialogContentText>Edit Item</DialogContentText> */}
-                    <TextField
+          <DialogContentText style={{ fontSize: "small", marginTop: "8px" }}>
+            Foodbank Name
+          </DialogContentText>
+          <DialogContentText style={{ color: "black" }}>
+            {foodPantryName}
+          </DialogContentText>
+
+          {/* <TextField
                         autoFocus
                         margin="dense"
                         id="foodbankEdit"
@@ -215,71 +406,108 @@ function EditRequestDialog({
                                 else return event.target.value;
                             });
                         }}
-                    />
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="itemEdit"
-                        label="Item Name"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        defaultValue={defaultItem}
-                        onChange={(event) => {
-                            setItem(() => {
-                                console.log(event.target.value);
-                                if (!event.target.value) return defaultItem;
-                                else return event.target.value;
-                            });
-                        }}
-                    />
-                    <TextField
-                        autoFocus
-                        required
-                        margin="dense"
-                        id="quantityEdit"
-                        label="Quantity"
-                        type="number"
-                        fullWidth
-                        variant="standard"
-                        defaultValue={defaultQuantity}
-                        onChange={(event) => {
-                            setQuantity(() => {
-                                console.log(event.target.value);
-                                if (event.target.value === 0) return defaultQuantity;
-                                else return event.target.value;
-                            });
-                        }}
-                    />
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="notesEdit"
-                        label="Client Notes"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        defaultValue={defaultClientNotes}
-                        onChange={(event) => {
-                            setClientNotes(() => {
-                                console.log(event.target.value);
-                                if (!event.target.value) return defaultClientNotes;
-                                else return event.target.value;
-                            });
-                        }}
-                    />
-                    <DialogContentText style={{fontSize: "small", marginTop:"8px"}}>
-                    Pantry Notes
-                    </DialogContentText>
-                    <DialogContentText style={{color:"black"}}>
-                    {pantryNotes}
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleEditItem}>Update</Button>
-                    <Button onClick={handleEditClose}>Cancel</Button>
-                </DialogActions>
-            </Dialog>
-        </>
-    );
+                    /> */}
+          <TextField
+            autoFocus
+            margin="dense"
+            id="itemEdit"
+            label="Item Name"
+            type="text"
+            fullWidth
+            variant="standard"
+            defaultValue={defaultItem}
+            onChange={(event) => {
+              setItem(() => {
+                console.log(event.target.value);
+                if (!event.target.value) return defaultItem;
+                else return event.target.value;
+              });
+            }}
+          />
+          <TextField
+            autoFocus
+            required
+            margin="dense"
+            id="quantityEdit"
+            label="Quantity"
+            type="number"
+            fullWidth
+            variant="standard"
+            defaultValue={defaultQuantity}
+            onChange={(event) => {
+              setQuantity(() => {
+                console.log(event.target.value);
+                if (!event.target.value || event.target.value <= 0) return defaultQuantity;
+                else return event.target.value;
+              });
+            }}
+          />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="notesEdit"
+            label="Client Notes"
+            type="text"
+            fullWidth
+            variant="standard"
+            defaultValue={defaultClientNotes}
+            onChange={(event) => {
+              setClientNotes(() => {
+                console.log(event.target.value);
+                // if (!event.target.value) return defaultClientNotes;
+                // else
+                return event.target.value;
+              });
+            }}
+          />
+          <DialogContentText style={{ fontSize: "small", marginTop: "8px" }}>
+            Pantry Notes
+          </DialogContentText>
+          <DialogContentText style={{ color: "black" }}>
+            {pantryNotes}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            sx={{ marginRight: "auto" }}
+            color="error"
+            endIcon={<DeleteIcon />}
+            onClick={handleDeleteOpen}
+          >
+            Delete
+          </Button>
+          <Button onClick={handleEditItem}>Update</Button>
+          <Button onClick={handleEditClose}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+}
+
+function AreYourSureDialog({ deleteOpen, setDeleteOpen, handleDeleteItem }) {
+  return (
+    <Dialog
+      open={deleteOpen}
+      // {deleteOpen}
+      onClose={() => setDeleteOpen(false)}
+    >
+      <DialogTitle>Are you sure you want to delete this request?</DialogTitle>
+      <DialogContent>
+        <DialogContentText>Deleting a request is permanent.</DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setDeleteOpen(false)}>Cancel</Button>
+        <Button
+          onClick={() => {
+            handleDeleteItem();
+            setDeleteOpen(false);
+          }}
+          autoFocus
+          color="error"
+        >
+          Delete
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 }

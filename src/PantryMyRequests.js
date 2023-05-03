@@ -46,12 +46,12 @@ export default function MyRequests(props) {
     const requestsRef = collection(db, "requests")
 
     let q = null;
-    let docRef = null;
+    let foodbankRef = null;
 
 
     if (user) {
         q = query(requestsRef, where("foodPantryUID", "==", user?.uid));
-        docRef = doc(db, "food-bank-accounts", user?.uid);
+        foodbankRef = doc(db, "food-bank-accounts", user?.uid);
     }
 
 
@@ -87,8 +87,8 @@ export default function MyRequests(props) {
                     //   console.log("Nothing!");
                     // }
                 });
-        if (docRef !== null)
-            onSnapshot(docRef, snapshot => {
+        if (foodbankRef !== null)
+            onSnapshot(foodbankRef, snapshot => {
                 setUsername(snapshot.data().name);
             })
     }, [user, username]);
