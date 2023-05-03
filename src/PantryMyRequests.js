@@ -260,7 +260,7 @@ function EditRequestDialog({
         // defaultQuantity = requests[index].quantity;
         // defaultClientNotes = requests[index].clientNotes;
         defaultPantryNotes = requests[index].pantryNotes;
-        defaultRequestStatus = requests[index].pantryNotes;
+        defaultRequestStatus = requests[index].status;
     }
 
     // if (rows.length > 0) {
@@ -271,29 +271,10 @@ function EditRequestDialog({
     const handleEditItem = () => {
         // if (!item) setItem(defaultItem);
         // if (!quantity) setQuantity(defaultQuantity);
-        if (!pantryNotes) setPantryNotes(defaultPantryNotes);
-        if (!requestStatus) setRequestStatus(defaultRequestStatus);
-        if (pantryNotes && requestStatus) {
-            // console.log(item)
-            // setRows((rows) =>
-            //   rows
-            //     .slice(0, index)
-            //     .concat({ id: id, col1: item, col2: quantity })
-            //     .concat(rows.slice(index + 1, rows.length))
-            // );
-            //updates the requests when the item has been edited
-            // setRequests((requests) => requests
-            //     .slice(0, index)
-            //     .concat({
-            //         item: item,
-            //         requestStatus: requestStatus,
-            //         date: "new date", //TODO change to updated date
-            //         quantity: quantity,
-            //         foodPantryName: foodPantryName,
-            //         clientNotes: clientNotes,
-            //         pantryNotes: pantryNotes
-            //     })
-            //     .concat(requests.slice(index + 1, requests.length)))
+        // if (!pantryNotes) setPantryNotes(defaultPantryNotes);
+        // if (!requestStatus) setRequestStatus(defaultRequestStatus);
+        // if (pantryNotes !== "") {
+            console.log(pantryNotes);
             var ref = doc(db, "requests", requests[index].id);
 
             updateDoc(ref, {
@@ -305,7 +286,7 @@ function EditRequestDialog({
                 foodPantryNotes: pantryNotes
             })
 
-        }
+        // }
         handleEditClose();
     };
 
@@ -354,8 +335,9 @@ function EditRequestDialog({
                         onChange={(event) => {
                             setPantryNotes(() => {
                                 console.log(event.target.value);
-                                if (!event.target.value) return defaultPantryNotes;
-                                else return event.target.value;
+                                // if (!event.target.value) return defaultPantryNotes;
+                                //else 
+                                return event.target.value;
                             });
                         }}
                     />
