@@ -52,46 +52,52 @@ export default function MyRequests(props) {
 
   const requestsRef = collection(db, "requests");
 
-  let q = null;
-  let docRef = null;
+    let q = null;
+    let foodbankRef = null;
 
-  if (user) {
-    q = query(requestsRef, where("foodPantryUID", "==", user?.uid));
-    docRef = doc(db, "food-bank-accounts", user?.uid);
-  }
+
+    if (user) {
+        q = query(requestsRef, where("foodPantryUID", "==", user?.uid));
+        foodbankRef = doc(db, "food-bank-accounts", user?.uid);
+    }
+
 
   useEffect(() => {
     if (q !== null)
       onSnapshot(q, (querySnapshot) => {
         const requestsArr = [];
 
-        querySnapshot.forEach((doc) => {
-          requestsArr.push({
-            item: doc.data().item,
-            requestStatus: doc.data().status,
-            date: doc.data().date,
-            quantity: doc.data().quantity,
-            foodPantryName: username,
-            clientNotes: doc.data().clientNotes,
-            pantryNotes: doc.data().foodPantryNotes,
-            id: doc.id,
-          });
-        });
-        console.log(requestsArr);
-        setRequests(requestsArr);
-        // (doc) => { //TODO CHANGE PANTRYUID TO ACTUAL UID
-        // if (doc.exists()) {
-        //   setItemList(doc.data()["itemList"]);
-        //   setQuantityList(doc.data()["quantityList"]);
-        // } else {
-        //   console.log("Nothing!");
-        // }
-      });
-    if (docRef !== null)
-      onSnapshot(docRef, (snapshot) => {
-        setUsername(snapshot.data().name);
-      });
-  }, [user, username]);
+                    querySnapshot.forEach((doc) => {
+
+
+                        requestsArr.push({
+                            item: doc.data().item,
+                            requestStatus: doc.data().status,
+                            date: doc.data().date,
+                            quantity: doc.data().quantity,
+                            foodPantryName: username,
+                            clientNotes: doc.data().clientNotes,
+                            pantryNotes: doc.data().foodPantryNotes,
+                            id: doc.id
+                        }
+                        );
+
+                    });
+                    console.log(requestsArr);
+                    setRequests(requestsArr);
+                    // (doc) => { //TODO CHANGE PANTRYUID TO ACTUAL UID
+                    // if (doc.exists()) {
+                    //   setItemList(doc.data()["itemList"]);
+                    //   setQuantityList(doc.data()["quantityList"]);
+                    // } else {
+                    //   console.log("Nothing!");
+                    // }
+                });
+        if (foodbankRef !== null)
+            onSnapshot(foodbankRef, snapshot => {
+                setUsername(snapshot.data().name);
+            })
+    }, [user, username]);
 
   /**
    * Function for editing a row
