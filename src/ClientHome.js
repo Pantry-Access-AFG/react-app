@@ -243,11 +243,10 @@ export default function ClientHome() {
     const request = {
       clientUID: user ? user.uid : 0,
       foodPantryUID: pantryID? pantryID : 0,
-      clientNotes: clientNotes ? clientNotes : null,
-      foodPantryNotes: null,
+      clientNotes: clientNotes ? clientNotes : "",
+      foodPantryNotes: "",
       item: item,
-      quantity: quantity,
-      status: 0,
+      status: 1,
       date: String(new Date().getMonth() + 1) + "-" + String(new Date().getDate()) + "-" + String(new Date().getFullYear())
     };
     const sendRequest = async (request) => {
