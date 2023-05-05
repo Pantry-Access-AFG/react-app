@@ -20,7 +20,7 @@ export default function FoodBankCard({
 }) {
   const [user, loading, error] = useAuthState(auth);
   const zipCodeData = require("zipcode-city-distance");
-  const [clientZip, setClientZip] = React.useState("90001");
+  const [clientZip, setClientZip] = React.useState("00000");
 
   React.useEffect(() => {
     if (user) {

@@ -6,6 +6,7 @@ import Login from "./Login";
 import React from "react";
 import ProfilePage from "./ProfilePage";
 import MyRequests from "./PantryMyRequests";
+import ClientMyRequests from "./ClientMyRequests";
 import PantryHome from "./PantryHome";
 import Footer from "./components/Footer";
 import ClientHome from "./ClientHome";
@@ -57,8 +58,11 @@ function App() {
                 )
               ) : (
                 <>
-                <Welcome viewFoodPantries={viewFoodPantries} setViewFoodPantries={setViewFoodPantries}></Welcome>
-                {viewFoodPantries && <ClientHome></ClientHome>}
+                  <Welcome
+                    viewFoodPantries={viewFoodPantries}
+                    setViewFoodPantries={setViewFoodPantries}
+                  ></Welcome>
+                  {viewFoodPantries && <ClientHome></ClientHome>}
                 </>
               )}
             </>
@@ -66,7 +70,16 @@ function App() {
         />
         <Route path="/profile" index element={<ProfilePage></ProfilePage>} />
         <Route path="/contact" index element={<ContactUs></ContactUs>} />
-        <Route path="/myrequests" element={<MyRequests></MyRequests>} />
+        <Route
+          path="/myrequests"
+          element={
+            isPantry ? (
+              <MyRequests></MyRequests>
+            ) : (
+              <ClientMyRequests></ClientMyRequests>
+            )
+          }
+        />
         <Route path="/login" element={<Login></Login>} />
         <Route path="/welcome" element={<Welcome></Welcome>} />
         <Route path="*" element={<FourOhFour />} />

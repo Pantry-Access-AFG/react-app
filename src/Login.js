@@ -276,7 +276,7 @@ export default function Login() {
             Register for a New Client/Food Bank Account
           </Typography>
           <TextField
-            label="Username"
+            label="Email"
             variant="outlined"
             onChange={(event) => {
               setRegisterUsername(event.target.value);
