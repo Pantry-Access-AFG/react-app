@@ -264,7 +264,7 @@ export default function Login() {
           >
             Register Account
           </Button>
-          <Button variant="outlined" onClick={() => navigate("/Contact")}>
+          <Button variant="outlined" onClick={() => navigate("/account-recovery")}>
             Reset Password
           </Button>
         </Stack>

@@ -17,6 +17,7 @@ import { auth } from "./firebase-config";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "./firebase-config";
+import  ForgotPassword  from "./ForgotPassword";
 
 function App() {
   const [user, loading, error] = useAuthState(auth);
@@ -83,8 +84,9 @@ function App() {
         <Route path="/login" element={<Login></Login>} />
         <Route path="/welcome" element={<Welcome></Welcome>} />
         <Route path="*" element={<FourOhFour />} />
+        <Route path="/account-recovery" element={<ForgotPassword></ForgotPassword>} />
       </Routes>
-
+        
       <Footer></Footer>
     </BrowserRouter>
   );
