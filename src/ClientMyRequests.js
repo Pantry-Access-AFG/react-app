@@ -109,6 +109,7 @@ export default function MyRequests(props) {
     console.log(pantryNotes);
     var ref = doc(db, "requests", requests[editIndex].id);
 
+    setEditIndex(0);
     deleteDoc(ref);
     handleDeleteClose();
     handleEditClose();
