@@ -1,6 +1,10 @@
 import { Stack } from "@mui/material";
 import { Link } from "react-router-dom";
 
+/**
+ * 404 page
+ */
+
 export default function FourOhFour() {
   return (
     <>

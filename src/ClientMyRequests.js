@@ -70,7 +70,6 @@ export default function MyRequests(props) {
   const handleDeleteClose = () => {
     setDeleteOpen(false);
   };
-  //TODO replace with actual array
   const [requests, setRequests] = useState([]);
 
   const requestsRef = collection(db, "requests");
@@ -117,14 +116,12 @@ export default function MyRequests(props) {
 
   const editRequestsClick = (index) => {
     setEditIndex(index);
-    // setEditId(requests[index].id);
     setItem(requests[index].item);
     setQuantity(requests[index].quantity);
     setFoodPantryName(requests[index].foodPantryName);
     setClientNotes(requests[index].clientNotes);
     setPantryNotes(requests[index].pantryNotes);
     setEditOpen(true);
-    // setFoodPantryName(requests[index].pantryName);
     setClientName(requests[index].clientName);
     setRequestStatus(requests[index].requestStatus);
   };
@@ -299,18 +296,11 @@ function EditRequestDialog({
   let defaultQuantity = 0;
   let defaultClientNotes = "";
 
-  //TODO integrate w/ firebase
   if (requests.length > 0) {
-    // defaultFoodPantryName = requests[index].foodPantryName;
     defaultItem = requests[index].item;
     defaultQuantity = requests[index].quantity;
     defaultClientNotes = requests[index].clientNotes;
   }
-
-  // if (rows.length > 0) {
-  //   defaultItem = rows[index].col1;
-  //   defaultQuantity = rows[index].col2;
-  // }
 
   const handleEditItem = () => {
     console.log(pantryNotes);
@@ -318,7 +308,6 @@ function EditRequestDialog({
 
     updateDoc(ref, {
       item: item,
-    //   status: requestStatus,
       date:
         String(new Date().getMonth() + 1) +
         "-" +
@@ -327,7 +316,6 @@ function EditRequestDialog({
         String(new Date().getFullYear()),
         quantity: quantity,
       clientNotes: clientNotes,
-    //   foodPantryNotes: pantryNotes,
     });
     handleEditClose();
   };

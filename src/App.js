@@ -19,10 +19,12 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "./firebase-config";
 
 function App() {
+  // user authentication state for displaying different pages/components
   const [user, loading, error] = useAuthState(auth);
   const [isPantry, setIsPantry] = React.useState(false);
   const [viewFoodPantries, setViewFoodPantries] = React.useState(false);
 
+  // check if user is a pantry or client
   React.useEffect(() => {
     if (user) {
       const getIsPantry = async () => {
