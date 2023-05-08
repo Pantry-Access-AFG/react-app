@@ -67,7 +67,7 @@ export default function ProfilePage() {
           console.log(error);
         });
       handleCloseAreYouSure();
-      navigate("/login");
+      logout();
     } catch (error) {}
   };
 

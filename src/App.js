@@ -20,10 +20,12 @@ import { db } from "./firebase-config";
 import  ForgotPassword  from "./ForgotPassword";
 
 function App() {
+  // user authentication state for displaying different pages/components
   const [user, loading, error] = useAuthState(auth);
   const [isPantry, setIsPantry] = React.useState(false);
   const [viewFoodPantries, setViewFoodPantries] = React.useState(false);
 
+  // check if user is a pantry or client
   React.useEffect(() => {
     if (user) {
       const getIsPantry = async () => {
@@ -43,10 +45,11 @@ function App() {
 
   return (
     <BrowserRouter>
+      <div style={{minHeight:"80vh", backgroundColor:"white", paddingBottom:"2rem"}}>
       <Header></Header>
       <NavBar></NavBar>
 
-      <Routes>
+      <Routes >
         <Route
           path="/"
           element={
@@ -86,8 +89,11 @@ function App() {
         <Route path="*" element={<FourOhFour />} />
         <Route path="/account-recovery" element={<ForgotPassword></ForgotPassword>} />
       </Routes>
-        
-      <Footer></Footer>
+      
+      </div>
+      <Footer style={{minHeight:"10vh"}}></Footer>
+      
+      
     </BrowserRouter>
   );
 }

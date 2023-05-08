@@ -72,12 +72,12 @@ function LandingPage({ viewFoodPantries, setViewFoodPantries }) {
         </Typography>
         <Typography variant="subtitle1" className={classes.description}>
           Pantry Access is a <i>universal</i> food pantry application for food
-          pantries and clients. Our free cross-platform app streamlines
-          communication between clients and pantries, as well as provide a
-          single cloud-based location to manage inventory and donations desired.
+          pantries and clients. Our free, cross-platform web application streamlines
+          communication between clients and pantries, and provides a
+          single cloud-based location to manage inventory and desired donations.
         </Typography>
         <Typography variant="subtitle2" className={classes.description}>
-          This application was developed by Charles Tang, Jennifer Schaughnessy,
+          This application was developed by Charles Tang, Jennifer Shaughnessy,
           and Sumanth Sura of Mass Academy in the Apps for Good project. This
           project was also advised by Mrs. Taricco of Mass Academy. The code is{" "}
           <i>open-source</i>, and the documentation can be found{" "}
