@@ -42,10 +42,11 @@ function App() {
 
   return (
     <BrowserRouter>
+      <div style={{minHeight:"80vh", backgroundColor:"white", paddingBottom:"2rem"}}>
       <Header></Header>
       <NavBar></NavBar>
 
-      <Routes>
+      <Routes >
         <Route
           path="/"
           element={
@@ -84,8 +85,11 @@ function App() {
         <Route path="/welcome" element={<Welcome></Welcome>} />
         <Route path="*" element={<FourOhFour />} />
       </Routes>
-
-      <Footer></Footer>
+      
+      </div>
+      <Footer style={{minHeight:"10vh"}}></Footer>
+      
+      
     </BrowserRouter>
   );
 }
