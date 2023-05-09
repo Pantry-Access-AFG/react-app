@@ -41,9 +41,10 @@ export default function MyRequests(props) {
   let [clientNotes, setClientNotes] = useState("");
   let [pantryNotes, setPantryNotes] = useState("");
   let [requestStatus, setRequestStatus] = useState(1);
+  let [clientName, setClientName] = useState("");
 
   const [user, loading, error] = useAuthState(auth);
-  const [username, setUsername] = useState("");
+  // const [username, setUsername] = useState("");
 
   //TODO replace with actual array
   const [requests, setRequests] = useState([]);
@@ -53,12 +54,12 @@ export default function MyRequests(props) {
   const requestsRef = collection(db, "requests");
 
     let q = null;
-    let foodbankRef = null;
+    // let foodbankRef = null;
 
 
     if (user) {
         q = query(requestsRef, where("foodPantryUID", "==", user?.uid));
-        foodbankRef = doc(db, "food-bank-accounts", user?.uid);
+        // foodbankRef = doc(db, "food-bank-accounts", user?.uid);
     }
 
 
@@ -75,7 +76,8 @@ export default function MyRequests(props) {
                             requestStatus: doc.data().status,
                             date: doc.data().date,
                             quantity: doc.data().quantity,
-                            foodPantryName: username,
+                            foodPantryName: doc.data().pantryName,
+                            clientName: doc.data().clientName,
                             clientNotes: doc.data().clientNotes,
                             pantryNotes: doc.data().foodPantryNotes,
                             id: doc.id
@@ -93,11 +95,13 @@ export default function MyRequests(props) {
                     //   console.log("Nothing!");
                     // }
                 });
-        if (foodbankRef !== null)
-            onSnapshot(foodbankRef, snapshot => {
-                setUsername(snapshot.data().name);
-            })
-    }, [user, username]);
+        // if (foodbankRef !== null)
+        //     onSnapshot(foodbankRef, snapshot => {
+        //         setUsername(snapshot.data().name);
+        //     })
+    }, [user
+    //  , username
+    ]);
 
   /**
    * Function for editing a row
@@ -126,6 +130,7 @@ export default function MyRequests(props) {
     setClientNotes(requests[index].clientNotes);
     setPantryNotes(requests[index].pantryNotes);
     setRequestStatus(requests[index].requestStatus);
+    setClientName(requests[index].clientName)
     setEditOpen(true);
   };
 
@@ -138,7 +143,7 @@ export default function MyRequests(props) {
         requestStatus={request.requestStatus}
         date={request.date}
         quantity={request.quantity}
-        foodPantryName={request.foodPantryName}
+        foodPantryName={request.clientName}
         index={requests.indexOf(request)}
         editRequestsClick={editRequestsClick}
         requests={requests}
@@ -156,7 +161,7 @@ export default function MyRequests(props) {
         requestStatus={request.requestStatus}
         date={request.date}
         quantity={request.quantity}
-        foodPantryName={request.foodPantryName}
+        foodPantryName={request.clientName}
         index={requests.indexOf(request)}
         editRequestsClick={editRequestsClick}
         requests={requests}
@@ -176,7 +181,7 @@ export default function MyRequests(props) {
         requestStatus={request.requestStatus}
         date={request.date}
         quantity={request.quantity}
-        foodPantryName={request.foodPantryName}
+        foodPantryName={request.clientName}
         index={requests.indexOf(request)}
         editRequestsClick={editRequestsClick}
         requests={requests}
@@ -261,6 +266,7 @@ export default function MyRequests(props) {
           index={editIndex}
           clientNotes={clientNotes}
           setClientNotes={setClientNotes}
+          clientName={clientName}
           insertItem={() => {}}
           pantryNotes={pantryNotes}
           setPantryNotes={setPantryNotes}
@@ -300,6 +306,7 @@ function EditRequestDialog({
   requests,
   setRequests,
   foodPantryName,
+  clientName,
   setFoodPantryName,
   id,
 }) {
@@ -366,6 +373,13 @@ function EditRequestDialog({
           </DialogContentText>
           <DialogContentText style={{ color: "black" }}>
             {foodPantryName}
+          </DialogContentText>
+
+          <DialogContentText style={{ fontSize: "small", marginTop: "8px" }}>
+            Client Name
+          </DialogContentText>
+          <DialogContentText style={{ color: "black" }}>
+            {clientName}
           </DialogContentText>
 
           <DialogContentText style={{ fontSize: "small", marginTop: "8px" }}>
