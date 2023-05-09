@@ -396,41 +396,55 @@ function EditRequestDialog({
                             });
                         }}
                     /> */}
-          <TextField
-            autoFocus
-            margin="dense"
-            id="itemEdit"
-            label="Item Name"
-            type="text"
-            fullWidth
-            variant="standard"
-            defaultValue={defaultItem}
-            onChange={(event) => {
-              setItem(() => {
-                console.log(event.target.value);
-                if (!event.target.value) return defaultItem;
-                else return event.target.value;
-              });
-            }}
-          />
-          <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="quantityEdit"
-            label="Quantity"
-            type="number"
-            fullWidth
-            variant="standard"
-            defaultValue={defaultQuantity}
-            onChange={(event) => {
-              setQuantity(() => {
-                console.log(event.target.value);
-                if (!event.target.value || event.target.value <= 0) return defaultQuantity;
-                else return event.target.value;
-              });
-            }}
-          />
+           { requestStatus === 2  || requestStatus === 3 || requestStatus === 4 ? <>
+           <DialogContentText style={{ fontSize: "small", marginTop: "8px" }}>
+            Item Name
+          </DialogContentText>
+          <DialogContentText style={{ color: "black" }}>
+            {item}
+          </DialogContentText>
+          <DialogContentText style={{ fontSize: "small", marginTop: "8px" }}>
+            Quantity
+          </DialogContentText>
+          <DialogContentText style={{ color: "black" }}>
+            {quantity}
+          </DialogContentText>
+          </> : 
+    <><TextField
+      autoFocus
+      margin="dense"
+      id="itemEdit"
+      label="Item Name"
+      type="text"
+      fullWidth
+      variant="standard"
+      defaultValue={defaultItem}
+      onChange={(event) => {
+        setItem(() => {
+          console.log(event.target.value);
+          if (!event.target.value) return defaultItem;
+          else return event.target.value;
+        });
+      }}
+    />
+    <TextField
+      autoFocus
+      required
+      margin="dense"
+      id="quantityEdit"
+      label="Quantity"
+      type="number"
+      fullWidth
+      variant="standard"
+      defaultValue={defaultQuantity}
+      onChange={(event) => {
+        setQuantity(() => {
+          console.log(event.target.value);
+          if (!event.target.value || event.target.value <= 0) return defaultQuantity;
+          else return event.target.value;
+        });
+      }}
+    /></>}
           <TextField
             autoFocus
             margin="dense"
