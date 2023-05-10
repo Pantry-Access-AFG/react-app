@@ -21,7 +21,16 @@ import Confetti from "react-confetti";
 import { auth } from "./firebase-config";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { signOut, deleteUser } from "firebase/auth";
-import { doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  deleteDoc,
+  query,
+  where,
+  collection,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "./firebase-config";
 import { useNavigate } from "react-router-dom";
 
@@ -34,6 +43,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function ProfilePage() {
   let [name, setName] = useState("");
+  let [id, setId] = useState(0);
   let [username, setUsername] = useState("");
   let [password, setPassword] = useState("");
   let [zipcode, setZipcode] = useState("");
@@ -42,33 +52,63 @@ export default function ProfilePage() {
   let [confettiOn, setConfettiOn] = useState(false);
   let [isPantry, setIsFoodPantry] = useState(false);
   const [user, loading, error] = useAuthState(auth);
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   /**
    * Async function to delete an account by removing it from Firebase Auth and it's document in Firebase Firestore
    */
   const handleDeleteAccount = async () => {
-    setUsername("");
-    setPassword("");
-    setZipcode("");
-    let docRef = doc(
-      db,
-      isPantry ? "food-bank-accounts" : "client-accounts",
-      user.uid
-    );
-    deleteDoc(docRef);
-
+    const deleteRequests = async () => {
+      // first delete all client requests
+      let q = null;
+      const requestsRef = collection(db, "requests");
+      if (user && !isPantry) {
+        setId(user?.uid);
+        q = query(requestsRef, where("clientUID", "==", id));
+        if (q != null) {
+          const querySnapshot = await getDocs(q);
+          await querySnapshot.forEach((requestDoc) => {
+            deleteDoc(doc(db, "requests", requestDoc.id));
+          });
+        }
+        // delete all pantry requests
+      } else if (user && isPantry) {
+        setId(user?.uid);
+        q = query(requestsRef, where("foodPantryUID", "==", id));
+        if (q != null) {
+          const querySnapshot = await getDocs(q);
+          await querySnapshot.forEach((requestDoc) => {
+            deleteDoc(doc(db, "requests", requestDoc.id));
+          });
+        }
+      }
+    };
     try {
-      deleteUser(user)
+      await setId(user?.uid);
+      let docRef = doc(
+        db,
+        isPantry ? "food-bank-accounts" : "client-accounts",
+        id
+      );
+      await deleteDoc(docRef);
+      if (isPantry) {
+        docRef = doc(db, "inventory", id);
+        await deleteDoc(docRef);
+      }
+      await deleteRequests();
+      await deleteUser(user)
         .then(() => {
           setConfettiOn(true);
         })
         .catch((error) => {
-          console.log(error);
+          setErrorMessage(error.message);
         });
-      handleCloseAreYouSure();
       logout();
-    } catch (error) {}
+      handleCloseAreYouSure();
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
   };
 
   // Set username listener
@@ -193,16 +233,18 @@ export default function ProfilePage() {
           Delete Account
         </Button>
 
-        <Alert
-          sx={{
-            width: "50%",
-            margin: "auto",
-            marginTop: "1rem",
-          }}
-          severity="error"
-        >
-          Deleting your account is permanent.
-        </Alert>
+        {errorMessage && (
+          <Alert
+            sx={{
+              width: "50%",
+              margin: "auto",
+              marginTop: "1rem",
+            }}
+            severity="error"
+          >
+            {errorMessage}
+          </Alert>
+        )}
       </Box>
 
       <AreYourSureDialog

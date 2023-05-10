@@ -17,7 +17,7 @@ import {
   Button,
   FormControlLabel,
   Checkbox,
-} from "@mui/material";
+eac} from "@mui/material";
 
 /**
  * @returns Component for the LoginPage
@@ -264,7 +264,10 @@ export default function Login() {
           >
             Register Account
           </Button>
-          <Button variant="outlined" onClick={() => navigate("/account-recovery")}>
+          <Button
+            variant="outlined"
+            onClick={() => navigate("/account-recovery")}
+          >
             Reset Password
           </Button>
         </Stack>
