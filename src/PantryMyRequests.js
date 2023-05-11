@@ -41,9 +41,10 @@ export default function MyRequests(props) {
   let [clientNotes, setClientNotes] = useState("");
   let [pantryNotes, setPantryNotes] = useState("");
   let [requestStatus, setRequestStatus] = useState(1);
+  let [clientName, setClientName] = useState("");
 
   const [user, loading, error] = useAuthState(auth);
-  const [username, setUsername] = useState("");
+  // const [username, setUsername] = useState("");
 
   //TODO replace with actual array
   const [requests, setRequests] = useState([]);
@@ -123,6 +124,7 @@ export default function MyRequests(props) {
     setClientNotes(requests[index].clientNotes);
     setPantryNotes(requests[index].pantryNotes);
     setRequestStatus(requests[index].requestStatus);
+    setClientName(requests[index].clientName)
     setEditOpen(true);
   };
 
@@ -135,7 +137,7 @@ export default function MyRequests(props) {
         requestStatus={request.requestStatus}
         date={request.date}
         quantity={request.quantity}
-        foodPantryName={request.foodPantryName}
+        foodPantryName={request.clientName}
         index={requests.indexOf(request)}
         editRequestsClick={editRequestsClick}
         requests={requests}
@@ -153,7 +155,7 @@ export default function MyRequests(props) {
         requestStatus={request.requestStatus}
         date={request.date}
         quantity={request.quantity}
-        foodPantryName={request.foodPantryName}
+        foodPantryName={request.clientName}
         index={requests.indexOf(request)}
         editRequestsClick={editRequestsClick}
         requests={requests}
@@ -173,7 +175,7 @@ export default function MyRequests(props) {
         requestStatus={request.requestStatus}
         date={request.date}
         quantity={request.quantity}
-        foodPantryName={request.foodPantryName}
+        foodPantryName={request.clientName}
         index={requests.indexOf(request)}
         editRequestsClick={editRequestsClick}
         requests={requests}
@@ -258,7 +260,8 @@ export default function MyRequests(props) {
           index={editIndex}
           clientNotes={clientNotes}
           setClientNotes={setClientNotes}
-          insertItem={() => { }}
+          clientName={clientName}
+          insertItem={() => {}}
           pantryNotes={pantryNotes}
           setPantryNotes={setPantryNotes}
           requests={requests}
@@ -297,6 +300,7 @@ function EditRequestDialog({
   requests,
   setRequests,
   foodPantryName,
+  clientName,
   setFoodPantryName,
   id,
 }) {
@@ -362,6 +366,13 @@ function EditRequestDialog({
           </DialogContentText>
           <DialogContentText style={{ color: "black" }}>
             {foodPantryName}
+          </DialogContentText>
+
+          <DialogContentText style={{ fontSize: "small", marginTop: "8px" }}>
+            Client Name
+          </DialogContentText>
+          <DialogContentText style={{ color: "black" }}>
+            {clientName}
           </DialogContentText>
 
           <DialogContentText style={{ fontSize: "small", marginTop: "8px" }}>

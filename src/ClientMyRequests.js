@@ -100,13 +100,11 @@ export default function MyRequests(props) {
             id: doc.id,
           });
         });
-        console.log(requestsArr);
         setRequests(requestsArr);
       });
   }, [user]);
 
   const handleDeleteItem = () => {
-    console.log(pantryNotes);
     var ref = doc(db, "requests", requests[editIndex].id);
 
     setEditIndex(0);
@@ -304,7 +302,6 @@ function EditRequestDialog({
   }
 
   const handleEditItem = () => {
-    console.log(pantryNotes);
     var ref = doc(db, "requests", requests[index].id);
 
     updateDoc(ref, {
@@ -421,7 +418,6 @@ function EditRequestDialog({
       defaultValue={defaultItem}
       onChange={(event) => {
         setItem(() => {
-          console.log(event.target.value);
           if (!event.target.value) return defaultItem;
           else return event.target.value;
         });
@@ -439,7 +435,6 @@ function EditRequestDialog({
       defaultValue={defaultQuantity}
       onChange={(event) => {
         setQuantity(() => {
-          console.log(event.target.value);
           if (!event.target.value || event.target.value <= 0) return defaultQuantity;
           else return event.target.value;
         });
@@ -456,7 +451,6 @@ function EditRequestDialog({
             defaultValue={defaultClientNotes}
             onChange={(event) => {
               setClientNotes(() => {
-                console.log(event.target.value);
                 // if (!event.target.value) return defaultClientNotes;
                 // else
                 return event.target.value;
