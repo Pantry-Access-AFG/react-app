@@ -37,14 +37,14 @@ export default function MyRequests(props) {
   let [item, setItem] = useState("");
   let [quantity, setQuantity] = useState(0);
   let [foodPantryName, setFoodPantryName] = useState(0);
-  // let [editId, setEditId] = useState(0);
+  let [editId, setEditId] = useState(0);
   let [clientNotes, setClientNotes] = useState("");
   let [pantryNotes, setPantryNotes] = useState("");
   let [requestStatus, setRequestStatus] = useState(1);
   let [clientName, setClientName] = useState("");
 
   const [user, loading, error] = useAuthState(auth);
-  // const [username, setUsername] = useState("");
+  const [username, setUsername] = useState("");
 
   //TODO replace with actual array
   const [requests, setRequests] = useState([]);
@@ -261,7 +261,7 @@ export default function MyRequests(props) {
           clientNotes={clientNotes}
           setClientNotes={setClientNotes}
           clientName={clientName}
-          insertItem={() => {}}
+          insertItem={() => { }}
           pantryNotes={pantryNotes}
           setPantryNotes={setPantryNotes}
           requests={requests}
