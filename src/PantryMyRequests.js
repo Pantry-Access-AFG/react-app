@@ -61,41 +61,39 @@ export default function MyRequests(props) {
     foodbankRef = doc(db, "food-bank-accounts", user?.uid);
   }
 
-
   useEffect(() => {
-    if (q !== null)
-      onSnapshot(q, (querySnapshot) => {
-        const requestsArr = [];
+    if (user) {
+      if (q !== null)
+        onSnapshot(q, (querySnapshot) => {
+          const requestsArr = [];
+          querySnapshot.forEach((doc) => {
+            requestsArr.push({
+              item: doc.data().item,
+              requestStatus: doc.data().status,
+              date: doc.data().date,
+              quantity: doc.data().quantity,
+              foodPantryName: username,
+              clientNotes: doc.data().clientNotes,
+              pantryNotes: doc.data().foodPantryNotes,
+              id: doc.id
+            }
+            );
 
-        querySnapshot.forEach((doc) => {
-
-
-          requestsArr.push({
-            item: doc.data().item,
-            requestStatus: doc.data().status,
-            date: doc.data().date,
-            quantity: doc.data().quantity,
-            foodPantryName: username,
-            clientNotes: doc.data().clientNotes,
-            pantryNotes: doc.data().foodPantryNotes,
-            id: doc.id
-          }
-          );
-
+          });
+          setRequests(requestsArr);
+          // (doc) => { //TODO CHANGE PANTRYUID TO ACTUAL UID
+          // if (doc.exists()) {
+          //   setItemList(doc.data()["itemList"]);
+          //   setQuantityList(doc.data()["quantityList"]);
+          // } else {
+          //   console.log("Nothing!");
+          // }
         });
-        setRequests(requestsArr);
-        // (doc) => { //TODO CHANGE PANTRYUID TO ACTUAL UID
-        // if (doc.exists()) {
-        //   setItemList(doc.data()["itemList"]);
-        //   setQuantityList(doc.data()["quantityList"]);
-        // } else {
-        //   console.log("Nothing!");
-        // }
-      });
-    if (foodbankRef !== null)
-      onSnapshot(foodbankRef, snapshot => {
-        setUsername(snapshot.data().name ? snapshot.data().name : "");
-      })
+      if (foodbankRef !== null)
+        onSnapshot(foodbankRef, snapshot => {
+          setUsername(snapshot.data()?.name ? snapshot.data().name : "");
+        })
+    }
   }, [user, username]);
 
   /**
