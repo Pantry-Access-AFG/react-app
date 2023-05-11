@@ -234,7 +234,7 @@ export default function ClientHome() {
         let docRef = doc(db, "client-accounts", user.uid);
         let docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setClientName(docSnap.data().full_name);
+          setClientName(docSnap.data().full_name? docSnap.data().full_name : "");
         }
       };
       getName();

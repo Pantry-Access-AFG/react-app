@@ -43,7 +43,6 @@ import { useNavigate } from "react-router-dom";
 
 export default function ProfilePage() {
   let [name, setName] = useState("");
-  let [id, setId] = useState(0);
   let [username, setUsername] = useState("");
   let [password, setPassword] = useState("");
   let [zipcode, setZipcode] = useState("");
@@ -59,12 +58,11 @@ export default function ProfilePage() {
    * Async function to delete an account by removing it from Firebase Auth and it's document in Firebase Firestore
    */
   const handleDeleteAccount = async () => {
-    const deleteRequests = async () => {
+    const deleteRequests = async (id) => {
       // first delete all client requests
       let q = null;
       const requestsRef = collection(db, "requests");
       if (user && !isPantry) {
-        setId(user?.uid);
         q = query(requestsRef, where("clientUID", "==", id));
         if (q != null) {
           const querySnapshot = await getDocs(q);
@@ -74,7 +72,6 @@ export default function ProfilePage() {
         }
         // delete all pantry requests
       } else if (user && isPantry) {
-        setId(user?.uid);
         q = query(requestsRef, where("foodPantryUID", "==", id));
         if (q != null) {
           const querySnapshot = await getDocs(q);
@@ -85,27 +82,32 @@ export default function ProfilePage() {
       }
     };
     try {
-      await setId(user?.uid);
-      let docRef = doc(
-        db,
-        isPantry ? "food-bank-accounts" : "client-accounts",
-        id
-      );
-      await deleteDoc(docRef);
-      if (isPantry) {
-        docRef = doc(db, "inventory", id);
-        await deleteDoc(docRef);
+      const setId = async () => {
+        const result = await user?.uid;
+        return result
       }
-      await deleteRequests();
-      await deleteUser(user)
+      const id = await setId();
+      deleteUser(user)
         .then(() => {
           setConfettiOn(true);
+          handleCloseAreYouSure();
+          let docRef = doc(
+            db,
+            isPantry ? "food-bank-accounts" : "client-accounts",
+            id
+          );
+          deleteDoc(docRef).then(() => {
+            if (isPantry) {
+              docRef = doc(db, "inventory", id);
+              deleteDoc(docRef);
+            }
+            deleteRequests(id);
+          });
         })
         .catch((error) => {
           setErrorMessage(error.message);
         });
       logout();
-      handleCloseAreYouSure();
     } catch (error) {
       setErrorMessage(error.message);
     }
@@ -173,26 +175,29 @@ export default function ProfilePage() {
         let docRef = doc(db, "client-accounts", user.uid);
         let docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setName(docSnap.data().full_name);
-          setUsername(docSnap.data().full_name);
-          setUsername(docSnap.data().username);
-          setPassword(docSnap.data().password);
-          setZipcode(docSnap.data().zipcode);
+          setName(docSnap.data().full_name ? docSnap.data().full_name : "");
+          setUsername(docSnap.data().username ? docSnap.data().username : "");
+          setPassword(docSnap.data().password ? docSnap.data().password : "");
+          setZipcode(docSnap.data().zipcode ? docSnap.data().zipcode : "");
           setIsFoodPantry(false);
         } else {
           docRef = doc(db, "food-bank-accounts", user.uid);
           docSnap = await getDoc(docRef);
-          setName(docSnap.data().name);
-          setUsername(docSnap.data().name);
-          setPassword(docSnap.data().password);
-          setZipcode(docSnap.data().zipcode);
-          setDescription(docSnap.data().description);
+          setName(docSnap.data().name ? docSnap.data().name : "");
+          setUsername(docSnap.data().name ? docSnap.data().username : "");
+          setPassword(docSnap.data().password ? docSnap.data().password : "");
+          setZipcode(docSnap.data().zipcode ? docSnap.data().zipcode : "");
+          setDescription(docSnap.data().description ? docSnap.data().description : "");
           setIsFoodPantry(true);
         }
       };
       getName();
     }
+    else {
+      setName("");
+    }
   }, [user]);
+
 
   return (
     <>

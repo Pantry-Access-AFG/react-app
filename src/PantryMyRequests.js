@@ -52,14 +52,14 @@ export default function MyRequests(props) {
 
   const requestsRef = collection(db, "requests");
 
-    let q = null;
-    let foodbankRef = null;
+  let q = null;
+  let foodbankRef = null;
 
 
-    if (user) {
-        q = query(requestsRef, where("foodPantryUID", "==", user?.uid));
-        foodbankRef = doc(db, "food-bank-accounts", user?.uid);
-    }
+  if (user) {
+    q = query(requestsRef, where("foodPantryUID", "==", user?.uid));
+    foodbankRef = doc(db, "food-bank-accounts", user?.uid);
+  }
 
 
   useEffect(() => {
@@ -67,37 +67,36 @@ export default function MyRequests(props) {
       onSnapshot(q, (querySnapshot) => {
         const requestsArr = [];
 
-                    querySnapshot.forEach((doc) => {
+        querySnapshot.forEach((doc) => {
 
 
-                        requestsArr.push({
-                            item: doc.data().item,
-                            requestStatus: doc.data().status,
-                            date: doc.data().date,
-                            quantity: doc.data().quantity,
-                            foodPantryName: username,
-                            clientNotes: doc.data().clientNotes,
-                            pantryNotes: doc.data().foodPantryNotes,
-                            id: doc.id
-                        }
-                        );
+          requestsArr.push({
+            item: doc.data().item,
+            requestStatus: doc.data().status,
+            date: doc.data().date,
+            quantity: doc.data().quantity,
+            foodPantryName: username,
+            clientNotes: doc.data().clientNotes,
+            pantryNotes: doc.data().foodPantryNotes,
+            id: doc.id
+          }
+          );
 
-                    });
-                    console.log(requestsArr);
-                    setRequests(requestsArr);
-                    // (doc) => { //TODO CHANGE PANTRYUID TO ACTUAL UID
-                    // if (doc.exists()) {
-                    //   setItemList(doc.data()["itemList"]);
-                    //   setQuantityList(doc.data()["quantityList"]);
-                    // } else {
-                    //   console.log("Nothing!");
-                    // }
-                });
-        if (foodbankRef !== null)
-            onSnapshot(foodbankRef, snapshot => {
-                setUsername(snapshot.data().name);
-            })
-    }, [user, username]);
+        });
+        setRequests(requestsArr);
+        // (doc) => { //TODO CHANGE PANTRYUID TO ACTUAL UID
+        // if (doc.exists()) {
+        //   setItemList(doc.data()["itemList"]);
+        //   setQuantityList(doc.data()["quantityList"]);
+        // } else {
+        //   console.log("Nothing!");
+        // }
+      });
+    if (foodbankRef !== null)
+      onSnapshot(foodbankRef, snapshot => {
+        setUsername(snapshot.data().name ? snapshot.data().name : "");
+      })
+  }, [user, username]);
 
   /**
    * Function for editing a row
@@ -261,7 +260,7 @@ export default function MyRequests(props) {
           index={editIndex}
           clientNotes={clientNotes}
           setClientNotes={setClientNotes}
-          insertItem={() => {}}
+          insertItem={() => { }}
           pantryNotes={pantryNotes}
           setPantryNotes={setPantryNotes}
           requests={requests}
@@ -331,7 +330,6 @@ function EditRequestDialog({
     // if (!pantryNotes) setPantryNotes(defaultPantryNotes);
     // if (!requestStatus) setRequestStatus(defaultRequestStatus);
     // if (pantryNotes !== "") {
-    console.log(pantryNotes);
     var ref = doc(db, "requests", requests[index].id);
 
     updateDoc(ref, {
@@ -400,9 +398,6 @@ function EditRequestDialog({
             defaultValue={defaultPantryNotes}
             onChange={(event) => {
               setPantryNotes(() => {
-                console.log(event.target.value);
-                // if (!event.target.value) return defaultPantryNotes;
-                //else
                 return event.target.value;
               });
             }}
@@ -424,7 +419,6 @@ function EditRequestDialog({
                 label="Request Status"
                 onChange={(event) => {
                   setRequestStatus(() => {
-                    console.log(event.target.value);
                     if (!event.target.value) return defaultRequestStatus;
                     else return event.target.value;
                   });

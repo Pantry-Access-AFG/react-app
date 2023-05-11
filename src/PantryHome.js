@@ -102,7 +102,7 @@ export default function PantryHome() {
    * Removes respective row and updates it in Firebase firestore
    */
   const deleteInventoryRowClick = (e, row, rows, index) => {
-    const docRef = doc(db, "inventory", user.uid);
+    const docRef = doc(db, "inventory", user?.uid);
     const deleteData = async () => {
       await updateDoc(docRef, {
         itemList: itemList
@@ -121,7 +121,7 @@ export default function PantryHome() {
    * Removes respective row and updates it in Firebase firestore
    */
   const deleteWantedRowClick = (e, row, rows, index) => {
-    const docRef = doc(db, "inventory", user.uid);
+    const docRef = doc(db, "inventory", user?.uid ? user.uid : 0);
     const deleteData = async () => {
       await updateDoc(docRef, {
         wantedItemList: wantedItemList
@@ -293,16 +293,18 @@ export default function PantryHome() {
    */
   useEffect(() => {
     async function getInventoryData() {
-      onSnapshot(doc(db, "inventory", user.uid), (doc) => {
-        if (doc.exists()) {
-          setItemList(doc.data()["itemList"]);
-          setWantedItemList(doc.data()["wantedItemList"]);
-          setQuantityList(doc.data()["quantityList"]);
-          setWantedQuantityList(doc.data()["wantedQuantityList"]);
-        } else {
-          console.log("Nothing!");
-        }
-      });
+      if (user) {
+        onSnapshot(doc(db, "inventory", user?.uid ? user.uid : 0), (doc) => {
+          if (doc.exists()) {
+            setItemList(doc.data()["itemList"]);
+            setWantedItemList(doc.data()["wantedItemList"]);
+            setQuantityList(doc.data()["quantityList"]);
+            setWantedQuantityList(doc.data()["wantedQuantityList"]);
+          } else {
+            console.log("Nothing!");
+          }
+        });
+      }
     }
     getInventoryData();
   }, []);
@@ -346,14 +348,14 @@ export default function PantryHome() {
     if (user) {
       const getName = async () => {
         if (user) {
-          let docRef = doc(db, "client-accounts", user.uid);
+          let docRef = doc(db, "client-accounts", user?.uid);
           let docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
-            setName(docSnap.data().full_name);
+            setName(docSnap.data().full_name ? docSnap.data().full_name : "");
           } else {
-            docRef = doc(db, "food-bank-accounts", user.uid);
+            docRef = doc(db, "food-bank-accounts", user?.uid);
             docSnap = await getDoc(docRef);
-            setName(docSnap.data().name);
+            setName(docSnap.data().name ? docSnap.data().name : "");
           }
         }
       };
@@ -373,7 +375,7 @@ export default function PantryHome() {
    * Inserts item to row by appending it to the end and updating Firebase Firestore inventory
    */
   const insertItemInventory = ({ itemID = id, col1Name, col2Name }) => {
-    const docRef = doc(db, "inventory", user.uid);
+    const docRef = doc(db, "inventory", user?.uid);
     const insertData = async () => {
       await updateDoc(docRef, {
         itemList: [...itemList, col1Name],
@@ -388,7 +390,7 @@ export default function PantryHome() {
    * Inserts item to row by appending it to the end and updating Firebase Firestore list
    */
   const insertItemWanted = ({ itemID = id, col1Name, col2Name }) => {
-    const docRef = doc(db, "inventory", user.uid);
+    const docRef = doc(db, "inventory", user?.uid);
     const insertData = async () => {
       await updateDoc(docRef, {
         wantedItemList: [...wantedItemList, col1Name],
@@ -437,7 +439,7 @@ export default function PantryHome() {
         id={editId}
         itemList={itemList}
         quantityList={quantityList}
-        pantryID={user? user.uid : 0}
+        pantryID={user ? user?.uid : 0}
       ></EditInventoryFormDialog>
       <InsertWantedFormDialog
         open={insertWantedOpen}
@@ -479,7 +481,7 @@ export default function PantryHome() {
         id={editId}
         itemList={wantedItemList}
         quantityList={wantedQuantityList}
-        pantryID={user? user.uid : 0}
+        pantryID={user ? user?.uid : 0}
       ></EditWantedFormDialog>
       <div style={{ height: 300, width: "80%", margin: "auto" }}>
         <DataGrid

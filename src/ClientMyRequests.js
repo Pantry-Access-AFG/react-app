@@ -93,7 +93,7 @@ export default function MyRequests(props) {
             requestStatus: doc.data().status,
             date: doc.data().date,
             quantity: doc.data().quantity,
-            foodPantryName: doc.data().pantryName,
+            foodPantryName: doc.data().pantryName ? doc.data().pantryName : "",
             clientName: doc.data().clientName,
             clientNotes: doc.data().clientNotes,
             pantryNotes: doc.data().foodPantryNotes,
@@ -376,7 +376,7 @@ function EditRequestDialog({
             Foodbank Name
           </DialogContentText>
           <DialogContentText style={{ color: "black" }}>
-            {foodPantryName}
+            {foodPantryName? foodPantryName : ""}
           </DialogContentText>
 
           {/* <TextField
