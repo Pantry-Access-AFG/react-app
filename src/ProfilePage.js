@@ -174,26 +174,28 @@ export default function ProfilePage() {
       <br></br>
 
       {/* Delete account button*/}
-      <Box textAlign="center" alignContent="center" margin="auto">
-        <Button variant="outlined" color="success" onClick={handleSaveChanges}>
+    <Box textAlign="center" margin="auto" style={{width:"50vw", maxWidth:'500px'}} sx={{display: 'flex', flexDirection: {xs:'column', md:"row"}, justifyContent:'space-around', alignContent:"space-around"}}>
+        <Button variant="outlined" color="success" style={{marginBottom:"8px"}} onClick={handleSaveChanges}>
           Save Changes
         </Button>
-
+{/* 
         <br />
-        <br />
+        <br /> */}
 
-        <Button variant="outlined" color="error" onClick={logout}>
+        <Button variant="outlined" color="error" style={{marginBottom:"8px"}} onClick={logout}>
           Log Out
         </Button>
-
+{/* 
         <br />
-        <br />
+        <br /> */}
 
-        <Button variant="outlined" color="error" onClick={handleOpenAreYouSure}>
+        <Button variant="outlined" color="error" style={{marginBottom:"8px"}} onClick={handleOpenAreYouSure}>
           Delete Account
         </Button>
 
-        <Alert
+     
+      </Box>
+      <Alert
           sx={{
             width: "50%",
             margin: "auto",
@@ -203,7 +205,6 @@ export default function ProfilePage() {
         >
           Deleting your account is permanent.
         </Alert>
-      </Box>
 
       <AreYourSureDialog
         deleteAccountOpen={deleteAccountOpen}
@@ -280,16 +281,21 @@ function UserInfo({
 
   return (
     <>
-      <Stack spacing={3} marginTop={1}>
-        <div className="row">
+      <Stack spacing={3} marginTop={1} >
+        <div  className="row">
           <form onSubmit={usernameSubmit}>
             <FormControl>
-              <InputLabel htmlFor="username-input">Username</InputLabel>
-              <Input
-                id="username-input"
+              {/* <InputLabel htmlFor="username-input">Username</InputLabel> */}
+              <TextField 
+              style={{width:"50vw", maxWidth:"500px"}}
+                disabled
+              id="username-input"
+                label="Username"
                 value={username}
                 onChange={usernameChange}
-                readOnly
+                InputProps={{
+                  readOnly: true,
+                }}
               />
             </FormControl>
           </form>
@@ -298,12 +304,17 @@ function UserInfo({
         <div className="row">
           <form onSubmit={passwordSubmit}>
             <FormControl>
-              <InputLabel htmlFor="password-input">Password</InputLabel>
-              <Input
+              {/* <InputLabel htmlFor="password-input">Password</InputLabel> */}
+              <TextField
+              style={{width:"50vw", maxWidth:"500px"}}
                 id="password-input"
+                label="Password"
+                disabled
                 value={password}
                 onChange={passwordChange}
-                readOnly
+                InputProps={{
+                  readOnly: true,
+                }}
               />
             </FormControl>
           </form>
@@ -312,8 +323,13 @@ function UserInfo({
         <div className="row">
           <form onSubmit={zipcodeSubmit}>
             <FormControl>
-              <InputLabel htmlFor="zipcode-input">Zipcode</InputLabel>
-              <Input id="zipcode" value={zipcode} onChange={zipcodeChange} />
+              {/* <InputLabel htmlFor="zipcode-input">Zipcode</InputLabel> */}
+              <TextField 
+              style={{width:"50vw", maxWidth:"500px"}}
+              id="zipcode" 
+              label="Zipcode"
+              value={zipcode} 
+              onChange={zipcodeChange} />
             </FormControl>
           </form>
         </div>
@@ -322,8 +338,11 @@ function UserInfo({
           <div className="row">
             <form onSubmit={descriptionSubmit}>
               <FormControl>
-                <InputLabel htmlFor="description-input">Description</InputLabel>
-                <Input
+                {/* <InputLabel htmlFor="description-input">Description</InputLabel> */}
+                <TextField
+                style={{width:"50vw", maxWidth:"500px"}}
+                 label="Description"
+                  multiline
                   id="description"
                   value={description}
                   onChange={descriptionChange}

@@ -85,7 +85,6 @@ export default function MyRequests(props) {
                         );
 
                     });
-                    console.log(requestsArr);
                     setRequests(requestsArr);
                     // (doc) => { //TODO CHANGE PANTRYUID TO ACTUAL UID
                     // if (doc.exists()) {
@@ -338,7 +337,6 @@ function EditRequestDialog({
     // if (!pantryNotes) setPantryNotes(defaultPantryNotes);
     // if (!requestStatus) setRequestStatus(defaultRequestStatus);
     // if (pantryNotes !== "") {
-    console.log(pantryNotes);
     var ref = doc(db, "requests", requests[index].id);
 
     updateDoc(ref, {
@@ -414,7 +412,6 @@ function EditRequestDialog({
             defaultValue={defaultPantryNotes}
             onChange={(event) => {
               setPantryNotes(() => {
-                console.log(event.target.value);
                 // if (!event.target.value) return defaultPantryNotes;
                 //else
                 return event.target.value;
@@ -438,7 +435,6 @@ function EditRequestDialog({
                 label="Request Status"
                 onChange={(event) => {
                   setRequestStatus(() => {
-                    console.log(event.target.value);
                     if (!event.target.value) return defaultRequestStatus;
                     else return event.target.value;
                   });
