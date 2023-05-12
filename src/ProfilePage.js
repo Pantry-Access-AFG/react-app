@@ -33,7 +33,7 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase-config";
 import { useNavigate } from "react-router-dom";
-
+import isValidPostalCode from "./components/zipcode.js";
 /**
  * Page for Food Pantry Profiles
  * @returns Component for Food Pantry Profile page
@@ -145,11 +145,16 @@ export default function ProfilePage() {
    * If an account needs to change a username or a password, they will need to email us.
    */
   const handleSaveChanges = () => {
+    setErrorMessage("");
     let docRef = doc(
       db,
       isPantry ? "food-bank-accounts" : "client-accounts",
       user.uid
     );
+    if (!isValidPostalCode(zipcode)) {
+      setErrorMessage("Please enter a valid zipcode");
+      return;
+    }
     setDoc(
       docRef,
       { zipcode: zipcode, description: description },
@@ -219,38 +224,37 @@ export default function ProfilePage() {
       <br></br>
 
       {/* Delete account button*/}
-    <Box textAlign="center" margin="auto" style={{width:"50vw", maxWidth:'500px'}} sx={{display: 'flex', flexDirection: {xs:'column', md:"row"}, justifyContent:'space-around', alignContent:"space-around"}}>
-        <Button variant="outlined" color="success" style={{marginBottom:"8px"}} onClick={handleSaveChanges}>
+      <Box textAlign="center" margin="auto" style={{ width: "50vw", maxWidth: '500px' }} sx={{ display: 'flex', flexDirection: { xs: 'column', md: "row" }, justifyContent: 'space-around', alignContent: "space-around" }}>
+        <Button variant="outlined" color="success" style={{ marginBottom: "8px" }} onClick={handleSaveChanges}>
           Save Changes
         </Button>
-{/* 
+        {/* 
         <br />
         <br /> */}
 
-        <Button variant="outlined" color="error" style={{marginBottom:"8px"}} onClick={logout}>
+        <Button variant="outlined" color="error" style={{ marginBottom: "8px" }} onClick={logout}>
           Log Out
         </Button>
-{/* 
+        {/* 
         <br />
         <br /> */}
 
-        <Button variant="outlined" color="error" style={{marginBottom:"8px"}} onClick={handleOpenAreYouSure}>
+        <Button variant="outlined" color="error" style={{ marginBottom: "8px" }} onClick={handleOpenAreYouSure}>
           Delete Account
         </Button>
-
-        {errorMessage && (
-          <Alert
-            sx={{
-              width: "50%",
-              margin: "auto",
-              marginTop: "1rem",
-            }}
-            severity="error"
-          >
-            {errorMessage}
-          </Alert>
-        )}
       </Box>
+      {errorMessage && (
+        <Alert
+          sx={{
+            width: "50%",
+            margin: "auto",
+            marginTop: "1rem",
+          }}
+          severity="error"
+        >
+          {errorMessage}
+        </Alert>
+      )}
 
       <AreYourSureDialog
         deleteAccountOpen={deleteAccountOpen}
@@ -328,14 +332,14 @@ function UserInfo({
   return (
     <>
       <Stack spacing={3} marginTop={1} >
-        <div  className="row">
+        <div className="row">
           <form onSubmit={usernameSubmit}>
             <FormControl>
               {/* <InputLabel htmlFor="username-input">Username</InputLabel> */}
-              <TextField 
-              style={{width:"50vw", maxWidth:"500px"}}
+              <TextField
+                style={{ width: "50vw", maxWidth: "500px" }}
                 disabled
-              id="username-input"
+                id="username-input"
                 label="Username"
                 value={username}
                 onChange={usernameChange}
@@ -352,7 +356,7 @@ function UserInfo({
             <FormControl>
               {/* <InputLabel htmlFor="password-input">Password</InputLabel> */}
               <TextField
-              style={{width:"50vw", maxWidth:"500px"}}
+                style={{ width: "50vw", maxWidth: "500px" }}
                 id="password-input"
                 label="Password"
                 disabled
@@ -370,12 +374,12 @@ function UserInfo({
           <form onSubmit={zipcodeSubmit}>
             <FormControl>
               {/* <InputLabel htmlFor="zipcode-input">Zipcode</InputLabel> */}
-              <TextField 
-              style={{width:"50vw", maxWidth:"500px"}}
-              id="zipcode" 
-              label="Zipcode"
-              value={zipcode} 
-              onChange={zipcodeChange} />
+              <TextField
+                style={{ width: "50vw", maxWidth: "500px" }}
+                id="zipcode"
+                label="Zipcode"
+                value={zipcode}
+                onChange={zipcodeChange} />
             </FormControl>
           </form>
         </div>
@@ -386,8 +390,8 @@ function UserInfo({
               <FormControl>
                 {/* <InputLabel htmlFor="description-input">Description</InputLabel> */}
                 <TextField
-                style={{width:"50vw", maxWidth:"500px"}}
-                 label="Description"
+                  style={{ width: "50vw", maxWidth: "500px" }}
+                  label="Description"
                   multiline
                   id="description"
                   value={description}

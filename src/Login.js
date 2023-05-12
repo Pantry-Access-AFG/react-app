@@ -17,7 +17,11 @@ import {
   Button,
   FormControlLabel,
   Checkbox,
-eac} from "@mui/material";
+  eac
+} from "@mui/material";
+import isValidPostalCode from "./components/zipcode";
+import Alert from "@mui/material/Alert";
+
 
 /**
  * @returns Component for the LoginPage
@@ -58,6 +62,10 @@ export default function Login() {
    */
   const register = async () => {
     try {
+      if (!isValidPostalCode(registerZipcode)) {
+        setErrorMessage("Please enter a valid zipcode");
+        return;
+      }
       const user = await createUserWithEmailAndPassword(
         auth,
         registerUsername.includes("@")
@@ -324,6 +332,13 @@ export default function Login() {
             label="Are you a food pantry?"
           />
           <br />
+          {errorMessage && (
+            <Alert
+              severity="error"
+            >
+              {errorMessage}
+            </Alert>
+          )}
           <Button variant="contained" onClick={register}>
             Create User
           </Button>
@@ -338,11 +353,7 @@ export default function Login() {
           </Button>
         </Stack>
       )}
-      {errorMessage && (
-        <Typography variant="body1" align="center" color="red" padding={3}>
-          {errorMessage}
-        </Typography>
-      )}
+
     </>
   );
 }
