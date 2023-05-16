@@ -61,8 +61,6 @@ function App() {
   const [isPantry, setIsPantry] = React.useState(false);
   const [viewFoodPantries, setViewFoodPantries] = React.useState(false);
 
-  
-
   // check if user is a pantry or client
   React.useEffect(() => {
     if (user) {

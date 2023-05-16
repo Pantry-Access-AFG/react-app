@@ -34,7 +34,7 @@ function ForgotPassword() {
           size="large"
           href="mailto:pantryaccess@gmail.com"
           className={classes.button}
-          sx={{ marginTop: "2rem" }}
+          sx={{ marginTop: "1rem", marginBottom: "1rem" }}
         >
           Email Us
         </Button>

@@ -36,11 +36,11 @@ const useStyles = makeStyles((theme) => ({
   },
   button: {
     color: theme.palette.common.white,
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: "#3b9d6e",
     outline: "true",
     textAlign: "center",
     "&:hover": {
-      backgroundColor: theme.palette.primary.light,
+      backgroundColor: "#3b7b6e",
     },
     display: "flex",
     margin: "auto",
@@ -91,6 +91,7 @@ function LandingPage({ viewFoodPantries, setViewFoodPantries }) {
           <>
             <Button
               variant="contained"
+              color="primary"
               className={classes.button}
               onClick={redirect}
             >
@@ -98,6 +99,7 @@ function LandingPage({ viewFoodPantries, setViewFoodPantries }) {
             </Button>
             <Button
               variant="contained"
+              color="primary"
               className={classes.button}
               onClick={() => setViewFoodPantries(true)}
             >
@@ -107,6 +109,7 @@ function LandingPage({ viewFoodPantries, setViewFoodPantries }) {
         ) : (
           <Button
             variant="contained"
+            color="primary"
             className={classes.button}
             onClick={() => setViewFoodPantries(false)}
           >
@@ -115,6 +118,7 @@ function LandingPage({ viewFoodPantries, setViewFoodPantries }) {
         )}
         <Button
             variant="contained"
+            color="primary"
             className={classes.button}
             onClick={() => navigate("/Contact")}
           >
