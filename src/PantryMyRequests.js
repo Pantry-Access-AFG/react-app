@@ -76,6 +76,7 @@ export default function MyRequests(props) {
               foodPantryName: username,
               clientNotes: doc.data().clientNotes,
               pantryNotes: doc.data().foodPantryNotes,
+              clientName: doc.data().clientName,
               id: doc.id
             }
             );

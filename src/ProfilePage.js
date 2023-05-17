@@ -360,7 +360,7 @@ function UserInfo({
                 id="password-input"
                 label="Password"
                 disabled
-                value={password}
+                value={password? "*".repeat(password.length) : ""}
                 onChange={passwordChange}
                 InputProps={{
                   readOnly: true,
