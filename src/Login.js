@@ -144,98 +144,6 @@ export default function Login() {
     signOut(auth);
   };
 
-  // return (
-  //   <>
-  //     {!registerOpen && (
-  //       <Stack className="center" spacing={2}>
-  //         <h3>Log In to an Existing Account</h3>
-  //         <input
-  //           placeholder="Username..."
-  //           onChange={(event) => {
-  //             setLoginUsername(event.target.value);
-  //             setErrorMessage("");
-  //           }}
-  //         />
-  //         <input
-  //           placeholder="Password..."
-  //           type="password"
-  //           onChange={(event) => {
-  //             setLoginPassword(event.target.value);
-  //             setErrorMessage("");
-  //           }}
-  //         />
-  //         <button onClick={login}>Log In</button>
-  //         <button
-  //           onClick={() => {
-  //             setRegisterOpen(!registerOpen);
-  //             setErrorMessage("");
-  //           }}
-  //         >
-  //           Register Account
-  //         </button>
-  //       </Stack>
-  //     )}
-
-  //     {registerOpen && (
-  //       <Stack className="center" spacing={2}>
-  //         <h3>Register for a New Client/Food Bank Account</h3>
-  //         <input
-  //           placeholder="Username..."
-  //           onChange={(event) => {
-  //             setRegisterUsername(event.target.value);
-  //             setErrorMessage("");
-  //           }}
-  //         />
-  //         <input
-  //           placeholder="Password..."
-  //           type="password"
-  //           onChange={(event) => {
-  //             setRegisterPassword(event.target.value);
-  //             setErrorMessage("");
-  //           }}
-  //         />
-  //         <input
-  //           placeholder="Full Name"
-  //           onChange={(event) => {
-  //             setRegisterFullName(event.target.value);
-  //             setErrorMessage("");
-  //           }}
-  //         />
-  //         <input
-  //           placeholder="Zipcode"
-  //           onChange={(event) => {
-  //             setRegisterZipcode(event.target.value);
-  //             setErrorMessage("");
-  //           }}
-  //         />
-  //         <p>Are you a food pantry?</p>
-  //         <input
-  //           type="checkbox"
-  //           id="isPantry"
-  //           onClick={() => {
-  //             setIsPantry(!isPantry);
-  //             setErrorMessage("");
-  //           }}
-  //         />
-  //         <br></br>
-  //         <button onClick={register}>Create User</button>
-
-  //         <button
-  //           onClick={() => {
-  //             setRegisterOpen(!registerOpen);
-  //             setErrorMessage("");
-  //           }}
-  //         >
-  //           Return to Login
-  //         </button>
-  //       </Stack>
-  //     )}
-  //     {errorMessage && (
-  //       <Typography component="p" variant="p" align="center" padding={3}>
-  //         {errorMessage}
-  //       </Typography>
-  //     )}
-  //   </>
   return (
     <>
       {!registerOpen && (
@@ -278,6 +186,14 @@ export default function Login() {
           >
             Reset Password
           </Button>
+          <br></br>
+          {errorMessage && (
+            <Alert
+              severity="error"
+            >
+              {errorMessage}
+            </Alert>
+          )}
         </Stack>
       )}
 
